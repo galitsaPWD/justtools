@@ -6,7 +6,7 @@ export default async function handler(req) {
     return new Response(JSON.stringify({ error: 'Method not allowed' }), { status: 405 });
   }
 
-  // CORS / JSON headers
+  // CORS headers
   const headers = {
     'Content-Type': 'application/json',
     'Access-Control-Allow-Origin': '*',
@@ -21,6 +21,7 @@ export default async function handler(req) {
       return new Response(JSON.stringify({ error: 'No text provided' }), { status: 400, headers });
     }
 
+    // Build prompt based on tool
     const prompts = {
       grammar: `You are a grammar checker. Fix all grammar, spelling, and punctuation errors in the text below. Return ONLY the corrected text with no explanation, no preamble, no quotes. If the text is already correct, return it unchanged.\n\nText: ${text}`,
       paraphrase: `You are a writing assistant. Rewrite the text below in a ${tone || 'neutral'} tone. Keep the same meaning but use different words and sentence structure. Return ONLY the rewritten text with no explanation, no preamble, no quotes.\n\nText: ${text}`,
@@ -38,7 +39,7 @@ export default async function handler(req) {
         'Authorization': `Bearer ${process.env.GROQ_API_KEY}`,
       },
       body: JSON.stringify({
-        model: 'llama3-8b-8192',
+        model: 'llama-3.3-70b-versatile',
         messages: [{ role: 'user', content: prompts[tool] }],
         max_tokens: 1024,
         temperature: tool === 'paraphrase' ? 0.7 : 0.3,
@@ -59,9 +60,9 @@ export default async function handler(req) {
     }
 
     return new Response(JSON.stringify({ result }), { status: 200, headers });
+
   } catch (err) {
     console.error('Handler error:', err);
     return new Response(JSON.stringify({ error: 'Something went wrong. Try again.' }), { status: 500, headers });
   }
 }
-
