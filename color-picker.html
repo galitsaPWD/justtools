@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="Free online word counter — no signup, no account needed. Count words, characters, reading time instantly in your browser.">
+<title>Color Picker — JustTools</title>
+<link rel="icon" type="image/svg+xml" href="favicon.svg">
+<link rel="shortcut icon" href="favicon.svg">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --bg: #0a0a0a; --surface: #111; --border: #1e1e1e; --border-bright: #2e2e2e;
+    --text: #f0f0f0; --muted: #666; --accent: #e8ff47; --accent-dim: rgba(232,255,71,0.1);
+  }
+  body { background: var(--bg); color: var(--text); font-family: 'DM Mono', monospace; min-height: 100vh; }
+
+  nav {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 20px 48px; border-bottom: 1px solid var(--border);
+    background: rgba(10,10,10,0.9); backdrop-filter: blur(20px);
+    position: sticky; top: 0; z-index: 100;
+  }
+  .nav-logo { font-family: 'Syne', sans-serif; font-weight: 800; font-size: 18px; text-decoration: none; color: var(--text); }
+  .nav-logo span { color: var(--accent); }
+  .nav-back { color: var(--muted); font-size: 13px; text-decoration: none; transition: color 0.2s; }
+  .nav-back:hover { color: var(--text); }
+
+  .container { max-width: 900px; margin: 0 auto; padding: 64px 24px; }
+
+  .tool-header { margin-bottom: 48px; }
+  .tool-label { font-size: 11px; letter-spacing: 0.15em; text-transform: uppercase; color: var(--accent); margin-bottom: 12px; }
+  .tool-title { font-family: 'Syne', sans-serif; font-weight: 800; font-size: 48px; letter-spacing: -2px; line-height: 1; margin-bottom: 12px; }
+  .tool-desc { color: var(--muted); font-size: 14px; }
+
+  .main-layout { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 32px; }
+
+  .color-preview {
+    aspect-ratio: 1; border-radius: 16px; border: 1px solid var(--border);
+    background: #e8ff47; cursor: pointer; position: relative;
+    overflow: hidden; transition: border-color 0.2s;
+    display: flex; flex-direction: column; justify-content: flex-end; padding: 20px;
+  }
+  .color-preview:hover { border-color: var(--border-bright); }
+  .preview-label {
+    font-family: 'Syne', sans-serif; font-weight: 800; font-size: 13px;
+    background: rgba(0,0,0,0.5); color: white;
+    padding: 8px 12px; border-radius: 6px; backdrop-filter: blur(8px);
+    width: fit-content;
+  }
+
+  .color-input-wrap {
+    display: flex; flex-direction: column; gap: 16px; justify-content: center;
+  }
+
+  .native-picker-wrap {
+    display: flex; align-items: center; gap: 12px;
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 10px; padding: 14px 18px;
+    cursor: pointer; transition: border-color 0.2s;
+  }
+  .native-picker-wrap:hover { border-color: var(--accent); }
+  input[type="color"] { width: 32px; height: 32px; border: none; background: none; cursor: pointer; border-radius: 4px; }
+  .picker-label { font-family: 'Syne', sans-serif; font-weight: 600; font-size: 14px; }
+  .picker-sub { font-size: 12px; color: var(--muted); }
+
+  .format-tabs { display: flex; gap: 4px; margin-bottom: 4px; }
+  .format-tab {
+    padding: 6px 14px; border-radius: 6px; font-size: 12px;
+    border: 1px solid var(--border); background: none; color: var(--muted);
+    cursor: pointer; transition: all 0.2s; font-family: 'DM Mono', monospace;
+  }
+  .format-tab.active { background: var(--accent); color: #000; border-color: var(--accent); font-weight: 700; }
+
+  .value-row {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 10px; padding: 14px 18px;
+    display: flex; justify-content: space-between; align-items: center;
+  }
+  .value-text { font-size: 16px; letter-spacing: 0.04em; }
+  .copy-small {
+    background: none; border: 1px solid var(--border); color: var(--muted);
+    padding: 4px 10px; border-radius: 4px; font-size: 11px; cursor: pointer;
+    font-family: 'DM Mono', monospace; transition: all 0.2s;
+  }
+  .copy-small:hover { border-color: var(--accent); color: var(--accent); }
+  .copy-small.copied { border-color: #47ff8a; color: #47ff8a; }
+
+  .sliders { display: flex; flex-direction: column; gap: 12px; }
+
+  .slider-row { display: flex; flex-direction: column; gap: 6px; }
+  .slider-header { display: flex; justify-content: space-between; font-size: 12px; color: var(--muted); }
+  .slider-header span:last-child { color: var(--text); }
+
+  input[type="range"].color-slider {
+    -webkit-appearance: none; width: 100%; height: 8px;
+    border-radius: 4px; outline: none; cursor: pointer;
+  }
+  input[type="range"].color-slider::-webkit-slider-thumb {
+    -webkit-appearance: none; width: 20px; height: 20px;
+    background: white; border-radius: 50%; cursor: pointer;
+    border: 2px solid rgba(255,255,255,0.8);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.4);
+  }
+
+  .section-title { font-family: 'Syne', sans-serif; font-weight: 700; font-size: 16px; margin-bottom: 16px; }
+
+  .palette-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; margin-bottom: 32px; }
+  .palette-swatch {
+    aspect-ratio: 2/1; border-radius: 8px; border: 1px solid rgba(255,255,255,0.05);
+    cursor: pointer; transition: transform 0.2s, border-color 0.2s;
+    position: relative; overflow: hidden;
+  }
+  .palette-swatch:hover { transform: translateY(-2px); border-color: rgba(255,255,255,0.2); }
+  .swatch-label {
+    position: absolute; bottom: 0; left: 0; right: 0;
+    background: rgba(0,0,0,0.6); color: white;
+    font-size: 9px; padding: 3px 6px; text-align: center;
+    opacity: 0; transition: opacity 0.2s;
+  }
+  .palette-swatch:hover .swatch-label { opacity: 1; }
+
+  .saved-colors { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 32px; }
+  .saved-swatch {
+    width: 40px; height: 40px; border-radius: 8px; cursor: pointer;
+    border: 2px solid transparent; transition: border-color 0.2s, transform 0.2s;
+    position: relative;
+  }
+  .saved-swatch:hover { border-color: white; transform: scale(1.1); }
+  .save-btn {
+    background: var(--surface); border: 1px dashed var(--border-bright);
+    color: var(--muted); padding: 8px 20px; border-radius: 8px;
+    font-family: 'DM Mono', monospace; font-size: 13px; cursor: pointer;
+    transition: all 0.2s;
+  }
+  .save-btn:hover { border-color: var(--accent); color: var(--accent); }
+
+  .formats-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
+  .format-card {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 10px; padding: 16px 20px;
+    display: flex; justify-content: space-between; align-items: center;
+    transition: border-color 0.2s;
+  }
+  .format-card:hover { border-color: var(--border-bright); }
+  .format-name { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 4px; }
+  .format-value { font-size: 14px; }
+
+  @media (max-width: 680px) {
+    .main-layout { grid-template-columns: 1fr; }
+    .palette-grid { grid-template-columns: repeat(5, 1fr); }
+    .formats-grid { grid-template-columns: 1fr; }
+    nav { padding: 16px 20px; }
+    .container { padding: 40px 16px; }
+  }
+  /* Custom scrollbar */
+  ::-webkit-scrollbar { width: 6px; }
+  ::-webkit-scrollbar-track { background: var(--bg); }
+  ::-webkit-scrollbar-thumb { background: var(--border-bright); border-radius: 100px; }
+  ::-webkit-scrollbar-thumb:hover { background: var(--muted); }
+  * { scrollbar-width: thin; scrollbar-color: var(--border-bright) var(--bg); }
+</style>
+</head>
+<body>
+<nav>
+  <a href="index.html" class="nav-logo">Just<span>Tools</span></a>
+  <a href="index.html" class="nav-back">← All Tools</a>
+</nav>
+
+<div class="container">
+  <div class="tool-header">
+    <p class="tool-label">🎨 Design</p>
+    <h1 class="tool-title">Color<br>Picker</h1>
+    <p class="tool-desc">Pick colors, convert between formats, generate palettes. Your design toolkit in the browser.</p>
+  </div>
+
+  <div class="main-layout">
+    <div class="color-preview" id="color-preview">
+      <div class="preview-label" id="preview-hex">#E8FF47</div>
+    </div>
+
+    <div class="color-input-wrap">
+      <div class="native-picker-wrap" onclick="document.getElementById('native-color').click()">
+        <input type="color" id="native-color" value="#e8ff47" oninput="fromNative(this.value)">
+        <div>
+          <div class="picker-label">Click to Pick Color</div>
+          <div class="picker-sub">Opens system color picker</div>
+        </div>
+      </div>
+
+      <div class="format-tabs">
+        <button class="format-tab active" onclick="setTab('hex',this)">HEX</button>
+        <button class="format-tab" onclick="setTab('rgb',this)">RGB</button>
+        <button class="format-tab" onclick="setTab('hsl',this)">HSL</button>
+      </div>
+      <div class="value-row">
+        <span class="value-text" id="current-value">#e8ff47</span>
+        <button class="copy-small" id="copy-val" onclick="copyValue()">copy</button>
+      </div>
+
+      <div class="sliders">
+        <div class="slider-row">
+          <div class="slider-header"><span>R — Red</span><span id="r-val">232</span></div>
+          <input type="range" class="color-slider" id="r-slider" min="0" max="255" value="232" oninput="fromSliders()">
+        </div>
+        <div class="slider-row">
+          <div class="slider-header"><span>G — Green</span><span id="g-val">255</span></div>
+          <input type="range" class="color-slider" id="g-slider" min="0" max="255" value="255" oninput="fromSliders()">
+        </div>
+        <div class="slider-row">
+          <div class="slider-header"><span>B — Blue</span><span id="b-val">71</span></div>
+          <input type="range" class="color-slider" id="b-slider" min="0" max="255" value="71" oninput="fromSliders()">
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div style="margin-bottom:32px;">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+      <div class="section-title">Generated Palette</div>
+    </div>
+    <div class="palette-grid" id="palette-grid"></div>
+  </div>
+
+  <div style="margin-bottom:32px;">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+      <div class="section-title">All Formats</div>
+    </div>
+    <div class="formats-grid" id="formats-grid"></div>
+  </div>
+
+  <div style="margin-bottom:32px;">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+      <div class="section-title">Saved Colors</div>
+      <button class="save-btn" onclick="saveColor()">+ Save Current</button>
+    </div>
+    <div class="saved-colors" id="saved-colors">
+      <span style="color:var(--muted);font-size:13px;">No saved colors yet</span>
+    </div>
+  </div>
+</div>
+
+<script>
+  let currentHex = '#e8ff47';
+  let currentTab = 'hex';
+  let savedColors = [];
+
+  function hexToRgb(hex) {
+    const r = parseInt(hex.slice(1,3),16), g = parseInt(hex.slice(3,5),16), b = parseInt(hex.slice(5,7),16);
+    return {r,g,b};
+  }
+  function rgbToHex(r,g,b) {
+    return '#' + [r,g,b].map(v => v.toString(16).padStart(2,'0')).join('');
+  }
+  function rgbToHsl(r,g,b) {
+    r/=255; g/=255; b/=255;
+    const max=Math.max(r,g,b), min=Math.min(r,g,b);
+    let h,s,l=(max+min)/2;
+    if(max===min){h=s=0;}
+    else{
+      const d=max-min; s=l>0.5?d/(2-max-min):d/(max+min);
+      switch(max){case r:h=(g-b)/d+(g<b?6:0);break;case g:h=(b-r)/d+2;break;case b:h=(r-g)/d+4;break;}
+      h/=6;
+    }
+    return {h:Math.round(h*360),s:Math.round(s*100),l:Math.round(l*100)};
+  }
+
+  function updateAll(hex) {
+    currentHex = hex;
+    const {r,g,b} = hexToRgb(hex);
+    const {h,s,l} = rgbToHsl(r,g,b);
+
+    document.getElementById('color-preview').style.background = hex;
+    document.getElementById('preview-hex').textContent = hex.toUpperCase();
+    document.getElementById('preview-hex').style.color = l > 50 ? '#000' : '#fff';
+    document.getElementById('native-color').value = hex;
+
+    document.getElementById('r-slider').value = r;
+    document.getElementById('g-slider').value = g;
+    document.getElementById('b-slider').value = b;
+    document.getElementById('r-val').textContent = r;
+    document.getElementById('g-val').textContent = g;
+    document.getElementById('b-val').textContent = b;
+    document.getElementById('r-slider').style.background = `linear-gradient(to right, rgb(0,${g},${b}), rgb(255,${g},${b}))`;
+    document.getElementById('g-slider').style.background = `linear-gradient(to right, rgb(${r},0,${b}), rgb(${r},255,${b}))`;
+    document.getElementById('b-slider').style.background = `linear-gradient(to right, rgb(${r},${g},0), rgb(${r},${g},255))`;
+
+    updateCurrentValue(hex, r, g, b, h, s, l);
+    updateFormats(hex, r, g, b, h, s, l);
+    updatePalette(hex, h, s, l);
+  }
+
+  function updateCurrentValue(hex, r, g, b, h, s, l) {
+    const vals = { hex: hex.toUpperCase(), rgb: `rgb(${r}, ${g}, ${b})`, hsl: `hsl(${h}, ${s}%, ${l}%)` };
+    document.getElementById('current-value').textContent = vals[currentTab];
+  }
+
+  function updateFormats(hex, r, g, b, h, s, l) {
+    const formats = [
+      { name: 'HEX', value: hex.toUpperCase() },
+      { name: 'RGB', value: `rgb(${r}, ${g}, ${b})` },
+      { name: 'HSL', value: `hsl(${h}, ${s}%, ${l}%)` },
+      { name: 'CSS Variable', value: `--color: ${hex};` },
+    ];
+    document.getElementById('formats-grid').innerHTML = formats.map(f =>
+      `<div class="format-card">
+        <div><div class="format-name">${f.name}</div><div class="format-value">${f.value}</div></div>
+        <button class="copy-small" onclick="navigator.clipboard.writeText('${f.value}');this.textContent='✓';setTimeout(()=>this.textContent='copy',1500)">copy</button>
+      </div>`
+    ).join('');
+  }
+
+  function updatePalette(hex, h, s, l) {
+    const shades = [10,20,30,40,50,60,70,80,90,95];
+    const tints = shades.map(lt => `hsl(${h}, ${s}%, ${lt}%)`);
+    document.getElementById('palette-grid').innerHTML = tints.map((c, i) =>
+      `<div class="palette-swatch" style="background:${c}" onclick="fromHslStr(${h},${s},${shades[i]})">
+        <div class="swatch-label">${shades[i]}%</div>
+      </div>`
+    ).join('');
+  }
+
+  function fromHslStr(h,s,l) {
+    const c = `hsl(${h}, ${s}%, ${l}%)`;
+    const tmp = document.createElement('div');
+    tmp.style.color = c; document.body.appendChild(tmp);
+    const rgb = getComputedStyle(tmp).color; document.body.removeChild(tmp);
+    const m = rgb.match(/\d+/g);
+    if (m) updateAll(rgbToHex(+m[0], +m[1], +m[2]));
+  }
+
+  function fromNative(hex) { updateAll(hex); }
+  function fromSliders() {
+    const r = +document.getElementById('r-slider').value;
+    const g = +document.getElementById('g-slider').value;
+    const b = +document.getElementById('b-slider').value;
+    updateAll(rgbToHex(r,g,b));
+  }
+
+  function setTab(tab, el) {
+    currentTab = tab;
+    document.querySelectorAll('.format-tab').forEach(t => t.classList.remove('active'));
+    el.classList.add('active');
+    const {r,g,b} = hexToRgb(currentHex);
+    const {h,s,l} = rgbToHsl(r,g,b);
+    updateCurrentValue(currentHex, r, g, b, h, s, l);
+  }
+
+  function copyValue() {
+    navigator.clipboard.writeText(document.getElementById('current-value').textContent);
+    const btn = document.getElementById('copy-val');
+    btn.textContent = '✓'; btn.classList.add('copied');
+    setTimeout(() => { btn.textContent = 'copy'; btn.classList.remove('copied'); }, 1500);
+  }
+
+  function saveColor() {
+    if (!savedColors.includes(currentHex)) {
+      savedColors.push(currentHex);
+      renderSaved();
+    }
+  }
+
+  function renderSaved() {
+    const el = document.getElementById('saved-colors');
+    el.innerHTML = savedColors.map(c =>
+      `<div class="saved-swatch" style="background:${c}" title="${c}" onclick="updateAll('${c}')"></div>`
+    ).join('');
+  }
+
+  updateAll('#e8ff47');
+</script>
+</body>
+</html>

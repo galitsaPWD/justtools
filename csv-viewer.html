@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="Free online word counter — no signup, no account needed. Count words, characters, reading time instantly in your browser.">
+<title>CSV Viewer — JustTools</title>
+<link rel="icon" type="image/svg+xml" href="favicon.svg">
+<link rel="shortcut icon" href="favicon.svg">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+  :root{--bg:#0a0a0a;--surface:#111;--border:#1e1e1e;--border-bright:#2e2e2e;--text:#f0f0f0;--muted:#666;--accent:#e8ff47;--accent-dim:rgba(232,255,71,0.1);--green:#47ff8a}
+  body{background:var(--bg);color:var(--text);font-family:'DM Mono',monospace;min-height:100vh}
+  nav{display:flex;align-items:center;justify-content:space-between;padding:20px 48px;border-bottom:1px solid var(--border);background:rgba(10,10,10,0.9);backdrop-filter:blur(20px);position:sticky;top:0;z-index:100}
+  .nav-logo{font-family:'Syne',sans-serif;font-weight:800;font-size:18px;text-decoration:none;color:var(--text)}
+  .nav-logo span{color:var(--accent)}
+  .nav-back{color:var(--muted);font-size:13px;text-decoration:none;transition:color 0.2s}
+  .nav-back:hover{color:var(--text)}
+  .container{max-width:1100px;margin:0 auto;padding:48px 24px}
+  .tool-label{font-size:11px;letter-spacing:0.15em;text-transform:uppercase;color:var(--accent);margin-bottom:12px}
+  .tool-title{font-family:'Syne',sans-serif;font-weight:800;font-size:40px;letter-spacing:-1.5px;line-height:1;margin-bottom:12px}
+  .tool-desc{color:var(--muted);font-size:14px;margin-bottom:32px}
+
+  .upload-zone{background:var(--surface);border:2px dashed var(--border-bright);border-radius:12px;padding:48px;text-align:center;cursor:pointer;transition:all 0.2s;margin-bottom:24px}
+  .upload-zone:hover,.upload-zone.drag{border-color:var(--accent);background:var(--accent-dim)}
+  .upload-icon{font-size:40px;margin-bottom:12px}
+  .upload-title{font-family:'Syne',sans-serif;font-weight:700;font-size:16px;margin-bottom:4px}
+  .upload-sub{font-size:13px;color:var(--muted)}
+  input[type=file]{display:none}
+
+  .toolbar{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:16px;padding:12px 16px;background:var(--surface);border:1px solid var(--border);border-radius:10px}
+  .tb-input{background:var(--bg);border:1px solid var(--border);border-radius:6px;padding:7px 14px;color:var(--text);font-family:'DM Mono',monospace;font-size:13px;outline:none;transition:border-color 0.2s;width:220px}
+  .tb-input:focus{border-color:var(--border-bright)}
+  .tb-btn{padding:7px 16px;border-radius:6px;border:1px solid var(--border);background:none;color:var(--muted);font-family:'DM Mono',monospace;font-size:12px;cursor:pointer;transition:all 0.2s;white-space:nowrap}
+  .tb-btn:hover{color:var(--text);border-color:var(--border-bright)}
+  .tb-btn.primary{background:var(--accent);color:#000;border-color:var(--accent);font-family:'Syne',sans-serif;font-weight:700}
+  .tb-sep{width:1px;height:24px;background:var(--border);margin:0 4px}
+  .tb-label{font-size:12px;color:var(--muted)}
+
+  .stats-bar{display:flex;gap:16px;margin-bottom:16px;font-size:12px;color:var(--muted);padding:0 4px;flex-wrap:wrap}
+  .stats-bar span{color:var(--accent)}
+
+  .table-wrap{overflow:auto;border:1px solid var(--border);border-radius:10px;max-height:560px}
+  table{width:100%;border-collapse:collapse;font-size:13px}
+  thead{position:sticky;top:0;z-index:10}
+  th{background:#0f0f0f;border-bottom:1px solid var(--border-bright);padding:10px 16px;text-align:left;white-space:nowrap;cursor:pointer;user-select:none;font-family:'Syne',sans-serif;font-weight:700;font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:0.06em;transition:color 0.2s}
+  th:hover{color:var(--text)}
+  th.sorted-asc::after{content:' ↑';color:var(--accent)}
+  th.sorted-desc::after{content:' ↓';color:var(--accent)}
+  td{border-bottom:1px solid var(--border);padding:9px 16px;white-space:nowrap;max-width:240px;overflow:hidden;text-overflow:ellipsis;transition:background 0.15s}
+  tr:hover td{background:rgba(255,255,255,0.02)}
+  tr:last-child td{border-bottom:none}
+  td.num{color:var(--accent);text-align:right}
+
+  .pagination{display:flex;gap:8px;align-items:center;justify-content:center;margin-top:16px}
+  .pg-btn{padding:6px 14px;border-radius:6px;border:1px solid var(--border);background:none;color:var(--muted);font-family:'DM Mono',monospace;font-size:12px;cursor:pointer;transition:all 0.2s}
+  .pg-btn:hover{border-color:var(--border-bright);color:var(--text)}
+  .pg-btn.active{background:var(--accent);color:#000;border-color:var(--accent)}
+  .pg-btn:disabled{opacity:0.3;cursor:not-allowed}
+
+  .paste-area{width:100%;min-height:120px;background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:16px;color:var(--text);font-family:'DM Mono',monospace;font-size:13px;resize:vertical;outline:none;margin-bottom:12px;transition:border-color 0.2s}
+  .paste-area:focus{border-color:var(--border-bright)}
+
+  @media(max-width:600px){nav{padding:16px 20px}.container{padding:32px 16px}}
+  /* Custom scrollbar */
+  ::-webkit-scrollbar { width: 6px; }
+  ::-webkit-scrollbar-track { background: var(--bg); }
+  ::-webkit-scrollbar-thumb { background: var(--border-bright); border-radius: 100px; }
+  ::-webkit-scrollbar-thumb:hover { background: var(--muted); }
+  * { scrollbar-width: thin; scrollbar-color: var(--border-bright) var(--bg); }
+</style>
+</head>
+<body>
+<nav>
+  <a href="index.html" class="nav-logo">Just<span>Tools</span></a>
+  <a href="index.html" class="nav-back">← All Tools</a>
+</nav>
+<div class="container">
+  <div class="tool-label">📊 Data</div>
+  <h1 class="tool-title">CSV Viewer</h1>
+  <p class="tool-desc">View, filter, sort, and explore CSV files instantly. No upload, no account — all in your browser.</p>
+
+  <div id="upload-section">
+    <div class="upload-zone" id="drop-zone" onclick="document.getElementById('csv-file').click()"
+      ondragover="e=>e.preventDefault()" ondrop="handleDrop(event)">
+      <div class="upload-icon">📊</div>
+      <div class="upload-title">Drop a CSV file here or click to browse</div>
+      <div class="upload-sub">Supports .csv files up to ~50MB</div>
+      <input type="file" id="csv-file" accept=".csv,.tsv,.txt" onchange="loadFile(this)">
+    </div>
+    <div style="text-align:center;color:var(--muted);font-size:13px;margin:16px 0">— or paste CSV directly —</div>
+    <textarea class="paste-area" id="paste-area" placeholder="Paste CSV data here...&#10;&#10;name,age,city&#10;Alice,30,London&#10;Bob,25,Paris" oninput="loadPasted()"></textarea>
+    <button class="tb-btn primary" onclick="loadSample()" style="display:block;margin:0 auto">Load Sample Data</button>
+  </div>
+
+  <div id="viewer-section" style="display:none">
+    <div class="toolbar">
+      <input class="tb-input" id="search-input" placeholder="🔍  Search all columns..." oninput="filterTable()">
+      <div class="tb-sep"></div>
+      <select class="tb-input" id="col-filter" style="width:160px" onchange="filterTable()"><option value="">All columns</option></select>
+      <div class="tb-sep"></div>
+      <button class="tb-btn" onclick="downloadCSV()">Export CSV</button>
+      <button class="tb-btn" onclick="resetView()">← New File</button>
+    </div>
+
+    <div class="stats-bar" id="stats-bar"></div>
+    <div class="table-wrap"><table id="data-table"><thead id="table-head"></thead><tbody id="table-body"></tbody></table></div>
+    <div class="pagination" id="pagination"></div>
+  </div>
+</div>
+<script>
+  let allRows = [], headers = [], filtered = [], sortCol = -1, sortDir = 1;
+  const PAGE_SIZE = 50;
+  let currentPage = 0;
+
+  function parseCSV(text) {
+    const lines = text.trim().split('\n');
+    return lines.map(line => {
+      const result = []; let cur = ''; let inQ = false;
+      for (let i = 0; i < line.length; i++) {
+        const ch = line[i];
+        if (ch === '"') { inQ = !inQ; }
+        else if ((ch === ',' || ch === '\t') && !inQ) { result.push(cur.trim()); cur = ''; }
+        else { cur += ch; }
+      }
+      result.push(cur.trim()); return result;
+    });
+  }
+
+  function loadCSV(text) {
+    const rows = parseCSV(text);
+    if (rows.length < 2) return;
+    headers = rows[0];
+    allRows = rows.slice(1).filter(r => r.some(c => c !== ''));
+    filtered = [...allRows];
+    sortCol = -1; sortDir = 1;
+    renderHeaders();
+    populateColFilter();
+    renderTable();
+    document.getElementById('upload-section').style.display = 'none';
+    document.getElementById('viewer-section').style.display = 'block';
+  }
+
+  function renderHeaders() {
+    document.getElementById('table-head').innerHTML = '<tr>' +
+      headers.map((h,i) => `<th onclick="sortBy(${i})" id="th-${i}">${h}</th>`).join('') + '</tr>';
+  }
+
+  function populateColFilter() {
+    document.getElementById('col-filter').innerHTML = '<option value="">All columns</option>' +
+      headers.map((h,i) => `<option value="${i}">${h}</option>`).join('');
+  }
+
+  function isNumeric(v) { return v !== '' && !isNaN(Number(v.replace(/,/g,''))); }
+
+  function renderTable() {
+    const start = currentPage * PAGE_SIZE;
+    const page = filtered.slice(start, start + PAGE_SIZE);
+    document.getElementById('table-body').innerHTML = page.map(row =>
+      '<tr>' + headers.map((_,i) => {
+        const v = row[i] ?? '';
+        return `<td class="${isNumeric(v)?'num':''}" title="${v}">${v}</td>`;
+      }).join('') + '</tr>'
+    ).join('');
+    updateStats();
+    renderPagination();
+  }
+
+  function updateStats() {
+    document.getElementById('stats-bar').innerHTML =
+      `Showing <span>${Math.min((currentPage+1)*PAGE_SIZE, filtered.length)}</span> of <span>${filtered.length}</span> rows · <span>${headers.length}</span> columns · Total rows: <span>${allRows.length}</span>`;
+  }
+
+  function renderPagination() {
+    const pages = Math.ceil(filtered.length / PAGE_SIZE);
+    if (pages <= 1) { document.getElementById('pagination').innerHTML=''; return; }
+    let html = `<button class="pg-btn" onclick="goPage(${currentPage-1})" ${currentPage===0?'disabled':''}>← Prev</button>`;
+    for (let i = 0; i < Math.min(pages, 7); i++) {
+      html += `<button class="pg-btn ${i===currentPage?'active':''}" onclick="goPage(${i})">${i+1}</button>`;
+    }
+    if (pages > 7) html += `<span style="color:var(--muted)">...</span><button class="pg-btn ${currentPage===pages-1?'active':''}" onclick="goPage(${pages-1})">${pages}</button>`;
+    html += `<button class="pg-btn" onclick="goPage(${currentPage+1})" ${currentPage>=pages-1?'disabled':''}>Next →</button>`;
+    document.getElementById('pagination').innerHTML = html;
+  }
+
+  function goPage(p) { currentPage = p; renderTable(); }
+
+  function filterTable() {
+    const q = document.getElementById('search-input').value.toLowerCase();
+    const col = document.getElementById('col-filter').value;
+    filtered = allRows.filter(row => {
+      const search = col !== '' ? [row[parseInt(col)]] : row;
+      return search.some(v => (v||'').toLowerCase().includes(q));
+    });
+    if (sortCol >= 0) applySortToFiltered();
+    currentPage = 0;
+    renderTable();
+  }
+
+  function sortBy(col) {
+    if (sortCol === col) sortDir = -sortDir; else { sortCol = col; sortDir = 1; }
+    document.querySelectorAll('th').forEach(t => t.className = '');
+    document.getElementById(`th-${col}`).className = sortDir===1?'sorted-asc':'sorted-desc';
+    applySortToFiltered();
+    currentPage = 0; renderTable();
+  }
+
+  function applySortToFiltered() {
+    filtered.sort((a,b) => {
+      const av = a[sortCol]??'', bv = b[sortCol]??'';
+      const an = Number(av.replace(/,/g,'')), bn = Number(bv.replace(/,/g,''));
+      if (!isNaN(an) && !isNaN(bn)) return (an-bn)*sortDir;
+      return av.localeCompare(bv)*sortDir;
+    });
+  }
+
+  function downloadCSV() {
+    const csv = [headers, ...filtered].map(r => r.map(c => `"${(c||'').replace(/"/g,'""')}"`).join(',')).join('\n');
+    const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([csv],{type:'text/csv'}));
+    a.download = 'export.csv'; a.click();
+  }
+
+  function resetView() {
+    document.getElementById('upload-section').style.display='block';
+    document.getElementById('viewer-section').style.display='none';
+    document.getElementById('paste-area').value='';
+    document.getElementById('csv-file').value='';
+  }
+
+  function loadFile(input) {
+    const file = input.files[0]; if(!file) return;
+    const reader = new FileReader();
+    reader.onload = e => loadCSV(e.target.result);
+    reader.readAsText(file);
+  }
+
+  function handleDrop(e) {
+    e.preventDefault();
+    const file = e.dataTransfer.files[0]; if(!file) return;
+    const reader = new FileReader();
+    reader.onload = ev => loadCSV(ev.target.result);
+    reader.readAsText(file);
+  }
+
+  function loadPasted() {
+    const v = document.getElementById('paste-area').value.trim();
+    if (v.includes(',') || v.includes('\t')) { if(v.split('\n').length >= 2) loadCSV(v); }
+  }
+
+  function loadSample() {
+    const sample = `name,age,city,salary,department
+Alice Johnson,30,London,75000,Engineering
+Bob Smith,25,Paris,62000,Marketing
+Carol White,35,Berlin,88000,Engineering
+David Brown,28,Tokyo,71000,Design
+Eve Davis,32,New York,95000,Engineering
+Frank Miller,45,Sydney,105000,Management
+Grace Wilson,27,Toronto,58000,Marketing
+Henry Taylor,38,London,82000,Design
+Isabel Martinez,29,Paris,67000,Engineering
+James Anderson,41,Berlin,91000,Management`;
+    loadCSV(sample);
+  }
+
+  document.getElementById('drop-zone').addEventListener('dragover', e => { e.preventDefault(); e.currentTarget.classList.add('drag'); });
+  document.getElementById('drop-zone').addEventListener('dragleave', e => e.currentTarget.classList.remove('drag'));
+  document.getElementById('drop-zone').addEventListener('drop', e => { e.currentTarget.classList.remove('drag'); handleDrop(e); });
+</script>
+</body>
+</html>

@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="Free online word counter — no signup, no account needed. Count words, characters, reading time instantly in your browser.">
+<title>JustTools — No Signup. No BS.</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; cursor: none !important; }
+  :root {
+    --bg: #0a0a0a; --surface: #111; --border: #1e1e1e; --border-bright: #2e2e2e;
+    --text: #f0f0f0; --muted: #666; --accent: #e8ff47; --accent-dim: rgba(232,255,71,0.12);
+    --accent-glow: rgba(232,255,71,0.25);
+  }
+  html { scroll-behavior: smooth; }
+  body { background: var(--bg); color: var(--text); font-family: 'DM Mono', monospace; font-size: 15px; line-height: 1.6; overflow-x: hidden; }
+  .cursor { width: 10px; height: 10px; background: var(--accent); border-radius: 50%; position: fixed; pointer-events: none; z-index: 9999; transition: transform 0.15s ease; transform: translate(-50%, -50%); }
+  .cursor-ring { width: 36px; height: 36px; border: 1px solid rgba(232,255,71,0.4); border-radius: 50%; position: fixed; pointer-events: none; z-index: 9998; transition: width 0.2s, height 0.2s; transform: translate(-50%, -50%); }
+  body::before { content: ''; position: fixed; inset: 0; background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E"); pointer-events: none; z-index: 1000; opacity: 0.4; }
+  nav { position: fixed; top: 0; left: 0; right: 0; display: flex; align-items: center; justify-content: space-between; padding: 20px 48px; border-bottom: 1px solid var(--border); background: rgba(10,10,10,0.85); backdrop-filter: blur(20px); z-index: 100; animation: fadeDown 0.8s ease both; }
+  .nav-logo { font-family: 'Syne', sans-serif; font-weight: 800; font-size: 20px; letter-spacing: -0.5px; color: var(--text); }
+  .nav-logo span { color: var(--accent); }
+  .nav-links { display: flex; gap: 32px; list-style: none; }
+  .nav-links a { color: var(--muted); text-decoration: none; font-size: 13px; letter-spacing: 0.04em; transition: color 0.2s; }
+  .nav-links a:hover { color: var(--text); }
+  .nav-cta { background: var(--accent); color: #000; padding: 8px 20px; border-radius: 4px; font-family: 'Syne', sans-serif; font-weight: 700; font-size: 13px; text-decoration: none; transition: opacity 0.2s, transform 0.2s; }
+  .nav-cta:hover { opacity: 0.85; transform: translateY(-1px); }
+  .hero { min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 120px 24px 80px; position: relative; overflow: hidden; }
+  .hero-grid { position: absolute; inset: 0; background-image: linear-gradient(rgba(232,255,71,0.04) 1px, transparent 1px), linear-gradient(90deg, rgba(232,255,71,0.04) 1px, transparent 1px); background-size: 60px 60px; mask-image: radial-gradient(ellipse 80% 60% at 50% 50%, black 40%, transparent 100%); }
+  .hero-glow { position: absolute; width: 600px; height: 600px; background: radial-gradient(circle, rgba(232,255,71,0.08) 0%, transparent 70%); top: 50%; left: 50%; transform: translate(-50%, -60%); pointer-events: none; }
+  .badge { display: inline-flex; align-items: center; gap: 8px; border: 1px solid var(--border-bright); padding: 6px 14px; border-radius: 100px; font-size: 12px; color: var(--muted); margin-bottom: 40px; animation: fadeUp 0.8s 0.2s ease both; }
+  .badge-dot { width: 6px; height: 6px; background: var(--accent); border-radius: 50%; animation: pulse 2s infinite; }
+  @keyframes pulse { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.5; transform: scale(0.8); } }
+  h1 { font-family: 'Syne', sans-serif; font-weight: 800; font-size: clamp(52px, 9vw, 110px); line-height: 0.95; letter-spacing: -3px; margin-bottom: 28px; animation: fadeUp 0.8s 0.35s ease both; }
+  h1 .accent { color: var(--accent); }
+  h1 .strike { position: relative; color: var(--muted); }
+  h1 .strike::after { content: ''; position: absolute; left: 0; right: 0; top: 50%; height: 3px; background: #ff4747; transform: translateY(-50%) rotate(-2deg); }
+  .hero-sub { max-width: 520px; color: var(--muted); font-size: 16px; line-height: 1.7; margin-bottom: 48px; animation: fadeUp 0.8s 0.5s ease both; }
+  .hero-actions { display: flex; gap: 16px; flex-wrap: wrap; justify-content: center; animation: fadeUp 0.8s 0.65s ease both; }
+  .btn-primary { background: var(--accent); color: #000; padding: 14px 32px; border-radius: 6px; font-family: 'Syne', sans-serif; font-weight: 700; font-size: 15px; text-decoration: none; transition: transform 0.2s, box-shadow 0.2s; }
+  .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 32px var(--accent-glow); }
+  .btn-ghost { border: 1px solid var(--border-bright); color: var(--text); padding: 14px 32px; border-radius: 6px; font-family: 'Syne', sans-serif; font-weight: 600; font-size: 15px; text-decoration: none; transition: border-color 0.2s, background 0.2s; }
+  .btn-ghost:hover { border-color: var(--muted); background: var(--surface); }
+  .hero-stats { display: flex; gap: 48px; margin-top: 80px; animation: fadeUp 0.8s 0.8s ease both; }
+  .stat { text-align: center; }
+  .stat-num { font-family: 'Syne', sans-serif; font-weight: 800; font-size: 28px; color: var(--text); }
+  .stat-label { font-size: 12px; color: var(--muted); margin-top: 2px; }
+  .marquee-wrap { border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); padding: 16px 0; overflow: hidden; background: var(--surface); }
+  .marquee { display: flex; gap: 48px; animation: scroll 25s linear infinite; white-space: nowrap; }
+  .marquee-item { display: flex; align-items: center; gap: 12px; font-size: 13px; color: var(--muted); flex-shrink: 0; }
+  .marquee-item span { color: var(--accent); font-size: 16px; }
+  @keyframes scroll { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+  section { padding: 100px 48px; max-width: 1200px; margin: 0 auto; }
+  .section-label { font-size: 11px; letter-spacing: 0.15em; text-transform: uppercase; color: var(--accent); margin-bottom: 16px; }
+  .section-title { font-family: 'Syne', sans-serif; font-weight: 800; font-size: clamp(32px, 4vw, 52px); letter-spacing: -1.5px; line-height: 1.1; margin-bottom: 16px; }
+  .section-sub { color: var(--muted); max-width: 480px; line-height: 1.7; }
+  .features-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1px; background: var(--border); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; margin-top: 64px; }
+  .feature-card { background: var(--bg); padding: 40px 36px; transition: background 0.3s; position: relative; overflow: hidden; }
+  .feature-card::before { content: ''; position: absolute; inset: 0; background: var(--accent-dim); opacity: 0; transition: opacity 0.3s; }
+  .feature-card:hover::before { opacity: 1; }
+  .feature-icon { font-size: 28px; margin-bottom: 20px; display: block; transition: transform 0.3s; }
+  .feature-card:hover .feature-icon { transform: scale(1.1); }
+  .feature-title { font-family: 'Syne', sans-serif; font-weight: 700; font-size: 18px; margin-bottom: 10px; }
+  .feature-desc { color: var(--muted); font-size: 14px; line-height: 1.7; }
+  .tools-section { padding: 100px 48px; max-width: 1200px; margin: 0 auto; }
+  .tools-header { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 32px; flex-wrap: wrap; gap: 16px; }
+  .cat-filter { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 32px; }
+  .cat-btn { padding: 6px 16px; border-radius: 100px; border: 1px solid var(--border); background: none; color: var(--muted); font-family: 'DM Mono', monospace; font-size: 12px; transition: all 0.2s; }
+  .cat-btn.active, .cat-btn:hover { background: var(--accent); color: #000; border-color: var(--accent); font-family: 'Syne', sans-serif; font-weight: 700; }
+  .tools-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 16px; }
+  .tool-card { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 28px 24px; transition: border-color 0.25s, transform 0.25s, background 0.25s; position: relative; overflow: hidden; text-decoration: none; display: block; }
+  .tool-card::after { content: '→'; position: absolute; right: 20px; top: 50%; transform: translateY(-50%) translateX(10px); opacity: 0; color: var(--accent); font-size: 18px; transition: opacity 0.2s, transform 0.2s; }
+  .tool-card:hover { border-color: var(--accent); transform: translateY(-3px); background: #141414; }
+  .tool-card:hover::after { opacity: 1; transform: translateY(-50%) translateX(0); }
+  .tool-card[data-hidden="true"] { display: none; }
+  .tool-icon { font-size: 24px; margin-bottom: 14px; display: block; }
+  .tool-name { font-family: 'Syne', sans-serif; font-weight: 700; font-size: 15px; color: var(--text); margin-bottom: 6px; }
+  .tool-desc { font-size: 12px; color: var(--muted); line-height: 1.5; }
+  .tool-tag { display: inline-block; background: var(--accent-dim); color: var(--accent); font-size: 10px; padding: 2px 8px; border-radius: 100px; margin-top: 12px; letter-spacing: 0.05em; }
+  .manifesto { padding: 100px 48px; border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); background: var(--surface); }
+  .manifesto-inner { max-width: 800px; margin: 0 auto; }
+  .manifesto blockquote { font-family: 'Syne', sans-serif; font-weight: 700; font-size: clamp(24px, 3.5vw, 42px); line-height: 1.25; letter-spacing: -1px; color: var(--text); }
+  .manifesto blockquote em { font-style: normal; color: var(--accent); }
+  .manifesto-caption { margin-top: 32px; color: var(--muted); font-size: 13px; border-left: 2px solid var(--accent); padding-left: 16px; }
+  .cta-section { padding: 120px 48px; text-align: center; max-width: 700px; margin: 0 auto; }
+  .cta-section h2 { font-family: 'Syne', sans-serif; font-weight: 800; font-size: clamp(40px, 6vw, 72px); letter-spacing: -2px; line-height: 1; margin-bottom: 24px; }
+  .cta-section p { color: var(--muted); margin-bottom: 48px; font-size: 16px; }
+  .cta-note { margin-top: 20px; font-size: 12px; color: var(--muted); }
+  footer { border-top: 1px solid var(--border); padding: 40px 48px; display: flex; justify-content: space-between; align-items: center; }
+  .footer-logo { font-family: 'Syne', sans-serif; font-weight: 800; font-size: 16px; }
+  .footer-logo span { color: var(--accent); }
+  footer p { color: var(--muted); font-size: 12px; }
+  /* Custom scrollbar */
+  ::-webkit-scrollbar { width: 6px; }
+  ::-webkit-scrollbar-track { background: var(--bg); }
+  ::-webkit-scrollbar-thumb { background: var(--border-bright); border-radius: 100px; }
+  ::-webkit-scrollbar-thumb:hover { background: var(--muted); }
+  * { scrollbar-width: thin; scrollbar-color: var(--border-bright) var(--bg); }
+
+  /* Suggest modal */
+  .suggest-fab { position: fixed; bottom: 32px; right: 32px; z-index: 500; background: var(--accent); color: #000; border: none; padding: 14px 22px; border-radius: 100px; font-family: 'Syne', sans-serif; font-weight: 800; font-size: 13px; display: flex; align-items: center; gap: 8px; box-shadow: 0 8px 32px rgba(232,255,71,0.3); transition: transform 0.2s, box-shadow 0.2s; }
+  .suggest-fab:hover { transform: translateY(-3px) scale(1.04); box-shadow: 0 12px 40px rgba(232,255,71,0.45); }
+  .suggest-fab .fab-icon { font-size: 16px; }
+  .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.7); backdrop-filter: blur(8px); z-index: 600; display: flex; align-items: center; justify-content: center; padding: 24px; opacity: 0; pointer-events: none; transition: opacity 0.25s; }
+  .modal-overlay.open { opacity: 1; pointer-events: all; }
+  .modal { background: var(--surface); border: 1px solid var(--border-bright); border-radius: 16px; padding: 40px; max-width: 500px; width: 100%; transform: translateY(20px) scale(0.97); transition: transform 0.25s; position: relative; }
+  .modal-overlay.open .modal { transform: translateY(0) scale(1); }
+  .modal-close { position: absolute; top: 16px; right: 16px; background: none; border: 1px solid var(--border); color: var(--muted); width: 32px; height: 32px; border-radius: 6px; font-size: 16px; display: flex; align-items: center; justify-content: center; transition: all 0.2s; }
+  .modal-close:hover { border-color: var(--border-bright); color: var(--text); }
+  .modal-label { font-size: 11px; letter-spacing: 0.15em; text-transform: uppercase; color: var(--accent); margin-bottom: 10px; }
+  .modal-title { font-family: 'Syne', sans-serif; font-weight: 800; font-size: 28px; letter-spacing: -1px; margin-bottom: 8px; }
+  .modal-desc { font-size: 13px; color: var(--muted); margin-bottom: 28px; line-height: 1.6; }
+  .modal-input { width: 100%; background: var(--bg); border: 1px solid var(--border); border-radius: 10px; padding: 14px 18px; color: var(--text); font-family: 'DM Mono', monospace; font-size: 14px; outline: none; transition: border-color 0.2s; margin-bottom: 12px; }
+  .modal-input:focus { border-color: var(--accent); }
+  .modal-textarea { resize: vertical; min-height: 100px; line-height: 1.6; }
+  .modal-row { display: flex; gap: 10px; }
+  .modal-submit { flex: 1; background: var(--accent); color: #000; border: none; padding: 13px; border-radius: 10px; font-family: 'Syne', sans-serif; font-weight: 800; font-size: 14px; transition: opacity 0.2s, transform 0.2s; }
+  .modal-submit:hover { opacity: 0.85; transform: translateY(-1px); }
+  .modal-cancel { background: none; border: 1px solid var(--border); color: var(--muted); padding: 13px 20px; border-radius: 10px; font-family: 'DM Mono', monospace; font-size: 13px; transition: all 0.2s; }
+  .modal-cancel:hover { color: var(--text); border-color: var(--border-bright); }
+  .modal-success { text-align: center; padding: 16px 0; display: none; }
+  .modal-success .success-icon { font-size: 48px; margin-bottom: 16px; }
+  .modal-success h3 { font-family: 'Syne', sans-serif; font-weight: 800; font-size: 22px; margin-bottom: 8px; }
+  .modal-success p { color: var(--muted); font-size: 13px; }
+  @keyframes fadeUp { from { opacity: 0; transform: translateY(24px); } to { opacity: 1; transform: translateY(0); } }
+  @keyframes fadeDown { from { opacity: 0; transform: translateY(-16px); } to { opacity: 1; transform: translateY(0); } }
+  .reveal { opacity: 0; transform: translateY(30px); transition: opacity 0.7s ease, transform 0.7s ease; }
+  .reveal.visible { opacity: 1; transform: translateY(0); }
+  @media (max-width: 768px) { nav { padding: 16px 20px; } .nav-links { display: none; } section, .tools-section { padding: 60px 20px; } .features-grid { grid-template-columns: 1fr; } .hero-stats { gap: 24px; } footer { flex-direction: column; gap: 12px; text-align: center; } .tools-header { flex-direction: column; align-items: flex-start; } .manifesto { padding: 60px 20px; } .cta-section { padding: 80px 20px; } }
+</style>
+<link rel="icon" type="image/svg+xml" href="favicon.svg">
+<link rel="shortcut icon" href="favicon.svg">
+</head>
+<body>
+<div class="cursor" id="cursor"></div>
+<div class="cursor-ring" id="cursorRing"></div>
+<nav>
+  <div class="nav-logo">Just<span>Tools</span></div>
+  <ul class="nav-links">
+    <li><a href="#tools">Tools</a></li>
+    <li><a href="#why">Why</a></li>
+    <li><a href="#about">About</a></li>
+  </ul>
+  <a href="#tools" class="nav-cta">Open a Tool</a>
+</nav>
+<section class="hero">
+  <div class="hero-grid"></div>
+  <div class="hero-glow"></div>
+  <div class="badge"><div class="badge-dot"></div>No account. No email. No nonsense.</div>
+  <h1>Just<span class="accent">Tools.</span><br><span class="strike">Signup</span> Required.</h1>
+  <p class="hero-sub">A curated suite of 12 micro-tools for the things you actually need to do — instantly, privately, and completely free.</p>
+  <div class="hero-actions">
+    <a href="#tools" class="btn-primary">Browse All 12 Tools →</a>
+    <a href="#why" class="btn-ghost">Why JustTools?</a>
+  </div>
+  <div class="hero-stats">
+    <div class="stat"><div class="stat-num">12</div><div class="stat-label">Free Tools</div></div>
+    <div class="stat"><div class="stat-num">0</div><div class="stat-label">Signups Needed</div></div>
+    <div class="stat"><div class="stat-num">100%</div><div class="stat-label">Browser-side</div></div>
+  </div>
+</section>
+<div class="marquee-wrap">
+  <div class="marquee">
+    <div class="marquee-item"><span>🔐</span> Password Gen</div>
+    <div class="marquee-item"><span>📝</span> Word Counter</div>
+    <div class="marquee-item"><span>🎨</span> Color Picker</div>
+    <div class="marquee-item"><span>🔢</span> JSON Formatter</div>
+    <div class="marquee-item"><span>⏱️</span> Pomodoro Timer</div>
+    <div class="marquee-item"><span>🔤</span> Base64 Encoder</div>
+    <div class="marquee-item"><span>🌐</span> URL Encoder</div>
+    <div class="marquee-item"><span>📐</span> Unit Converter</div>
+    <div class="marquee-item"><span>🔢</span> Base Converter</div>
+    <div class="marquee-item"><span>📊</span> CSV Viewer</div>
+    <div class="marquee-item"><span>🖼️</span> Image Converter</div>
+    <div class="marquee-item"><span>📄</span> PDF Merger</div>
+    <div class="marquee-item"><span>🔐</span> Password Gen</div>
+    <div class="marquee-item"><span>📝</span> Word Counter</div>
+    <div class="marquee-item"><span>🎨</span> Color Picker</div>
+    <div class="marquee-item"><span>🔢</span> JSON Formatter</div>
+    <div class="marquee-item"><span>⏱️</span> Pomodoro Timer</div>
+    <div class="marquee-item"><span>🔤</span> Base64 Encoder</div>
+    <div class="marquee-item"><span>🌐</span> URL Encoder</div>
+    <div class="marquee-item"><span>📐</span> Unit Converter</div>
+    <div class="marquee-item"><span>🔢</span> Base Converter</div>
+    <div class="marquee-item"><span>📊</span> CSV Viewer</div>
+    <div class="marquee-item"><span>🖼️</span> Image Converter</div>
+    <div class="marquee-item"><span>📄</span> PDF Merger</div>
+  </div>
+</div>
+<section id="why">
+  <p class="section-label reveal">Why JustTools</p>
+  <h2 class="section-title reveal">Built for people who just want to <span style="color:var(--accent)">get stuff done.</span></h2>
+  <p class="section-sub reveal">No dark patterns. No upsells. No tracking. Just tools that work, in your browser, right now.</p>
+  <div class="features-grid reveal">
+    <div class="feature-card"><span class="feature-icon">⚡</span><div class="feature-title">Instant Access</div><p class="feature-desc">Open any tool and start using it immediately. No loading screens, no welcome modals, no account walls.</p></div>
+    <div class="feature-card"><span class="feature-icon">🔒</span><div class="feature-title">Private by Default</div><p class="feature-desc">Everything runs in your browser. Your files, data, and text never leave your machine.</p></div>
+    <div class="feature-card"><span class="feature-icon">🆓</span><div class="feature-title">Actually Free</div><p class="feature-desc">No freemium. No "5 uses per day." No premium tier. Every tool, every feature, every time.</p></div>
+    <div class="feature-card"><span class="feature-icon">📦</span><div class="feature-title">No Install</div><p class="feature-desc">Works in any modern browser on any device. No extensions, no downloads, no app store.</p></div>
+    <div class="feature-card"><span class="feature-icon">🎯</span><div class="feature-title">One Thing, Done Well</div><p class="feature-desc">Each tool does exactly one thing. No bloated dashboards, no unnecessary options.</p></div>
+    <div class="feature-card"><span class="feature-icon">🚀</span><div class="feature-title">Always Growing</div><p class="feature-desc">New tools added regularly, based on what people actually need.</p></div>
+  </div>
+</section>
+<div class="tools-section" id="tools">
+  <div class="tools-header">
+    <div>
+      <p class="section-label">The Toolbox</p>
+      <h2 class="section-title">12 tools.<br>Zero signups.</h2>
+    </div>
+  </div>
+  <div class="cat-filter" id="cat-filter">
+    <button class="cat-btn active" onclick="filterCat('all',this)">All (12)</button>
+    <button class="cat-btn" onclick="filterCat('Dev',this)">Dev</button>
+    <button class="cat-btn" onclick="filterCat('Writing',this)">Writing</button>
+    <button class="cat-btn" onclick="filterCat('Design',this)">Design</button>
+    <button class="cat-btn" onclick="filterCat('Productivity',this)">Productivity</button>
+    <button class="cat-btn" onclick="filterCat('Documents',this)">Documents</button>
+    <button class="cat-btn" onclick="filterCat('Data',this)">Data</button>
+    <button class="cat-btn" onclick="filterCat('Utilities',this)">Utilities</button>
+  </div>
+  <div class="tools-grid reveal" id="tools-grid">
+    <a href="password-generator.html" class="tool-card" data-cat="Security"><span class="tool-icon">🔐</span><div class="tool-name">Password Generator</div><div class="tool-desc">Generate strong, random passwords with strength meter</div><span class="tool-tag">Security</span></a>
+    <a href="word-counter.html" class="tool-card" data-cat="Writing"><span class="tool-icon">📝</span><div class="tool-name">Word Counter</div><div class="tool-desc">Count words, characters, sentences, reading time</div><span class="tool-tag">Writing</span></a>
+    <a href="color-picker.html" class="tool-card" data-cat="Design"><span class="tool-icon">🎨</span><div class="tool-name">Color Picker</div><div class="tool-desc">Pick colors, convert HEX/RGB/HSL, generate palettes</div><span class="tool-tag">Design</span></a>
+    <a href="json-formatter.html" class="tool-card" data-cat="Dev"><span class="tool-icon">🔢</span><div class="tool-name">JSON Formatter</div><div class="tool-desc">Prettify, minify, validate JSON with syntax highlighting</div><span class="tool-tag">Dev</span></a>
+    <a href="pomodoro-timer.html" class="tool-card" data-cat="Productivity"><span class="tool-icon">⏱️</span><div class="tool-name">Pomodoro Timer</div><div class="tool-desc">Focus sessions with automatic breaks and notifications</div><span class="tool-tag">Productivity</span></a>
+    <a href="base64-encoder.html" class="tool-card" data-cat="Dev"><span class="tool-icon">🔤</span><div class="tool-name">Base64 Encoder</div><div class="tool-desc">Encode/decode text and files to Base64 instantly</div><span class="tool-tag">Dev</span></a>
+    <a href="url-encoder.html" class="tool-card" data-cat="Dev"><span class="tool-icon">🌐</span><div class="tool-name">URL Encoder</div><div class="tool-desc">Encode/decode URLs and parse all URL components</div><span class="tool-tag">Dev</span></a>
+    <a href="unit-converter.html" class="tool-card" data-cat="Utilities"><span class="tool-icon">📐</span><div class="tool-name">Unit Converter</div><div class="tool-desc">Convert length, weight, temperature, area, speed & more</div><span class="tool-tag">Utilities</span></a>
+    <a href="number-base-converter.html" class="tool-card" data-cat="Dev"><span class="tool-icon">🔢</span><div class="tool-name">Number Base Converter</div><div class="tool-desc">Convert between binary, octal, decimal, hex & custom bases</div><span class="tool-tag">Dev</span></a>
+    <a href="csv-viewer.html" class="tool-card" data-cat="Data"><span class="tool-icon">📊</span><div class="tool-name">CSV Viewer</div><div class="tool-desc">View, sort, filter and explore CSV files instantly</div><span class="tool-tag">Data</span></a>
+    <a href="image-converter.html" class="tool-card" data-cat="Design"><span class="tool-icon">🖼️</span><div class="tool-name">Image Converter</div><div class="tool-desc">Convert JPG, PNG, WebP — resize and adjust quality</div><span class="tool-tag">Design</span></a>
+    <a href="pdf-merger.html" class="tool-card" data-cat="Documents"><span class="tool-icon">📄</span><div class="tool-name">PDF Merger</div><div class="tool-desc">Combine multiple PDFs — drag to reorder pages</div><span class="tool-tag">Documents</span></a>
+  </div>
+</div>
+<div class="manifesto" id="about">
+  <div class="manifesto-inner">
+    <p class="section-label reveal">Our Take</p>
+    <blockquote class="reveal">"The web got complicated. Simple tools started asking for your email, your phone number, your <em>soul</em>. We built JustTools because sometimes you just need to merge two PDFs and get on with your life."</blockquote>
+    <p class="manifesto-caption reveal">No VC funding. No growth hacking. No "engagement metrics."<br>Just useful tools, built by people who got tired of the alternative.</p>
+  </div>
+</div>
+<div class="cta-section">
+  <h2 class="reveal">Ready to just<br><span style="color:var(--accent)">use a tool?</span></h2>
+  <p class="reveal">No account. No credit card. No setup. Pick a tool above and start right now.</p>
+  <a href="#tools" class="btn-primary reveal">Browse All 12 Tools →</a>
+  <p class="cta-note reveal">Everything runs in your browser. Your data stays on your device.</p>
+</div>
+<!-- Suggest FAB -->
+<button class="suggest-fab" onclick="openModal()">
+  <span class="fab-icon">💡</span> Suggest a Tool
+</button>
+
+<!-- Suggest Modal -->
+<div class="modal-overlay" id="modal-overlay" onclick="handleOverlayClick(event)">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal()">×</button>
+
+    <div id="modal-form">
+      <div class="modal-label">Community</div>
+      <h2 class="modal-title">Suggest a Tool</h2>
+      <p class="modal-desc">Got a tool idea? Tell us what you need and we'll consider building it. No account needed — just your idea.</p>
+
+      <input class="modal-input" id="suggest-name" placeholder="Tool name (e.g. Markdown Previewer)" maxlength="80">
+      <textarea class="modal-input modal-textarea" id="suggest-desc" placeholder="What should it do? Who is it for? Why is it useful?..." maxlength="500"></textarea>
+      <input class="modal-input" id="suggest-email" placeholder="Your email (optional — for updates)" type="email">
+
+      <div class="modal-row">
+        <button class="modal-submit" onclick="submitSuggestion()">Send Suggestion →</button>
+        <button class="modal-cancel" onclick="closeModal()">Cancel</button>
+      </div>
+    </div>
+
+    <div class="modal-success" id="modal-success">
+      <div class="success-icon">🎉</div>
+      <h3>Got it, thanks!</h3>
+      <p>Your suggestion has been noted. If it gets enough interest, we'll build it.<br><br>
+      <span style="color:var(--accent)">Keep an eye on the toolbox.</span></p>
+    </div>
+  </div>
+</div>
+
+<footer>
+  <div class="footer-logo">Just<span>Tools</span></div>
+  <p>Built for people who just need to get things done.</p>
+  <p style="color: var(--muted); font-size:12px;">© 2025 JustTools. Free forever.</p>
+</footer>
+<script>
+  const cursor = document.getElementById('cursor');
+  const ring = document.getElementById('cursorRing');
+  let mx = 0, my = 0, rx = 0, ry = 0;
+  document.addEventListener('mousemove', e => { mx = e.clientX; my = e.clientY; cursor.style.left = mx + 'px'; cursor.style.top = my + 'px'; });
+  function animateRing() { rx += (mx - rx) * 0.12; ry += (my - ry) * 0.12; ring.style.left = rx + 'px'; ring.style.top = ry + 'px'; requestAnimationFrame(animateRing); }
+  animateRing();
+  document.querySelectorAll('a, button').forEach(el => {
+    el.addEventListener('mouseenter', () => { cursor.style.transform = 'translate(-50%, -50%) scale(2)'; ring.style.width = '56px'; ring.style.height = '56px'; });
+    el.addEventListener('mouseleave', () => { cursor.style.transform = 'translate(-50%, -50%) scale(1)'; ring.style.width = '36px'; ring.style.height = '36px'; });
+  });
+  const reveals = document.querySelectorAll('.reveal');
+  const observer = new IntersectionObserver((entries) => { entries.forEach((entry, i) => { if (entry.isIntersecting) { setTimeout(() => entry.target.classList.add('visible'), i * 80); } }); }, { threshold: 0.1 });
+  reveals.forEach(el => observer.observe(el));
+  document.querySelectorAll('a[href^="#"]').forEach(a => { a.addEventListener('click', e => { e.preventDefault(); const target = document.querySelector(a.getAttribute('href')); if (target) target.scrollIntoView({ behavior: 'smooth' }); }); });
+  function filterCat(cat, btn) {
+    document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    document.querySelectorAll('.tool-card').forEach(card => {
+      if (cat === 'all') { card.style.display = 'block'; }
+      else { card.style.display = card.dataset.cat === cat ? 'block' : 'none'; }
+    });
+  }
+
+  // Suggest modal
+  function openModal() {
+    document.getElementById('modal-overlay').classList.add('open');
+    document.getElementById('modal-form').style.display = 'block';
+    document.getElementById('modal-success').style.display = 'none';
+    document.body.style.overflow = 'hidden';
+    setTimeout(() => document.getElementById('suggest-name').focus(), 300);
+  }
+  function closeModal() {
+    document.getElementById('modal-overlay').classList.remove('open');
+    document.body.style.overflow = '';
+  }
+  function handleOverlayClick(e) {
+    if (e.target === document.getElementById('modal-overlay')) closeModal();
+  }
+  async function submitSuggestion() {
+    const nameEl = document.getElementById('suggest-name');
+    const name = nameEl.value.trim();
+    if (!name) { nameEl.focus(); nameEl.style.borderColor = 'var(--red)'; return; }
+    nameEl.style.borderColor = '';
+
+    const submitBtn = document.querySelector('.modal-submit');
+    submitBtn.textContent = 'Sending...';
+    submitBtn.disabled = true;
+
+    try {
+      const res = await fetch('https://formspree.io/f/xvgrwkep', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+        body: JSON.stringify({
+          tool: name,
+          description: document.getElementById('suggest-desc').value,
+          email: document.getElementById('suggest-email').value || 'not provided',
+        })
+      });
+
+      if (res.ok) {
+        document.getElementById('modal-form').style.display = 'none';
+        document.getElementById('modal-success').style.display = 'block';
+        setTimeout(closeModal, 3500);
+      } else {
+        throw new Error('Server error');
+      }
+    } catch(e) {
+      submitBtn.textContent = 'Failed — Try Again';
+      submitBtn.style.background = 'var(--red)';
+      submitBtn.disabled = false;
+      setTimeout(() => { submitBtn.textContent = 'Send Suggestion →'; submitBtn.style.background = ''; }, 3000);
+    }
+  }
+  // Close on Escape key
+  document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
+</script>
+</body>
+</html>

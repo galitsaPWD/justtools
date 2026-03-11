@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="Free online word counter — no signup, no account needed. Count words, characters, reading time instantly in your browser.">
+<title>Base64 Encoder — JustTools</title>
+<link rel="icon" type="image/svg+xml" href="favicon.svg">
+<link rel="shortcut icon" href="favicon.svg">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+  :root{--bg:#0a0a0a;--surface:#111;--border:#1e1e1e;--border-bright:#2e2e2e;--text:#f0f0f0;--muted:#666;--accent:#e8ff47;--accent-dim:rgba(232,255,71,0.1);--green:#47ff8a;--red:#ff6b6b}
+  body{background:var(--bg);color:var(--text);font-family:'DM Mono',monospace;min-height:100vh}
+  nav{display:flex;align-items:center;justify-content:space-between;padding:20px 48px;border-bottom:1px solid var(--border);background:rgba(10,10,10,0.9);backdrop-filter:blur(20px);position:sticky;top:0;z-index:100}
+  .nav-logo{font-family:'Syne',sans-serif;font-weight:800;font-size:18px;text-decoration:none;color:var(--text)}
+  .nav-logo span{color:var(--accent)}
+  .nav-back{color:var(--muted);font-size:13px;text-decoration:none;transition:color 0.2s}
+  .nav-back:hover{color:var(--text)}
+  .container{max-width:860px;margin:0 auto;padding:64px 24px}
+  .tool-label{font-size:11px;letter-spacing:0.15em;text-transform:uppercase;color:var(--accent);margin-bottom:12px}
+  .tool-title{font-family:'Syne',sans-serif;font-weight:800;font-size:48px;letter-spacing:-2px;line-height:1;margin-bottom:12px}
+  .tool-desc{color:var(--muted);font-size:14px;margin-bottom:40px}
+
+  .mode-bar{display:flex;gap:8px;margin-bottom:24px;align-items:center;flex-wrap:wrap}
+  .mode-btn{padding:8px 20px;border-radius:6px;border:1px solid var(--border);background:none;color:var(--muted);font-family:'DM Mono',monospace;font-size:13px;cursor:pointer;transition:all 0.2s}
+  .mode-btn.active{background:var(--accent);color:#000;border-color:var(--accent);font-weight:700}
+  .mode-btn:hover:not(.active){color:var(--text);border-color:var(--border-bright)}
+  .swap-btn{margin-left:auto;padding:8px 16px;border-radius:6px;border:1px solid var(--border);background:none;color:var(--muted);font-family:'DM Mono',monospace;font-size:13px;cursor:pointer;transition:all 0.2s}
+  .swap-btn:hover{color:var(--accent);border-color:var(--accent)}
+
+  .panels{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px}
+  .panel-label{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:8px;display:flex;justify-content:space-between}
+  .panel-label span{color:var(--accent)}
+  textarea.panel{width:100%;min-height:240px;background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:20px;color:var(--text);font-family:'DM Mono',monospace;font-size:13px;line-height:1.7;resize:vertical;outline:none;transition:border-color 0.2s}
+  textarea.panel:focus{border-color:var(--border-bright)}
+  textarea.panel.error{border-color:var(--red)}
+  textarea.panel.success{border-color:var(--green)}
+
+  .action-row{display:flex;gap:8px;margin-bottom:32px;flex-wrap:wrap}
+  .action-btn{padding:10px 22px;border-radius:8px;border:none;font-family:'Syne',sans-serif;font-weight:700;font-size:13px;cursor:pointer;transition:all 0.2s}
+  .action-btn.primary{background:var(--accent);color:#000}
+  .action-btn.primary:hover{opacity:0.85;transform:translateY(-1px)}
+  .action-btn.secondary{background:var(--surface);border:1px solid var(--border);color:var(--muted)}
+  .action-btn.secondary:hover{color:var(--text);border-color:var(--border-bright)}
+
+  .error-bar{background:rgba(255,107,107,0.1);border:1px solid rgba(255,107,107,0.3);border-radius:8px;padding:10px 16px;font-size:12px;color:var(--red);margin-bottom:16px;display:none}
+
+  .info-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:32px}
+  .info-card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:16px;text-align:center}
+  .info-num{font-family:'Syne',sans-serif;font-weight:800;font-size:22px;color:var(--accent)}
+  .info-label{font-size:11px;color:var(--muted);margin-top:4px;text-transform:uppercase;letter-spacing:0.06em}
+
+  .file-section{background:var(--surface);border:1px dashed var(--border-bright);border-radius:10px;padding:32px;text-align:center;cursor:pointer;transition:border-color 0.2s;margin-bottom:16px}
+  .file-section:hover{border-color:var(--accent)}
+  .file-icon{font-size:32px;margin-bottom:12px}
+  .file-title{font-family:'Syne',sans-serif;font-weight:700;font-size:14px;margin-bottom:4px}
+  .file-sub{font-size:12px;color:var(--muted)}
+  input[type=file]{display:none}
+
+  @media(max-width:600px){.panels{grid-template-columns:1fr}nav{padding:16px 20px}.container{padding:40px 16px}.info-grid{grid-template-columns:1fr 1fr}}
+  /* Custom scrollbar */
+  ::-webkit-scrollbar { width: 6px; }
+  ::-webkit-scrollbar-track { background: var(--bg); }
+  ::-webkit-scrollbar-thumb { background: var(--border-bright); border-radius: 100px; }
+  ::-webkit-scrollbar-thumb:hover { background: var(--muted); }
+  * { scrollbar-width: thin; scrollbar-color: var(--border-bright) var(--bg); }
+</style>
+</head>
+<body>
+<nav>
+  <a href="index.html" class="nav-logo">Just<span>Tools</span></a>
+  <a href="index.html" class="nav-back">← All Tools</a>
+</nav>
+<div class="container">
+  <div class="tool-label">🔤 Developer</div>
+  <h1 class="tool-title">Base64<br>Encoder</h1>
+  <p class="tool-desc">Encode text or files to Base64, or decode Base64 strings back to readable text. Instant, in-browser.</p>
+
+  <div class="mode-bar">
+    <button class="mode-btn active" id="btn-text" onclick="setMode('text')">Text Mode</button>
+    <button class="mode-btn" id="btn-file" onclick="setMode('file')">File Mode</button>
+    <button class="swap-btn" onclick="swapPanels()">⇄ Swap</button>
+  </div>
+
+  <div id="error-bar" class="error-bar"></div>
+
+  <div id="text-mode">
+    <div class="panels">
+      <div>
+        <div class="panel-label">Input <span id="in-len"></span></div>
+        <textarea class="panel" id="input-text" placeholder="Type or paste text to encode..." oninput="autoProcess()"></textarea>
+      </div>
+      <div>
+        <div class="panel-label">Output <span id="out-len"></span></div>
+        <textarea class="panel" id="output-text" placeholder="Result appears here..." readonly></textarea>
+      </div>
+    </div>
+    <div class="action-row">
+      <button class="action-btn primary" onclick="encode()">⚡ Encode</button>
+      <button class="action-btn primary" style="background:#47ff8a" onclick="decode()">Decode</button>
+      <button class="action-btn secondary" onclick="copyOutput()">Copy Output</button>
+      <button class="action-btn secondary" onclick="clearAll()">Clear</button>
+    </div>
+  </div>
+
+  <div id="file-mode" style="display:none">
+    <div class="file-section" onclick="document.getElementById('file-input').click()">
+      <div class="file-icon">📎</div>
+      <div class="file-title">Click to select a file</div>
+      <div class="file-sub">Any file type — result will be Base64 encoded</div>
+      <input type="file" id="file-input" onchange="encodeFile(this)">
+    </div>
+    <div>
+      <div class="panel-label">Base64 Output <span id="file-out-len"></span></div>
+      <textarea class="panel" id="file-output" placeholder="Encoded file will appear here..." readonly style="min-height:160px"></textarea>
+    </div>
+    <div class="action-row" style="margin-top:12px">
+      <button class="action-btn secondary" onclick="copyFileOutput()">Copy Output</button>
+    </div>
+  </div>
+
+  <div class="info-grid">
+    <div class="info-card"><div class="info-num" id="stat-input">0</div><div class="info-label">Input bytes</div></div>
+    <div class="info-card"><div class="info-num" id="stat-output">0</div><div class="info-label">Output bytes</div></div>
+    <div class="info-card"><div class="info-num" id="stat-ratio">—</div><div class="info-label">Size ratio</div></div>
+  </div>
+</div>
+<script>
+  let currentMode = 'text';
+  function setMode(mode) {
+    currentMode = mode;
+    document.getElementById('text-mode').style.display = mode==='text'?'block':'none';
+    document.getElementById('file-mode').style.display = mode==='file'?'block':'none';
+    document.getElementById('btn-text').classList.toggle('active', mode==='text');
+    document.getElementById('btn-file').classList.toggle('active', mode==='file');
+  }
+  function autoProcess() {
+    const input = document.getElementById('input-text').value;
+    document.getElementById('in-len').textContent = input.length ? input.length+' chars' : '';
+    if (!input) { document.getElementById('output-text').value=''; updateStats(0,0); return; }
+    const looksB64 = /^[A-Za-z0-9+/]+=*$/.test(input.trim()) && input.length%4===0;
+    if (looksB64 && input.length > 8) decode(); else encode();
+  }
+  function encode() {
+    const input = document.getElementById('input-text').value;
+    try {
+      const encoded = btoa(unescape(encodeURIComponent(input)));
+      document.getElementById('output-text').value = encoded;
+      document.getElementById('output-text').className = 'panel success';
+      document.getElementById('out-len').textContent = encoded.length+' chars';
+      updateStats(new Blob([input]).size, new Blob([encoded]).size);
+      hideError();
+    } catch(e) { showError('Encoding failed: '+e.message); }
+  }
+  function decode() {
+    const input = document.getElementById('input-text').value.trim();
+    try {
+      const decoded = decodeURIComponent(escape(atob(input)));
+      document.getElementById('output-text').value = decoded;
+      document.getElementById('output-text').className = 'panel success';
+      document.getElementById('out-len').textContent = decoded.length+' chars';
+      updateStats(new Blob([input]).size, new Blob([decoded]).size);
+      hideError();
+    } catch(e) { showError('Invalid Base64 string. Make sure input is valid Base64.'); document.getElementById('output-text').className='panel error'; }
+  }
+  function swapPanels() {
+    const a = document.getElementById('input-text').value;
+    const b = document.getElementById('output-text').value;
+    document.getElementById('input-text').value = b;
+    document.getElementById('output-text').value = '';
+    autoProcess();
+  }
+  function encodeFile(input) {
+    const file = input.files[0]; if(!file) return;
+    const reader = new FileReader();
+    reader.onload = e => {
+      const b64 = e.target.result.split(',')[1];
+      document.getElementById('file-output').value = b64;
+      document.getElementById('file-out-len').textContent = b64.length+' chars';
+      updateStats(file.size, new Blob([b64]).size);
+    };
+    reader.readAsDataURL(file);
+  }
+  function updateStats(inBytes, outBytes) {
+    document.getElementById('stat-input').textContent = inBytes > 1024 ? (inBytes/1024).toFixed(1)+'K' : inBytes;
+    document.getElementById('stat-output').textContent = outBytes > 1024 ? (outBytes/1024).toFixed(1)+'K' : outBytes;
+    document.getElementById('stat-ratio').textContent = inBytes ? ((outBytes/inBytes)*100).toFixed(0)+'%' : '—';
+  }
+  function copyOutput() { navigator.clipboard.writeText(document.getElementById('output-text').value); }
+  function copyFileOutput() { navigator.clipboard.writeText(document.getElementById('file-output').value); }
+  function clearAll() { document.getElementById('input-text').value=''; document.getElementById('output-text').value=''; document.getElementById('in-len').textContent=''; document.getElementById('out-len').textContent=''; updateStats(0,0); hideError(); }
+  function showError(msg) { const e=document.getElementById('error-bar'); e.textContent=msg; e.style.display='block'; }
+  function hideError() { document.getElementById('error-bar').style.display='none'; }
+</script>
+</body>
+</html>

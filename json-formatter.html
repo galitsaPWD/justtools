@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="Free online word counter — no signup, no account needed. Count words, characters, reading time instantly in your browser.">
+<title>JSON Formatter — JustTools</title>
+<link rel="icon" type="image/svg+xml" href="favicon.svg">
+<link rel="shortcut icon" href="favicon.svg">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --bg: #0a0a0a; --surface: #111; --border: #1e1e1e; --border-bright: #2e2e2e;
+    --text: #f0f0f0; --muted: #666; --accent: #e8ff47; --accent-dim: rgba(232,255,71,0.1);
+    --green: #47ff8a; --red: #ff6b6b; --blue: #79c0ff; --orange: #ffa657; --purple: #d2a8ff;
+  }
+  body { background: var(--bg); color: var(--text); font-family: 'DM Mono', monospace; min-height: 100vh; }
+
+  nav {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 20px 48px; border-bottom: 1px solid var(--border);
+    background: rgba(10,10,10,0.9); backdrop-filter: blur(20px);
+    position: sticky; top: 0; z-index: 100;
+  }
+  .nav-logo { font-family: 'Syne', sans-serif; font-weight: 800; font-size: 18px; text-decoration: none; color: var(--text); }
+  .nav-logo span { color: var(--accent); }
+  .nav-back { color: var(--muted); font-size: 13px; text-decoration: none; transition: color 0.2s; }
+  .nav-back:hover { color: var(--text); }
+
+  .container { max-width: 1200px; margin: 0 auto; padding: 48px 24px; }
+
+  .tool-header { margin-bottom: 32px; }
+  .tool-label { font-size: 11px; letter-spacing: 0.15em; text-transform: uppercase; color: var(--accent); margin-bottom: 10px; }
+  .tool-title { font-family: 'Syne', sans-serif; font-weight: 800; font-size: 40px; letter-spacing: -1.5px; line-height: 1; margin-bottom: 8px; }
+  .tool-desc { color: var(--muted); font-size: 14px; }
+
+  .toolbar {
+    display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 16px;
+    background: var(--surface); border: 1px solid var(--border);
+    padding: 12px 16px; border-radius: 10px;
+    align-items: center;
+  }
+
+  .tool-btn {
+    background: none; border: 1px solid var(--border); color: var(--muted);
+    padding: 7px 16px; border-radius: 6px; font-family: 'DM Mono', monospace;
+    font-size: 12px; cursor: pointer; transition: all 0.2s; white-space: nowrap;
+  }
+  .tool-btn:hover { color: var(--text); border-color: var(--border-bright); }
+  .tool-btn.primary { background: var(--accent); color: #000; border-color: var(--accent); font-weight: 700; font-family: 'Syne', sans-serif; }
+  .tool-btn.primary:hover { opacity: 0.85; }
+  .tool-btn.danger:hover { color: var(--red); border-color: var(--red); }
+
+  .sep { width: 1px; height: 24px; background: var(--border); margin: 0 4px; }
+
+  .indent-select {
+    background: var(--surface); border: 1px solid var(--border);
+    color: var(--text); padding: 7px 12px; border-radius: 6px;
+    font-family: 'DM Mono', monospace; font-size: 12px; cursor: pointer; outline: none;
+  }
+
+  .status-bar {
+    display: flex; gap: 16px; align-items: center; flex-wrap: wrap;
+    margin-bottom: 12px; font-size: 12px; color: var(--muted); padding: 0 4px;
+  }
+  .status-ok { color: var(--green); }
+  .status-err { color: var(--red); }
+  .status-item { display: flex; gap: 6px; align-items: center; }
+  .status-dot { width: 6px; height: 6px; border-radius: 50%; }
+
+  .editor-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+
+  .editor-pane { display: flex; flex-direction: column; }
+  .pane-label {
+    font-size: 11px; color: var(--muted); text-transform: uppercase;
+    letter-spacing: 0.1em; margin-bottom: 8px; padding: 0 4px;
+    display: flex; justify-content: space-between;
+  }
+  .pane-label span { color: var(--accent); }
+
+  .code-wrap {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 10px; overflow: hidden; flex: 1;
+    display: flex; flex-direction: column;
+  }
+  .code-wrap.has-error { border-color: var(--red); }
+  .code-wrap.is-valid { border-color: var(--green); }
+
+  textarea.code-input, .code-output {
+    font-family: 'DM Mono', monospace; font-size: 13px; line-height: 1.7;
+    padding: 20px; min-height: 480px; flex: 1;
+    resize: none; outline: none; border: none;
+    background: transparent; color: var(--text);
+    white-space: pre; overflow: auto;
+  }
+
+  .code-output {
+    overflow: auto; word-break: break-all;
+    white-space: pre-wrap;
+  }
+
+  /* Syntax highlighting */
+  .json-key { color: var(--blue); }
+  .json-string { color: var(--green); }
+  .json-number { color: var(--orange); }
+  .json-boolean { color: var(--purple); }
+  .json-null { color: var(--muted); }
+  .json-brace { color: var(--accent); }
+
+  .error-msg {
+    background: rgba(255,107,107,0.1); border-top: 1px solid rgba(255,107,107,0.3);
+    padding: 10px 20px; font-size: 12px; color: var(--red);
+  }
+
+  .stats-row {
+    display: flex; gap: 12px; margin-top: 8px; flex-wrap: wrap;
+  }
+  .mini-stat {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 6px; padding: 6px 12px; font-size: 12px; color: var(--muted);
+  }
+  .mini-stat span { color: var(--text); }
+
+  @media (max-width: 768px) {
+    .editor-grid { grid-template-columns: 1fr; }
+    nav { padding: 16px 20px; }
+    .container { padding: 32px 16px; }
+    .tool-title { font-size: 32px; }
+  }
+  /* Custom scrollbar */
+  ::-webkit-scrollbar { width: 6px; }
+  ::-webkit-scrollbar-track { background: var(--bg); }
+  ::-webkit-scrollbar-thumb { background: var(--border-bright); border-radius: 100px; }
+  ::-webkit-scrollbar-thumb:hover { background: var(--muted); }
+  * { scrollbar-width: thin; scrollbar-color: var(--border-bright) var(--bg); }
+</style>
+</head>
+<body>
+<nav>
+  <a href="index.html" class="nav-logo">Just<span>Tools</span></a>
+  <a href="index.html" class="nav-back">← All Tools</a>
+</nav>
+
+<div class="container">
+  <div class="tool-header">
+    <p class="tool-label">🔢 Developer</p>
+    <h1 class="tool-title">JSON Formatter</h1>
+    <p class="tool-desc">Prettify, minify, validate, and explore JSON. Syntax highlighting included.</p>
+  </div>
+
+  <div class="toolbar">
+    <button class="tool-btn primary" onclick="formatJSON()">⚡ Format</button>
+    <button class="tool-btn" onclick="minifyJSON()">Minify</button>
+    <button class="tool-btn" onclick="validateJSON()">Validate</button>
+    <div class="sep"></div>
+    <button class="tool-btn" onclick="copyOutput()">Copy Output</button>
+    <button class="tool-btn" onclick="pasteInput()">Paste</button>
+    <div class="sep"></div>
+    <select class="indent-select" id="indent-size" onchange="formatJSON()">
+      <option value="2">2 spaces</option>
+      <option value="4">4 spaces</option>
+      <option value="tab">Tab</option>
+    </select>
+    <div class="sep"></div>
+    <button class="tool-btn" onclick="loadSample()">Load Sample</button>
+    <button class="tool-btn danger" onclick="clearAll()">Clear</button>
+  </div>
+
+  <div class="status-bar">
+    <div class="status-item" id="status-indicator">
+      <div class="status-dot" style="background:var(--muted)"></div>
+      <span>Waiting for input</span>
+    </div>
+    <div class="status-item" id="stat-size" style="display:none">Size: <span id="size-val">—</span></div>
+    <div class="status-item" id="stat-keys" style="display:none">Keys: <span id="keys-val">—</span></div>
+    <div class="status-item" id="stat-depth" style="display:none">Depth: <span id="depth-val">—</span></div>
+  </div>
+
+  <div class="editor-grid">
+    <div class="editor-pane">
+      <div class="pane-label">Input <span id="input-chars"></span></div>
+      <div class="code-wrap" id="input-wrap">
+        <textarea class="code-input" id="json-input" placeholder='Paste your JSON here...&#10;&#10;{&#10;  "example": "value",&#10;  "numbers": [1, 2, 3]&#10;}' oninput="onInputChange()"></textarea>
+        <div class="error-msg" id="error-msg" style="display:none"></div>
+      </div>
+    </div>
+    <div class="editor-pane">
+      <div class="pane-label">Output <span id="output-chars"></span></div>
+      <div class="code-wrap" id="output-wrap">
+        <div class="code-output" id="json-output">Format your JSON to see the highlighted output here.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  function getIndent() {
+    const v = document.getElementById('indent-size').value;
+    return v === 'tab' ? '\t' : parseInt(v);
+  }
+
+  function onInputChange() {
+    const input = document.getElementById('json-input').value.trim();
+    document.getElementById('input-chars').textContent = input.length ? `${input.length} chars` : '';
+    if (!input) {
+      resetStatus();
+      return;
+    }
+    try {
+      JSON.parse(input);
+      setStatus('valid', '✓ Valid JSON');
+    } catch(e) {
+      setStatus('error', '✗ Invalid JSON');
+    }
+  }
+
+  function formatJSON() {
+    const input = document.getElementById('json-input').value.trim();
+    if (!input) return;
+    try {
+      const parsed = JSON.parse(input);
+      const formatted = JSON.stringify(parsed, null, getIndent());
+      setOutput(formatted, parsed);
+      setStatus('valid', '✓ Valid JSON');
+      document.getElementById('input-wrap').className = 'code-wrap is-valid';
+      document.getElementById('error-msg').style.display = 'none';
+      updateStats(input, parsed);
+    } catch(e) {
+      setStatus('error', '✗ ' + e.message);
+      document.getElementById('input-wrap').className = 'code-wrap has-error';
+      document.getElementById('error-msg').textContent = e.message;
+      document.getElementById('error-msg').style.display = 'block';
+      document.getElementById('json-output').innerHTML = '<span style="color:var(--red)">Fix the error in the input to format.</span>';
+    }
+  }
+
+  function minifyJSON() {
+    const input = document.getElementById('json-input').value.trim();
+    if (!input) return;
+    try {
+      const parsed = JSON.parse(input);
+      const minified = JSON.stringify(parsed);
+      document.getElementById('json-input').value = minified;
+      setOutput(minified, parsed);
+      setStatus('valid', '✓ Minified');
+    } catch(e) {
+      setStatus('error', '✗ ' + e.message);
+    }
+  }
+
+  function validateJSON() {
+    const input = document.getElementById('json-input').value.trim();
+    if (!input) { setStatus('neutral', 'No input to validate'); return; }
+    try {
+      JSON.parse(input);
+      setStatus('valid', '✓ Valid JSON — no errors found');
+      document.getElementById('input-wrap').className = 'code-wrap is-valid';
+      document.getElementById('error-msg').style.display = 'none';
+    } catch(e) {
+      setStatus('error', '✗ ' + e.message);
+      document.getElementById('input-wrap').className = 'code-wrap has-error';
+      document.getElementById('error-msg').textContent = e.message;
+      document.getElementById('error-msg').style.display = 'block';
+    }
+  }
+
+  function setOutput(text, parsed) {
+    document.getElementById('json-output').innerHTML = syntaxHighlight(text);
+    document.getElementById('output-chars').textContent = `${text.length} chars`;
+    document.getElementById('output-wrap').className = 'code-wrap is-valid';
+  }
+
+  function syntaxHighlight(json) {
+    json = json.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+    return json.replace(/("(\\u[a-zA-Z0-9]{4}|\\[^u]|[^\\"])*"(\s*:)?|\b(true|false|null)\b|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?|[{}\[\]])/g, match => {
+      if (/^"/.test(match)) {
+        return /:$/.test(match)
+          ? `<span class="json-key">${match}</span>`
+          : `<span class="json-string">${match}</span>`;
+      }
+      if (/true|false/.test(match)) return `<span class="json-boolean">${match}</span>`;
+      if (/null/.test(match)) return `<span class="json-null">${match}</span>`;
+      if (/[{}\[\]]/.test(match)) return `<span class="json-brace">${match}</span>`;
+      return `<span class="json-number">${match}</span>`;
+    });
+  }
+
+  function countKeys(obj) {
+    let count = 0;
+    function recurse(o) {
+      if (typeof o === 'object' && o !== null) {
+        Object.keys(o).forEach(k => { count++; recurse(o[k]); });
+        if (Array.isArray(o)) o.forEach(v => recurse(v));
+      }
+    }
+    recurse(obj); return count;
+  }
+
+  function getDepth(obj) {
+    if (typeof obj !== 'object' || obj === null) return 0;
+    return 1 + Math.max(0, ...Object.values(obj).map(getDepth));
+  }
+
+  function updateStats(input, parsed) {
+    document.getElementById('stat-size').style.display = 'flex';
+    document.getElementById('stat-keys').style.display = 'flex';
+    document.getElementById('stat-depth').style.display = 'flex';
+    document.getElementById('size-val').textContent = input.length > 1024 ? (input.length/1024).toFixed(1)+'KB' : input.length+'B';
+    document.getElementById('keys-val').textContent = countKeys(parsed);
+    document.getElementById('depth-val').textContent = getDepth(parsed);
+  }
+
+  function setStatus(type, msg) {
+    const el = document.getElementById('status-indicator');
+    const colors = { valid: 'var(--green)', error: 'var(--red)', neutral: 'var(--muted)' };
+    el.innerHTML = `<div class="status-dot" style="background:${colors[type]||colors.neutral}"></div><span style="color:${colors[type]||colors.neutral}">${msg}</span>`;
+  }
+
+  function resetStatus() {
+    setStatus('neutral', 'Waiting for input');
+    document.getElementById('input-wrap').className = 'code-wrap';
+    document.getElementById('output-wrap').className = 'code-wrap';
+    document.getElementById('error-msg').style.display = 'none';
+    document.getElementById('json-output').textContent = 'Format your JSON to see the highlighted output here.';
+    document.getElementById('output-chars').textContent = '';
+    ['stat-size','stat-keys','stat-depth'].forEach(id => document.getElementById(id).style.display = 'none');
+  }
+
+  function copyOutput() {
+    const text = document.getElementById('json-output').textContent;
+    navigator.clipboard.writeText(text);
+  }
+
+  async function pasteInput() {
+    try {
+      const text = await navigator.clipboard.readText();
+      document.getElementById('json-input').value = text;
+      onInputChange();
+      formatJSON();
+    } catch(e) { alert('Could not access clipboard — please paste manually.'); }
+  }
+
+  function clearAll() {
+    document.getElementById('json-input').value = '';
+    resetStatus();
+    document.getElementById('input-chars').textContent = '';
+  }
+
+  function loadSample() {
+    const sample = {
+      "name": "JustTools",
+      "version": "1.0.0",
+      "description": "No signup. No BS. Just tools.",
+      "tools": ["Word Counter", "Password Generator", "Color Picker", "JSON Formatter"],
+      "stats": { "users": 0, "signupsRequired": false, "price": "free" },
+      "meta": { "tags": ["productivity", "utilities", "free"], "active": true }
+    };
+    document.getElementById('json-input').value = JSON.stringify(sample);
+    onInputChange();
+    formatJSON();
+  }
+</script>
+</body>
+</html>

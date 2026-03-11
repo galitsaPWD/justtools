@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="Free online word counter — no signup, no account needed. Count words, characters, reading time instantly in your browser.">
+<title>Unit Converter — JustTools</title>
+<link rel="icon" type="image/svg+xml" href="favicon.svg">
+<link rel="shortcut icon" href="favicon.svg">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+  :root{--bg:#0a0a0a;--surface:#111;--border:#1e1e1e;--border-bright:#2e2e2e;--text:#f0f0f0;--muted:#666;--accent:#e8ff47;--accent-dim:rgba(232,255,71,0.1)}
+  body{background:var(--bg);color:var(--text);font-family:'DM Mono',monospace;min-height:100vh}
+  nav{display:flex;align-items:center;justify-content:space-between;padding:20px 48px;border-bottom:1px solid var(--border);background:rgba(10,10,10,0.9);backdrop-filter:blur(20px);position:sticky;top:0;z-index:100}
+  .nav-logo{font-family:'Syne',sans-serif;font-weight:800;font-size:18px;text-decoration:none;color:var(--text)}
+  .nav-logo span{color:var(--accent)}
+  .nav-back{color:var(--muted);font-size:13px;text-decoration:none;transition:color 0.2s}
+  .nav-back:hover{color:var(--text)}
+  .container{max-width:760px;margin:0 auto;padding:64px 24px}
+  .tool-label{font-size:11px;letter-spacing:0.15em;text-transform:uppercase;color:var(--accent);margin-bottom:12px}
+  .tool-title{font-family:'Syne',sans-serif;font-weight:800;font-size:48px;letter-spacing:-2px;line-height:1;margin-bottom:12px}
+  .tool-desc{color:var(--muted);font-size:14px;margin-bottom:40px}
+
+  .category-tabs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:32px}
+  .cat-tab{padding:8px 16px;border-radius:6px;border:1px solid var(--border);background:none;color:var(--muted);font-family:'DM Mono',monospace;font-size:12px;cursor:pointer;transition:all 0.2s}
+  .cat-tab.active{background:var(--accent);color:#000;border-color:var(--accent);font-family:'Syne',sans-serif;font-weight:700}
+  .cat-tab:hover:not(.active){color:var(--text);border-color:var(--border-bright)}
+
+  .converter-box{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:32px;margin-bottom:24px}
+  .conv-row{display:grid;grid-template-columns:1fr auto 1fr;gap:12px;align-items:end;margin-bottom:16px}
+  .conv-field{display:flex;flex-direction:column;gap:8px}
+  .conv-label{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:0.08em}
+  .conv-input{background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:14px 16px;color:var(--text);font-family:'DM Mono',monospace;font-size:18px;outline:none;transition:border-color 0.2s;width:100%}
+  .conv-input:focus{border-color:var(--accent)}
+  select.conv-select{background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:10px 14px;color:var(--text);font-family:'DM Mono',monospace;font-size:13px;outline:none;width:100%;cursor:pointer;transition:border-color 0.2s}
+  select.conv-select:focus{border-color:var(--border-bright)}
+  .swap-icon{font-size:24px;cursor:pointer;padding:8px;border-radius:6px;border:1px solid var(--border);background:none;color:var(--muted);transition:all 0.2s;align-self:center;margin-top:20px}
+  .swap-icon:hover{border-color:var(--accent);color:var(--accent)}
+
+  .all-conversions{margin-top:16px}
+  .all-title{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:12px}
+  .conv-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}
+  .conv-item{background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:12px 16px;display:flex;justify-content:space-between;align-items:center;cursor:pointer;transition:border-color 0.2s}
+  .conv-item:hover{border-color:var(--border-bright)}
+  .conv-item-unit{font-size:12px;color:var(--muted)}
+  .conv-item-val{font-size:14px;color:var(--accent);font-weight:500}
+
+  @media(max-width:600px){.conv-row{grid-template-columns:1fr}.swap-icon{display:none}nav{padding:16px 20px}.container{padding:40px 16px}.conv-grid{grid-template-columns:1fr}}
+  /* Custom scrollbar */
+  ::-webkit-scrollbar { width: 6px; }
+  ::-webkit-scrollbar-track { background: var(--bg); }
+  ::-webkit-scrollbar-thumb { background: var(--border-bright); border-radius: 100px; }
+  ::-webkit-scrollbar-thumb:hover { background: var(--muted); }
+  * { scrollbar-width: thin; scrollbar-color: var(--border-bright) var(--bg); }
+</style>
+</head>
+<body>
+<nav>
+  <a href="index.html" class="nav-logo">Just<span>Tools</span></a>
+  <a href="index.html" class="nav-back">← All Tools</a>
+</nav>
+<div class="container">
+  <div class="tool-label">📐 Utilities</div>
+  <h1 class="tool-title">Unit<br>Converter</h1>
+  <p class="tool-desc">Convert between units of length, weight, temperature, area, volume, speed, and more.</p>
+
+  <div class="category-tabs" id="cat-tabs"></div>
+
+  <div class="converter-box">
+    <div class="conv-row">
+      <div class="conv-field">
+        <div class="conv-label">From</div>
+        <input class="conv-input" type="number" id="from-val" value="1" oninput="convert()">
+        <select class="conv-select" id="from-unit" onchange="convert()"></select>
+      </div>
+      <button class="swap-icon" onclick="swapUnits()">⇄</button>
+      <div class="conv-field">
+        <div class="conv-label">To</div>
+        <input class="conv-input" type="number" id="to-val" readonly style="color:var(--accent)">
+        <select class="conv-select" id="to-unit" onchange="convert()"></select>
+      </div>
+    </div>
+  </div>
+
+  <div class="all-conversions">
+    <div class="all-title">All conversions for <span id="all-label">—</span></div>
+    <div class="conv-grid" id="conv-grid"></div>
+  </div>
+</div>
+<script>
+const CATEGORIES = {
+  Length: { units: { Meter:1, Kilometer:0.001, Centimeter:100, Millimeter:1000, Mile:0.000621371, Yard:1.09361, Foot:3.28084, Inch:39.3701, 'Nautical Mile':0.000539957 }, base:'Meter' },
+  Weight: { units: { Kilogram:1, Gram:1000, Milligram:1e6, Pound:2.20462, Ounce:35.274, Ton:0.001, Stone:0.157473 }, base:'Kilogram' },
+  Temperature: { special:true },
+  Area: { units: { 'Sq Meter':1, 'Sq Kilometer':1e-6, 'Sq Centimeter':10000, 'Sq Mile':3.861e-7, 'Sq Yard':1.19599, 'Sq Foot':10.7639, Acre:0.000247105, Hectare:0.0001 }, base:'Sq Meter' },
+  Volume: { units: { Liter:1, Milliliter:1000, 'Cubic Meter':0.001, Gallon:0.264172, Quart:1.05669, Pint:2.11338, Cup:4.22675, 'Fluid Oz':33.814 }, base:'Liter' },
+  Speed: { units: { 'km/h':1, 'm/s':0.277778, mph:0.621371, Knot:0.539957, 'ft/s':0.911344 }, base:'km/h' },
+  Time: { units: { Second:1, Minute:1/60, Hour:1/3600, Day:1/86400, Week:1/604800, Month:1/2629800, Year:1/31557600 }, base:'Second' },
+  Data: { units: { Byte:1, Kilobyte:1/1024, Megabyte:1/1048576, Gigabyte:1/1073741824, Terabyte:1/1099511627776, Bit:8 }, base:'Byte' },
+};
+
+let currentCat = 'Length';
+
+function renderTabs() {
+  document.getElementById('cat-tabs').innerHTML = Object.keys(CATEGORIES).map(c =>
+    `<button class="cat-tab ${c===currentCat?'active':''}" onclick="setCategory('${c}')">${c}</button>`
+  ).join('');
+}
+
+function setCategory(cat) {
+  currentCat = cat;
+  renderTabs();
+  populateUnits();
+  convert();
+}
+
+function populateUnits() {
+  const cat = CATEGORIES[currentCat];
+  const units = currentCat === 'Temperature' ? ['Celsius','Fahrenheit','Kelvin'] : Object.keys(cat.units);
+  const fromSel = document.getElementById('from-unit');
+  const toSel = document.getElementById('to-unit');
+  const fromVal = fromSel.value;
+  const toVal = toSel.value;
+  fromSel.innerHTML = units.map(u => `<option value="${u}">${u}</option>`).join('');
+  toSel.innerHTML = units.map(u => `<option value="${u}">${u}</option>`).join('');
+  if (units.includes(fromVal)) fromSel.value = fromVal;
+  if (units.includes(toVal)) toSel.value = toVal;
+  else toSel.value = units[1] || units[0];
+}
+
+function convertTemp(val, from, to) {
+  let c;
+  if (from==='Celsius') c=val;
+  else if (from==='Fahrenheit') c=(val-32)*5/9;
+  else c=val-273.15;
+  if (to==='Celsius') return c;
+  if (to==='Fahrenheit') return c*9/5+32;
+  return c+273.15;
+}
+
+function fmt(n) {
+  if (Math.abs(n) >= 1e9 || (Math.abs(n) < 0.0001 && n !== 0)) return n.toExponential(4);
+  return parseFloat(n.toPrecision(7)).toString();
+}
+
+function convert() {
+  const val = parseFloat(document.getElementById('from-val').value);
+  const from = document.getElementById('from-unit').value;
+  const to = document.getElementById('to-unit').value;
+  if (isNaN(val)) { document.getElementById('to-val').value=''; return; }
+
+  let result;
+  if (currentCat === 'Temperature') {
+    result = convertTemp(val, from, to);
+  } else {
+    const units = CATEGORIES[currentCat].units;
+    const inBase = val / units[from];
+    result = inBase * units[to];
+  }
+  document.getElementById('to-val').value = fmt(result);
+  renderAllConversions(val, from);
+}
+
+function renderAllConversions(val, from) {
+  document.getElementById('all-label').textContent = `1 ${from}`;
+  const cat = CATEGORIES[currentCat];
+  const units = currentCat === 'Temperature' ? ['Celsius','Fahrenheit','Kelvin'] : Object.keys(cat.units);
+  document.getElementById('conv-grid').innerHTML = units.filter(u=>u!==from).map(u => {
+    let r;
+    if (currentCat==='Temperature') r = convertTemp(val, from, u);
+    else { const us = cat.units; r = (val / us[from]) * us[u]; }
+    return `<div class="conv-item" onclick="document.getElementById('to-unit').value='${u}';convert()">
+      <span class="conv-item-unit">${u}</span>
+      <span class="conv-item-val">${fmt(r)}</span>
+    </div>`;
+  }).join('');
+}
+
+function swapUnits() {
+  const fv = document.getElementById('from-val').value;
+  const tv = document.getElementById('to-val').value;
+  const fu = document.getElementById('from-unit').value;
+  const tu = document.getElementById('to-unit').value;
+  document.getElementById('from-unit').value = tu;
+  document.getElementById('to-unit').value = fu;
+  document.getElementById('from-val').value = tv;
+  convert();
+}
+
+renderTabs(); populateUnits(); convert();
+</script>
+</body>
+</html>
