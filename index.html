@@ -341,13 +341,12 @@
     submitBtn.disabled = true;
 
     try {
-      const res = await fetch('https://formspree.io/f/xvgrwkep', {
+      const res = await fetch('https://formspree.io/f/mnjgdvbg', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
         body: JSON.stringify({
-          tool: name,
-          description: document.getElementById('suggest-desc').value,
           email: document.getElementById('suggest-email').value || 'not provided',
+          message: `Tool: ${name}\n\nDescription: ${document.getElementById('suggest-desc').value}`,
         })
       });
 

@@ -113,7 +113,7 @@
   .loading-dots span:nth-child(3){animation-delay:0.4s}
   @keyframes dot-bounce{0%,80%,100%{transform:translateY(0)}40%{transform:translateY(-8px)}}
 
-  @media(max-width:640px){nav{padding:16px 20px}.container{padding:40px 16px}.tool-title{font-size:36px}.extract-row{flex-direction:column;align-items:stretch}.extract-btn{width:100%}.lang-wrap{width:100%;min-width:0}}
+  @media(max-width:640px){*, *::before, *::after { cursor: auto !important; } .cursor, .cursor-ring { display: none !important; } nav{padding:16px 20px} .container{padding:30px 16px} .tool-title{font-size:36px} .extract-row{flex-direction:column;align-items:stretch;gap:12px} .extract-btn{width:100%} .lang-wrap{width:100%;min-width:0} .drop-zone { padding: 40px 20px; } .drop-btns { flex-direction: column; width: 100%; } .upload-btn, .paste-btn { width: 100%; } .output-header{flex-direction:column;align-items:flex-start} .output-actions{width:100%;flex-direction:column} .action-btn{width:100%;text-align:center} .stats-row{flex-direction:column} .stat-pill{width:100%;text-align:center} }
 </style>
 </head>
 <body>
