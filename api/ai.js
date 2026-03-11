@@ -26,6 +26,7 @@ export default async function handler(req) {
       grammar: `You are a grammar checker. Fix all grammar, spelling, and punctuation errors in the text below. Return ONLY the corrected text with no explanation, no preamble, no quotes. If the text is already correct, return it unchanged.\n\nText: ${text}`,
       paraphrase: `You are a writing assistant. Rewrite the text below in a ${tone || 'neutral'} tone. Keep the same meaning but use different words and sentence structure. Return ONLY the rewritten text with no explanation, no preamble, no quotes.\n\nText: ${text}`,
       summarize: `You are a summarization expert. Summarize the text below concisely. Capture all key points. Return ONLY the summary with no explanation, no preamble, no quotes.\n\nText: ${text}`,
+      translate: `You are a professional translator. Translate the text below into ${tone || 'English'}. Return ONLY the translated text with no explanation, no preamble, no quotes. Preserve the original formatting and line breaks.\n\nText: ${text}`,
     };
 
     if (!prompts[tool]) {

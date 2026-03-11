@@ -68,16 +68,16 @@
   .cat-filter { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 32px; }
   .cat-btn { padding: 6px 16px; border-radius: 100px; border: 1px solid var(--border); background: none; color: var(--muted); font-family: 'DM Mono', monospace; font-size: 12px; transition: all 0.2s; }
   .cat-btn.active, .cat-btn:hover { background: var(--accent); color: #000; border-color: var(--accent); font-family: 'Syne', sans-serif; font-weight: 700; }
-  .tools-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 16px; }
-  .tool-card { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 28px 24px; transition: border-color 0.25s, transform 0.25s, background 0.25s; position: relative; overflow: hidden; text-decoration: none; display: block; }
+  .tools-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 16px; }
+  .tool-card { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 28px 24px; transition: border-color 0.25s, transform 0.25s, background 0.25s; position: relative; overflow: hidden; text-decoration: none; display: flex; flex-direction: column; }
   .tool-card::after { content: '→'; position: absolute; right: 20px; top: 50%; transform: translateY(-50%) translateX(10px); opacity: 0; color: var(--accent); font-size: 18px; transition: opacity 0.2s, transform 0.2s; }
   .tool-card:hover { border-color: var(--accent); transform: translateY(-3px); background: #141414; }
   .tool-card:hover::after { opacity: 1; transform: translateY(-50%) translateX(0); }
   .tool-card[data-hidden="true"] { display: none; }
   .tool-icon { font-size: 24px; margin-bottom: 14px; display: block; }
   .tool-name { font-family: 'Syne', sans-serif; font-weight: 700; font-size: 15px; color: var(--text); margin-bottom: 6px; }
-  .tool-desc { font-size: 12px; color: var(--muted); line-height: 1.5; }
-  .tool-tag { display: inline-block; background: var(--accent-dim); color: var(--accent); font-size: 10px; padding: 2px 8px; border-radius: 100px; margin-top: 12px; letter-spacing: 0.05em; }
+  .tool-desc { font-size: 12px; color: var(--muted); line-height: 1.5; flex: 1; }
+  .tool-tag { display: inline-block; background: var(--accent-dim); color: var(--accent); font-size: 10px; padding: 3px 10px; border-radius: 100px; margin-top: 12px; letter-spacing: 0.05em; align-self: flex-start; }
   .manifesto { padding: 100px 48px; border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); background: var(--surface); }
   .manifesto-inner { max-width: 800px; margin: 0 auto; }
   .manifesto blockquote { font-family: 'Syne', sans-serif; font-weight: 700; font-size: clamp(24px, 3.5vw, 42px); line-height: 1.25; letter-spacing: -1px; color: var(--text); }
