@@ -55,6 +55,12 @@
   .tool-btn.danger:hover { color: var(--red); border-color: var(--red); }
 
   .sep { width: 1px; height: 24px; background: var(--border); margin: 0 4px; }
+  .file-btn { background: none; border: 1px solid var(--border); color: var(--muted); padding: 7px 16px; border-radius: 6px; font-family: 'DM Mono', monospace; font-size: 12px; transition: all 0.2s; white-space: nowrap; display: inline-flex; align-items: center; gap: 6px; }
+  .file-btn:hover { color: var(--text); border-color: var(--border-bright); }
+  #file-input { display: none; }
+  .drop-overlay { position: absolute; inset: 0; background: rgba(232,255,71,0.04); border: 2px dashed var(--accent); border-radius: 10px; display: none; align-items: center; justify-content: center; font-size: 14px; color: var(--accent); font-family: 'Syne', sans-serif; font-weight: 700; z-index: 10; pointer-events: none; }
+  .code-wrap { position: relative; }
+  .code-wrap.drag-over .drop-overlay { display: flex; }
 
   .indent-select {
     background: var(--surface); border: 1px solid var(--border);
@@ -94,7 +100,7 @@
     padding: 20px; min-height: 480px; flex: 1;
     resize: none; outline: none; border: none;
     background: transparent; color: var(--text);
-    white-space: pre; overflow: auto;
+    white-space: pre-wrap; overflow: auto; word-break: break-word;
   }
 
   .code-output {
@@ -160,6 +166,8 @@
     <div class="sep"></div>
     <button class="tool-btn" onclick="copyOutput()">Copy Output</button>
     <button class="tool-btn" onclick="pasteInput()">Paste</button>
+    <label class="file-btn" for="file-input">📂 Open File</label>
+    <input type="file" id="file-input" accept=".json,.txt" onchange="loadFile(event)">
     <div class="sep"></div>
     <select class="indent-select" id="indent-size" onchange="formatJSON()">
       <option value="2">2 spaces</option>
@@ -185,6 +193,7 @@
     <div class="editor-pane">
       <div class="pane-label">Input <span id="input-chars"></span></div>
       <div class="code-wrap" id="input-wrap">
+        <div class="drop-overlay">Drop JSON file here</div>
         <textarea class="code-input" id="json-input" placeholder='Paste your JSON here...&#10;&#10;{&#10;  "example": "value",&#10;  "numbers": [1, 2, 3]&#10;}' oninput="onInputChange()"></textarea>
         <div class="error-msg" id="error-msg" style="display:none"></div>
       </div>
@@ -381,6 +390,38 @@
     ringEl.style.top = ry + 'px';
     requestAnimationFrame(animateRing);
   })();
+  // File load
+  function loadFile(e) {
+    const file = e.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = ev => {
+      document.getElementById('json-input').value = ev.target.result;
+      document.getElementById('file-input').value = '';
+      onInputChange();
+      formatJSON();
+    };
+    reader.readAsText(file);
+  }
+
+  // Drag and drop on input wrap
+  const inputWrap = document.getElementById('input-wrap');
+  inputWrap.addEventListener('dragover', e => { e.preventDefault(); inputWrap.classList.add('drag-over'); });
+  inputWrap.addEventListener('dragleave', () => inputWrap.classList.remove('drag-over'));
+  inputWrap.addEventListener('drop', e => {
+    e.preventDefault();
+    inputWrap.classList.remove('drag-over');
+    const file = e.dataTransfer.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = ev => {
+      document.getElementById('json-input').value = ev.target.result;
+      onInputChange();
+      formatJSON();
+    };
+    reader.readAsText(file);
+  });
+
   document.querySelectorAll('a, button, textarea, input, select, label').forEach(el => {
     el.addEventListener('mouseenter', () => {
       cursorEl.style.transform = 'translate(-50%, -50%) scale(2)';
