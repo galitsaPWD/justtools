@@ -24,15 +24,17 @@
   .tool-title{font-family:'Syne',sans-serif;font-weight:800;font-size:48px;letter-spacing:-2px;line-height:1;margin-bottom:12px}
   .tool-desc{color:var(--muted);font-size:14px;margin-bottom:40px}
   .ai-badge{display:inline-flex;align-items:center;gap:6px;background:rgba(232,255,71,0.08);border:1px solid rgba(232,255,71,0.2);padding:5px 12px;border-radius:100px;font-size:11px;color:var(--accent);margin-bottom:32px}
-  .panels{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px}
-  .panel-wrap{display:flex;flex-direction:column;gap:8px}
-  .panel-label{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:0.1em;display:flex;justify-content:space-between;align-items:center}
-  .panel-label span{color:var(--accent);font-size:11px}
-  textarea.panel{width:100%;min-height:300px;background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:20px;color:var(--text);font-family:'DM Mono',monospace;font-size:14px;line-height:1.8;resize:vertical;outline:none;transition:border-color 0.2s}
-  textarea.panel:focus{border-color:var(--border-bright)}
-  textarea.panel.success{border-color:var(--green)}
-  .output-panel{width:100%;min-height:300px;background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:20px;font-family:'DM Mono',monospace;font-size:14px;line-height:1.8;color:var(--muted);white-space:pre-wrap;word-break:break-word;transition:border-color 0.2s}
-  .output-panel.has-result{color:var(--text);border-color:var(--green)}
+  .panels{display:grid;grid-template-columns:1fr 1fr;gap:0;margin-bottom:24px;border:1px solid var(--border);border-radius:14px;overflow:hidden;background:var(--surface);transition:border-color 0.3s;align-items:stretch}
+  .panels.done{border-color:rgba(71,255,138,0.3)}
+  .panel-wrap{display:flex;flex-direction:column;flex:1}
+  .panel-wrap:first-child{border-right:1px solid var(--border)}
+  .panel-header{display:flex;justify-content:space-between;align-items:center;padding:12px 20px;border-bottom:1px solid var(--border);background:rgba(255,255,255,0.015)}
+  .panel-header-label{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:0.14em}
+  .panel-header-meta{font-size:11px;color:var(--accent)}
+  .panel-header-status{font-size:11px;color:var(--green)}
+  textarea.panel{width:100%;flex:1;min-height:280px;background:transparent;border:none;padding:22px;color:var(--text);font-family:'DM Mono',monospace;font-size:14px;line-height:1.9;resize:none;outline:none}
+  .output-panel{width:100%;flex:1;min-height:280px;padding:22px;font-family:'DM Mono',monospace;font-size:14px;line-height:1.9;color:#444;white-space:pre-wrap;word-break:break-word;transition:color 0.4s;overflow-y:auto}
+  .output-panel.has-result{color:var(--text)}
   .action-row{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:32px;align-items:center}
   .check-btn{background:var(--accent);color:#000;border:none;padding:13px 32px;border-radius:10px;font-family:'Syne',sans-serif;font-weight:800;font-size:14px;transition:all 0.2s;min-width:160px}
   .check-btn:hover{opacity:0.85;transform:translateY(-1px)}
@@ -71,13 +73,19 @@
 
   <div class="error-bar" id="error-bar"></div>
 
-  <div class="panels">
+  <div class="panels" id="panels">
     <div class="panel-wrap">
-      <div class="panel-label">Your Text <span id="in-count"></span></div>
+      <div class="panel-header">
+        <span class="panel-header-label">Your Text</span>
+        <span class="panel-header-meta" id="in-count"></span>
+      </div>
       <textarea class="panel" id="input-text" placeholder="Paste your text here and we'll fix any grammar, spelling, or punctuation errors..." oninput="updateCount()"></textarea>
     </div>
     <div class="panel-wrap">
-      <div class="panel-label">Corrected Text <span id="out-status"></span></div>
+      <div class="panel-header">
+        <span class="panel-header-label">Corrected Text</span>
+        <span class="panel-header-status" id="out-status"></span>
+      </div>
       <div class="output-panel" id="output-panel">Corrected text will appear here...</div>
     </div>
   </div>
@@ -116,9 +124,14 @@
   });
 
   function updateCount() {
-    const text = document.getElementById('input-text').value;
+    const ta = document.getElementById('input-text');
+    const text = ta.value;
     const words = text.trim() ? text.trim().split(/\s+/).length : 0;
     document.getElementById('in-count').textContent = words ? words + ' words' : '';
+    ta.style.height = '0px';
+    const newH = Math.max(280, ta.scrollHeight) + 'px';
+    ta.style.height = newH;
+    document.getElementById('output-panel').style.minHeight = newH;
   }
 
   async function checkGrammar() {
@@ -139,6 +152,7 @@
       const output = document.getElementById('output-panel');
       output.textContent = data.result;
       output.classList.add('has-result');
+      document.getElementById('panels').classList.add('done');
       document.getElementById('out-status').textContent = '✓ Fixed';
 
       showStats(text, data.result);
@@ -202,6 +216,7 @@
     document.getElementById('input-text').value = '';
     document.getElementById('output-panel').textContent = 'Corrected text will appear here...';
     document.getElementById('output-panel').classList.remove('has-result');
+    document.getElementById('panels').classList.remove('done');
     document.getElementById('diff-view').style.display = 'none';
     document.getElementById('stats-row').style.display = 'none';
     document.getElementById('in-count').textContent = '';

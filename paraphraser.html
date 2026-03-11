@@ -155,11 +155,11 @@
     const text = ta.value;
     const words = text.trim() ? text.trim().split(/\s+/).length : 0;
     document.getElementById('in-count').textContent = words ? words + ' words' : '';
-    // Auto-grow textarea
-    ta.style.height = 'auto';
-    ta.style.height = Math.max(280, ta.scrollHeight) + 'px';
-    // Sync output panel height
-    document.getElementById('output-panel').style.minHeight = ta.style.height;
+    // Auto-grow and shrink textarea
+    ta.style.height = '0px';
+    const newH = Math.max(280, ta.scrollHeight) + 'px';
+    ta.style.height = newH;
+    document.getElementById('output-panel').style.minHeight = newH;
   }
 
   async function paraphrase() {
