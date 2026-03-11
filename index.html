@@ -3,7 +3,6 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="description" content="Free online word counter — no signup, no account needed. Count words, characters, reading time instantly in your browser.">
 <title>JustTools — No Signup. No BS.</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet">
@@ -130,8 +129,9 @@
   .reveal.visible { opacity: 1; transform: translateY(0); }
   @media (max-width: 768px) { nav { padding: 16px 20px; } .nav-links { display: none; } section, .tools-section { padding: 60px 20px; } .features-grid { grid-template-columns: 1fr; } .hero-stats { gap: 24px; } footer { flex-direction: column; gap: 12px; text-align: center; } .tools-header { flex-direction: column; align-items: flex-start; } .manifesto { padding: 60px 20px; } .cta-section { padding: 80px 20px; } }
 </style>
+<link rel="icon" type="image/x-icon" href="favicon.ico">
 <link rel="icon" type="image/svg+xml" href="favicon.svg">
-<link rel="shortcut icon" href="favicon.svg">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
 </head>
 <body>
 <div class="cursor" id="cursor"></div>
@@ -150,13 +150,13 @@
   <div class="hero-glow"></div>
   <div class="badge"><div class="badge-dot"></div>No account. No email. No nonsense.</div>
   <h1>Just<span class="accent">Tools.</span><br><span class="strike">Signup</span> Required.</h1>
-  <p class="hero-sub">A curated suite of 12 micro-tools for the things you actually need to do — instantly, privately, and completely free.</p>
+  <p class="hero-sub">A curated suite of 15 micro-tools for the things you actually need to do — instantly, privately, and completely free.</p>
   <div class="hero-actions">
-    <a href="#tools" class="btn-primary">Browse All 12 Tools →</a>
+    <a href="#tools" class="btn-primary">Browse All 15 Tools →</a>
     <a href="#why" class="btn-ghost">Why JustTools?</a>
   </div>
   <div class="hero-stats">
-    <div class="stat"><div class="stat-num">12</div><div class="stat-label">Free Tools</div></div>
+    <div class="stat"><div class="stat-num">15</div><div class="stat-label">Free Tools</div></div>
     <div class="stat"><div class="stat-num">0</div><div class="stat-label">Signups Needed</div></div>
     <div class="stat"><div class="stat-num">100%</div><div class="stat-label">Browser-side</div></div>
   </div>
@@ -206,11 +206,11 @@
   <div class="tools-header">
     <div>
       <p class="section-label">The Toolbox</p>
-      <h2 class="section-title">12 tools.<br>Zero signups.</h2>
+      <h2 class="section-title">15 tools.<br>Zero signups.</h2>
     </div>
   </div>
   <div class="cat-filter" id="cat-filter">
-    <button class="cat-btn active" onclick="filterCat('all',this)">All (12)</button>
+    <button class="cat-btn active" onclick="filterCat('all',this)">All (15)</button>
     <button class="cat-btn" onclick="filterCat('Dev',this)">Dev</button>
     <button class="cat-btn" onclick="filterCat('Writing',this)">Writing</button>
     <button class="cat-btn" onclick="filterCat('Design',this)">Design</button>
@@ -218,6 +218,7 @@
     <button class="cat-btn" onclick="filterCat('Documents',this)">Documents</button>
     <button class="cat-btn" onclick="filterCat('Data',this)">Data</button>
     <button class="cat-btn" onclick="filterCat('Utilities',this)">Utilities</button>
+    <button class="cat-btn" onclick="filterCat('AI',this)">✨ AI</button>
   </div>
   <div class="tools-grid reveal" id="tools-grid">
     <a href="password-generator.html" class="tool-card" data-cat="Security"><span class="tool-icon">🔐</span><div class="tool-name">Password Generator</div><div class="tool-desc">Generate strong, random passwords with strength meter</div><span class="tool-tag">Security</span></a>
@@ -232,6 +233,9 @@
     <a href="csv-viewer.html" class="tool-card" data-cat="Data"><span class="tool-icon">📊</span><div class="tool-name">CSV Viewer</div><div class="tool-desc">View, sort, filter and explore CSV files instantly</div><span class="tool-tag">Data</span></a>
     <a href="image-converter.html" class="tool-card" data-cat="Design"><span class="tool-icon">🖼️</span><div class="tool-name">Image Converter</div><div class="tool-desc">Convert JPG, PNG, WebP — resize and adjust quality</div><span class="tool-tag">Design</span></a>
     <a href="pdf-merger.html" class="tool-card" data-cat="Documents"><span class="tool-icon">📄</span><div class="tool-name">PDF Merger</div><div class="tool-desc">Combine multiple PDFs — drag to reorder pages</div><span class="tool-tag">Documents</span></a>
+    <a href="grammar-checker.html" class="tool-card" data-cat="AI"><span class="tool-icon">✍️</span><div class="tool-name">Grammar Checker</div><div class="tool-desc">Fix grammar, spelling and punctuation errors instantly</div><span class="tool-tag">✨ AI</span></a>
+    <a href="paraphraser.html" class="tool-card" data-cat="AI"><span class="tool-icon">↺</span><div class="tool-name">Paraphraser</div><div class="tool-desc">Rewrite text in 6 different tones and styles</div><span class="tool-tag">✨ AI</span></a>
+    <a href="text-summarizer.html" class="tool-card" data-cat="AI"><span class="tool-icon">📋</span><div class="tool-name">Text Summarizer</div><div class="tool-desc">Condense long articles and documents into key points</div><span class="tool-tag">✨ AI</span></a>
   </div>
 </div>
 <div class="manifesto" id="about">
@@ -244,7 +248,7 @@
 <div class="cta-section">
   <h2 class="reveal">Ready to just<br><span style="color:var(--accent)">use a tool?</span></h2>
   <p class="reveal">No account. No credit card. No setup. Pick a tool above and start right now.</p>
-  <a href="#tools" class="btn-primary reveal">Browse All 12 Tools →</a>
+  <a href="#tools" class="btn-primary reveal">Browse All 15 Tools →</a>
   <p class="cta-note reveal">Everything runs in your browser. Your data stays on your device.</p>
 </div>
 <!-- Suggest FAB -->
