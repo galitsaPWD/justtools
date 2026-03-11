@@ -68,16 +68,16 @@
   .cat-filter { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 32px; }
   .cat-btn { padding: 6px 16px; border-radius: 100px; border: 1px solid var(--border); background: none; color: var(--muted); font-family: 'DM Mono', monospace; font-size: 12px; transition: all 0.2s; }
   .cat-btn.active, .cat-btn:hover { background: var(--accent); color: #000; border-color: var(--accent); font-family: 'Syne', sans-serif; font-weight: 700; }
-  .tools-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 16px; }
-  .tool-card { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 28px 24px; transition: border-color 0.25s, transform 0.25s, background 0.25s; position: relative; overflow: hidden; text-decoration: none; display: flex; flex-direction: column; }
+  .tools-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 16px; }
+  .tool-card { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 28px 24px; transition: border-color 0.25s, transform 0.25s, background 0.25s; position: relative; overflow: hidden; text-decoration: none; display: block; }
   .tool-card::after { content: '→'; position: absolute; right: 20px; top: 50%; transform: translateY(-50%) translateX(10px); opacity: 0; color: var(--accent); font-size: 18px; transition: opacity 0.2s, transform 0.2s; }
   .tool-card:hover { border-color: var(--accent); transform: translateY(-3px); background: #141414; }
   .tool-card:hover::after { opacity: 1; transform: translateY(-50%) translateX(0); }
   .tool-card[data-hidden="true"] { display: none; }
   .tool-icon { font-size: 24px; margin-bottom: 14px; display: block; }
   .tool-name { font-family: 'Syne', sans-serif; font-weight: 700; font-size: 15px; color: var(--text); margin-bottom: 6px; }
-  .tool-desc { font-size: 12px; color: var(--muted); line-height: 1.5; flex: 1; }
-  .tool-tag { display: inline-block; background: var(--accent-dim); color: var(--accent); font-size: 10px; padding: 3px 10px; border-radius: 100px; margin-top: 12px; letter-spacing: 0.05em; align-self: flex-start; }
+  .tool-desc { font-size: 12px; color: var(--muted); line-height: 1.5; }
+  .tool-tag { display: inline-block; background: var(--accent-dim); color: var(--accent); font-size: 10px; padding: 2px 8px; border-radius: 100px; margin-top: 12px; letter-spacing: 0.05em; }
   .manifesto { padding: 100px 48px; border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); background: var(--surface); }
   .manifesto-inner { max-width: 800px; margin: 0 auto; }
   .manifesto blockquote { font-family: 'Syne', sans-serif; font-weight: 700; font-size: clamp(24px, 3.5vw, 42px); line-height: 1.25; letter-spacing: -1px; color: var(--text); }
@@ -150,13 +150,13 @@
   <div class="hero-glow"></div>
   <div class="badge"><div class="badge-dot"></div>No account. No email. No nonsense.</div>
   <h1>Just<span class="accent">Tools.</span><br><span class="strike">Signup</span> Required.</h1>
-  <p class="hero-sub">A curated suite of 15 micro-tools for the things you actually need to do — instantly, privately, and completely free.</p>
+  <p class="hero-sub">A curated suite of 16 micro-tools for the things you actually need to do — instantly, privately, and completely free.</p>
   <div class="hero-actions">
-    <a href="#tools" class="btn-primary">Browse All 15 Tools →</a>
+    <a href="#tools" class="btn-primary">Browse All 16 Tools →</a>
     <a href="#why" class="btn-ghost">Why JustTools?</a>
   </div>
   <div class="hero-stats">
-    <div class="stat"><div class="stat-num">15</div><div class="stat-label">Free Tools</div></div>
+    <div class="stat"><div class="stat-num">16</div><div class="stat-label">Free Tools</div></div>
     <div class="stat"><div class="stat-num">0</div><div class="stat-label">Signups Needed</div></div>
     <div class="stat"><div class="stat-num">100%</div><div class="stat-label">Browser-side</div></div>
   </div>
@@ -206,11 +206,11 @@
   <div class="tools-header">
     <div>
       <p class="section-label">The Toolbox</p>
-      <h2 class="section-title">15 tools.<br>Zero signups.</h2>
+      <h2 class="section-title">16 tools.<br>Zero signups.</h2>
     </div>
   </div>
   <div class="cat-filter" id="cat-filter">
-    <button class="cat-btn active" onclick="filterCat('all',this)">All (15)</button>
+    <button class="cat-btn active" onclick="filterCat('all',this)">All (16)</button>
     <button class="cat-btn" onclick="filterCat('Dev',this)">Dev</button>
     <button class="cat-btn" onclick="filterCat('Writing',this)">Writing</button>
     <button class="cat-btn" onclick="filterCat('Design',this)">Design</button>
@@ -236,6 +236,7 @@
     <a href="grammar-checker.html" class="tool-card" data-cat="AI"><span class="tool-icon">✍️</span><div class="tool-name">Grammar Checker</div><div class="tool-desc">Fix grammar, spelling and punctuation errors instantly</div><span class="tool-tag">✨ AI</span></a>
     <a href="paraphraser.html" class="tool-card" data-cat="AI"><span class="tool-icon">↺</span><div class="tool-name">Paraphraser</div><div class="tool-desc">Rewrite text in 6 different tones and styles</div><span class="tool-tag">✨ AI</span></a>
     <a href="text-summarizer.html" class="tool-card" data-cat="AI"><span class="tool-icon">📋</span><div class="tool-name">Text Summarizer</div><div class="tool-desc">Condense long articles and documents into key points</div><span class="tool-tag">✨ AI</span></a>
+    <a href="image-to-text.html" class="tool-card" data-cat="Utilities"><span class="tool-icon">📸</span><div class="tool-name">Image to Text</div><div class="tool-desc">Extract text from any image or screenshot instantly</div><span class="tool-tag">Utilities</span></a>
   </div>
 </div>
 <div class="manifesto" id="about">
@@ -248,7 +249,7 @@
 <div class="cta-section">
   <h2 class="reveal">Ready to just<br><span style="color:var(--accent)">use a tool?</span></h2>
   <p class="reveal">No account. No credit card. No setup. Pick a tool above and start right now.</p>
-  <a href="#tools" class="btn-primary reveal">Browse All 15 Tools →</a>
+  <a href="#tools" class="btn-primary reveal">Browse All 16 Tools →</a>
   <p class="cta-note reveal">Everything runs in your browser. Your data stays on your device.</p>
 </div>
 <!-- Suggest FAB -->
