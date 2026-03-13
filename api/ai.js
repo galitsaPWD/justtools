@@ -17,7 +17,7 @@ export default async function handler(req) {
   try {
     const { tool, text, tone } = await req.json();
 
-    if (!text || !text.trim()) {
+    if (!['query_rewrite'].includes(tool) && (!text || !text.trim())) {
       return new Response(JSON.stringify({ error: 'No text provided' }), { status: 400, headers });
     }
 
