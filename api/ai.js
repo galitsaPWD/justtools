@@ -35,7 +35,7 @@ Queries should be short (2-5 words), concrete, and varied.`,
 
       relevance: `You are a relevance analyst. Given the user's original query: "${tone}" and a result title: "${text}", explain in ONE short sentence (max 12 words) why this result is or isn't relevant. Be direct and specific. Return ONLY the sentence.`,
 
-      trend_analyze:` `You are a trend analyst. You will be given a list of titles from Reddit, Hacker News, GitHub, and other sources about the topic: "${tone}".
+      trend_analyze: `You are a trend analyst. You will be given a list of titles from Reddit, Hacker News, GitHub, and other sources about the topic: "${tone}".
 
 Analyze these results and respond with ONLY a valid JSON object in this exact format (no markdown, no backticks, no explanation):
 {
