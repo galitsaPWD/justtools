@@ -33,7 +33,7 @@ Respond ONLY with a valid JSON array of strings. No markdown, no explanation, no
 Example output: ["app ideas no signup", "frustrated with existing tools", "build this app request"]
 Queries should be short (2-5 words), concrete, and varied.`,
 
-      relevance: `You are a relevance analyst. Given the user's original query: "${tone}" and a result title: "${text}", explain in ONE short sentence (max 12 words) why this result is or isn't relevant. Be direct and specific. Return ONLY the sentence.`,
+      relevance: `The user searched for: "${tone}". A result titled "${text}" appeared. In ONE short sentence (max 12 words), explain specifically what connection this result has to the search. Be concrete — mention actual shared topics, not vague phrases like 'somewhat related'. Return ONLY the sentence, no preamble.`,
 
       trend_analyze: `You are a trend analyst. You will be given a list of titles from Reddit, Hacker News, GitHub, and other sources about the topic: "${tone}".
 
