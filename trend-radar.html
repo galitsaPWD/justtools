@@ -210,13 +210,15 @@
   // ── Why Relevant ──────────────────────────────────────────
   async function showWhy(btn, title, query) {
     const tooltip = btn.nextElementSibling;
+    const t = title || btn.dataset.title || '';
+    const q = query || lastQuery || '';
     if (tooltip.classList.contains('visible')) { tooltip.classList.remove('visible'); btn.textContent = '? why'; return; }
     btn.textContent = '...';
     try {
       const res = await fetch('/api/ai', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ tool: 'relevance', text: title, tone: query })
+        body: JSON.stringify({ tool: 'relevance', text: t, tone: q })
       });
       const data = await res.json();
       tooltip.textContent = '✦ ' + (data.result || 'Relevant to your search.');
@@ -334,6 +336,7 @@
       document.getElementById('results-area').innerHTML = `<div class="empty-state"><div class="empty-icon">🔍</div><div class="empty-title">Nothing found</div><div class="empty-sub">Try a broader term or enable more sources.</div></div>`;
       return;
     }
+    lastQuery = query;
     saveSearch(query);
     extractKeywords(allResults, query);
     renderResults();
@@ -458,6 +461,7 @@
   }
 
   let aiRankedResults = null;
+  let lastQuery = '';
 
   function renderResults(useAiRanking = false) {
     const filtered = allResults.filter(r => activeSources.has(r.source));
@@ -484,7 +488,7 @@
             <div class="result-body">
               <div class="result-title">${esc(r.title)}</div>
               <div class="result-meta">${r.meta.filter(Boolean).map(m=>`<span>${esc(m)}</span>`).join('')}</div>
-              <button class="why-btn" onclick="event.preventDefault();showWhy(this,'${esc(r.title).replace(/'/g,"\'")}','${esc(query).replace(/'/g,"\'")}')">? why</button>
+              <button class="why-btn" onclick="event.preventDefault();showWhy(this, this.dataset.title, lastQuery)" data-title="${esc(r.title)}">? why</button>
               <div class="why-tooltip"></div>
             </div>
             ${r.score>0?`<div class="result-score"><div class="score-num">${fmt(r.score)}</div><div class="score-label">${r.scoreLabel}</div></div>`:''}
