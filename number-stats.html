@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Number Stats — JustTools</title>
+  <link rel="icon" type="image/svg+xml" href="favicon.svg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;700;800&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+  <style>
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;cursor:none!important}
+    :root{--bg:#0a0a0a;--surface:#111;--surface2:#161616;--border:#1e1e1e;--border-bright:#2e2e2e;--text:#f0f0f0;--muted:#666;--accent:#e8ff47;--accent-dim:rgba(232,255,71,0.08);--blue:#79c0ff;--green:#3fb950;--red:#ff7b72}
+    body{background:var(--bg);color:var(--text);font-family:'DM Mono',monospace;min-height:100vh}
+    #cursor-dot{width:6px;height:6px;background:var(--accent);border-radius:50%;position:fixed;pointer-events:none;z-index:9999;transform:translate(-50%,-50%)}
+    #cursor-ring{width:28px;height:28px;border:1px solid rgba(232,255,71,0.4);border-radius:50%;position:fixed;pointer-events:none;z-index:9998;transform:translate(-50%,-50%);transition:left 0.12s ease,top 0.12s ease}
+    ::-webkit-scrollbar{width:6px}::-webkit-scrollbar-track{background:transparent}::-webkit-scrollbar-thumb{background:#2e2e2e;border-radius:3px}::-webkit-scrollbar-thumb:hover{background:#666}
+    nav{display:flex;align-items:center;justify-content:space-between;padding:20px 40px;border-bottom:1px solid var(--border);position:sticky;top:0;z-index:100;background:rgba(10,10,10,0.85);backdrop-filter:blur(12px)}
+    .nav-logo{font-family:'Syne',sans-serif;font-weight:800;font-size:18px;color:var(--text);text-decoration:none}
+    .nav-logo span{color:var(--accent)}
+    .nav-back{font-size:12px;color:var(--muted);text-decoration:none;transition:color 0.2s}
+    .nav-back:hover{color:var(--text)}
+    .container{max-width:900px;margin:0 auto;padding:60px 40px}
+    .tool-label{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:0.14em;margin-bottom:12px}
+    .tool-title{font-family:'Syne',sans-serif;font-weight:800;font-size:52px;line-height:1.05;margin-bottom:16px}
+    .tool-desc{font-size:14px;color:var(--muted);line-height:1.7;margin-bottom:40px;max-width:520px}
+    .card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:24px;margin-bottom:16px}
+    .btn{background:var(--accent);color:#000;border:none;padding:12px 28px;border-radius:10px;font-family:'Syne',sans-serif;font-weight:800;font-size:14px;transition:all 0.2s}
+    .btn:hover{opacity:0.85;transform:translateY(-1px)}
+    .btn:disabled{opacity:0.5;transform:none}
+    .btn-ghost{background:none;border:1px solid var(--border);color:var(--muted);padding:10px 20px;border-radius:8px;font-family:'DM Mono',monospace;font-size:13px;transition:all 0.2s}
+    .btn-ghost:hover{border-color:var(--border-bright);color:var(--text)}
+    input[type=text],input[type=number],select,textarea{background:var(--surface);border:1px solid var(--border);color:var(--text);padding:12px 16px;border-radius:8px;font-family:'DM Mono',monospace;font-size:13px;outline:none;transition:border-color 0.2s;width:100%}
+    input:focus,select:focus,textarea:focus{border-color:var(--border-bright)}
+    label{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:0.1em;display:block;margin-bottom:8px}
+    .row{display:flex;gap:12px;flex-wrap:wrap}
+    .col{flex:1;min-width:180px}
+    @media(max-width:640px){nav{padding:16px 20px}.container{padding:40px 16px}.tool-title{font-size:36px}}
+    
+  .stats-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:12px;margin-top:20px;}
+  .stat-card{background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:16px 18px;}
+  .stat-val{font-family:'Syne',sans-serif;font-weight:800;font-size:26px;color:var(--accent);margin-bottom:4px;}
+  .stat-name{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:0.1em;}
+  .dist-bar-wrap{margin-top:20px;}
+  .dist-row{display:flex;align-items:center;gap:10px;margin-bottom:6px;}
+  .dist-label{font-size:11px;color:var(--muted);width:70px;text-align:right;flex-shrink:0;}
+  .dist-bar{height:16px;background:var(--accent);border-radius:3px;transition:width 0.4s;min-width:2px;}
+  .dist-count{font-size:11px;color:var(--muted);}
+  
+  </style>
+</head>
+<body>
+<div id="cursor-dot"></div>
+<div id="cursor-ring"></div>
+<nav>
+  <a href="index.html" class="nav-logo">Just<span>Tools</span></a>
+  <a href="index.html" class="nav-back">← All Tools</a>
+</nav>
+<div class="container">
+  <div class="tool-label">📊 Data</div>
+  <h1 class="tool-title">Number<br>Stats</h1>
+  <p class="tool-desc">Paste a list of numbers and instantly get mean, median, mode, standard deviation, min, max and more.</p>
+  
+  <div class="card">
+    <label>Paste Numbers (comma, space, or newline separated)</label>
+    <textarea id="nums-input" rows="5" placeholder="12, 45, 67, 23, 89, 45, 12, 56..." oninput="calcStats()"></textarea>
+    <div id="error-msg" style="color:var(--red);font-size:12px;margin-top:8px;display:none"></div>
+  </div>
+  <div id="results" style="display:none">
+    <div class="stats-grid" id="stats-grid"></div>
+    <div class="card" style="margin-top:16px">
+      <label>Distribution</label>
+      <div class="dist-bar-wrap" id="dist-bars"></div>
+    </div>
+  </div>
+</div>
+<script>
+  const dot=document.getElementById('cursor-dot'),ring=document.getElementById('cursor-ring');
+  document.addEventListener('mousemove',e=>{dot.style.left=e.clientX+'px';dot.style.top=e.clientY+'px';setTimeout(()=>{ring.style.left=e.clientX+'px';ring.style.top=e.clientY+'px';},80);});
+  
+  function calcStats(){
+    const raw=document.getElementById('nums-input').value;
+    const nums=raw.split(/[,\s\n]+/).map(s=>s.trim()).filter(Boolean).map(Number).filter(n=>!isNaN(n));
+    const err=document.getElementById('error-msg');
+    if(!nums.length){document.getElementById('results').style.display='none';return;}
+    err.style.display='none';
+    nums.sort((a,b)=>a-b);
+    const n=nums.length;
+    const sum=nums.reduce((a,b)=>a+b,0);
+    const mean=sum/n;
+    const median=n%2===0?(nums[n/2-1]+nums[n/2])/2:nums[Math.floor(n/2)];
+    const freq={};nums.forEach(v=>{freq[v]=(freq[v]||0)+1;});
+    const maxFreq=Math.max(...Object.values(freq));
+    const modes=Object.entries(freq).filter(([,v])=>v===maxFreq).map(([k])=>+k);
+    const variance=nums.reduce((a,b)=>a+(b-mean)**2,0)/n;
+    const stdDev=Math.sqrt(variance);
+    const range=nums[n-1]-nums[0];
+    const q1=nums[Math.floor(n*0.25)];
+    const q3=nums[Math.floor(n*0.75)];
+    const stats=[
+      {name:'Count',val:n},{name:'Sum',val:fmt(sum)},{name:'Mean',val:fmt(mean)},
+      {name:'Median',val:fmt(median)},{name:'Mode',val:modes.slice(0,2).map(fmt).join(', ')},
+      {name:'Std Dev',val:fmt(stdDev)},{name:'Variance',val:fmt(variance)},
+      {name:'Min',val:fmt(nums[0])},{name:'Max',val:fmt(nums[n-1])},
+      {name:'Range',val:fmt(range)},{name:'Q1',val:fmt(q1)},{name:'Q3',val:fmt(q3)},
+    ];
+    document.getElementById('stats-grid').innerHTML=stats.map(s=>`<div class="stat-card"><div class="stat-val">${s.val}</div><div class="stat-name">${s.name}</div></div>`).join('');
+    // Distribution bars (bucket into 8 bins)
+    const bins=8, binSize=(nums[n-1]-nums[0])/bins||1;
+    const buckets=Array(bins).fill(0);
+    nums.forEach(v=>{const i=Math.min(Math.floor((v-nums[0])/binSize),bins-1);buckets[i]++;});
+    const maxB=Math.max(...buckets);
+    document.getElementById('dist-bars').innerHTML=buckets.map((b,i)=>`
+      <div class="dist-row">
+        <span class="dist-label">${fmt(nums[0]+i*binSize)}</span>
+        <div class="dist-bar" style="width:${Math.max(2,b/maxB*100)}%"></div>
+        <span class="dist-count">${b}</span>
+      </div>`).join('');
+    document.getElementById('results').style.display='block';
+  }
+  function fmt(n){return Number.isInteger(n)?n:Math.round(n*100)/100;}
+  document.getElementById('nums-input').value='14,22,35,22,47,14,58,72,22,36,44,58,14,29,63';
+  calcStats();
+  
+</script>
+</body>
+</html>

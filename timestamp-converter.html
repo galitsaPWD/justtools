@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Timestamp Converter — JustTools</title>
+  <link rel="icon" type="image/svg+xml" href="favicon.svg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;700;800&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+  <style>
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;cursor:none!important}
+    :root{--bg:#0a0a0a;--surface:#111;--surface2:#161616;--border:#1e1e1e;--border-bright:#2e2e2e;--text:#f0f0f0;--muted:#666;--accent:#e8ff47;--accent-dim:rgba(232,255,71,0.08);--blue:#79c0ff;--green:#3fb950;--red:#ff7b72}
+    body{background:var(--bg);color:var(--text);font-family:'DM Mono',monospace;min-height:100vh}
+    #cursor-dot{width:6px;height:6px;background:var(--accent);border-radius:50%;position:fixed;pointer-events:none;z-index:9999;transform:translate(-50%,-50%)}
+    #cursor-ring{width:28px;height:28px;border:1px solid rgba(232,255,71,0.4);border-radius:50%;position:fixed;pointer-events:none;z-index:9998;transform:translate(-50%,-50%);transition:left 0.12s ease,top 0.12s ease}
+    ::-webkit-scrollbar{width:6px}::-webkit-scrollbar-track{background:transparent}::-webkit-scrollbar-thumb{background:#2e2e2e;border-radius:3px}::-webkit-scrollbar-thumb:hover{background:#666}
+    nav{display:flex;align-items:center;justify-content:space-between;padding:20px 40px;border-bottom:1px solid var(--border);position:sticky;top:0;z-index:100;background:rgba(10,10,10,0.85);backdrop-filter:blur(12px)}
+    .nav-logo{font-family:'Syne',sans-serif;font-weight:800;font-size:18px;color:var(--text);text-decoration:none}
+    .nav-logo span{color:var(--accent)}
+    .nav-back{font-size:12px;color:var(--muted);text-decoration:none;transition:color 0.2s}
+    .nav-back:hover{color:var(--text)}
+    .container{max-width:900px;margin:0 auto;padding:60px 40px}
+    .tool-label{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:0.14em;margin-bottom:12px}
+    .tool-title{font-family:'Syne',sans-serif;font-weight:800;font-size:52px;line-height:1.05;margin-bottom:16px}
+    .tool-desc{font-size:14px;color:var(--muted);line-height:1.7;margin-bottom:40px;max-width:520px}
+    .card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:24px;margin-bottom:16px}
+    .btn{background:var(--accent);color:#000;border:none;padding:12px 28px;border-radius:10px;font-family:'Syne',sans-serif;font-weight:800;font-size:14px;transition:all 0.2s}
+    .btn:hover{opacity:0.85;transform:translateY(-1px)}
+    .btn:disabled{opacity:0.5;transform:none}
+    .btn-ghost{background:none;border:1px solid var(--border);color:var(--muted);padding:10px 20px;border-radius:8px;font-family:'DM Mono',monospace;font-size:13px;transition:all 0.2s}
+    .btn-ghost:hover{border-color:var(--border-bright);color:var(--text)}
+    input[type=text],input[type=number],select,textarea{background:var(--surface);border:1px solid var(--border);color:var(--text);padding:12px 16px;border-radius:8px;font-family:'DM Mono',monospace;font-size:13px;outline:none;transition:border-color 0.2s;width:100%}
+    input:focus,select:focus,textarea:focus{border-color:var(--border-bright)}
+    label{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:0.1em;display:block;margin-bottom:8px}
+    .row{display:flex;gap:12px;flex-wrap:wrap}
+    .col{flex:1;min-width:180px}
+    @media(max-width:640px){nav{padding:16px 20px}.container{padding:40px 16px}.tool-title{font-size:36px}}
+    
+  .ts-big{font-family:'Syne',sans-serif;font-weight:800;font-size:48px;color:var(--accent);margin-bottom:8px;word-break:break-all;}
+  .ts-sub{font-size:13px;color:var(--muted);margin-bottom:32px;}
+  .conv-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+  .result-box{background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:18px;}
+  .result-label{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:8px;}
+  .result-val{font-size:14px;color:var(--text);word-break:break-all;}
+  .copy-val{font-size:11px;color:var(--accent);margin-top:6px;text-decoration:underline;}
+  
+  </style>
+</head>
+<body>
+<div id="cursor-dot"></div>
+<div id="cursor-ring"></div>
+<nav>
+  <a href="index.html" class="nav-logo">Just<span>Tools</span></a>
+  <a href="index.html" class="nav-back">← All Tools</a>
+</nav>
+<div class="container">
+  <div class="tool-label">📊 Data</div>
+  <h1 class="tool-title">Timestamp<br>Converter</h1>
+  <p class="tool-desc">Convert Unix timestamps to human-readable dates and back. Supports milliseconds and multiple timezones.</p>
+  
+  <div class="card">
+    <div class="ts-big" id="live-ts">—</div>
+    <div class="ts-sub" id="live-date">Current Unix timestamp (seconds)</div>
+    <div style="display:flex;gap:10px;margin-bottom:32px">
+      <button class="btn-ghost" onclick="copyNow()">Copy Now</button>
+      <button class="btn-ghost" onclick="copyNowMs()">Copy ms</button>
+    </div>
+    <div class="row" style="margin-bottom:24px">
+      <div class="col">
+        <label>Unix Timestamp → Date</label>
+        <input type="number" id="ts-input" placeholder="e.g. 1700000000" oninput="tsToDate()">
+      </div>
+      <div class="col">
+        <label>Date → Unix Timestamp</label>
+        <input type="datetime-local" id="date-input" oninput="dateToTs()">
+      </div>
+    </div>
+    <div class="conv-grid" id="conv-results"></div>
+  </div>
+</div>
+<script>
+  const dot=document.getElementById('cursor-dot'),ring=document.getElementById('cursor-ring');
+  document.addEventListener('mousemove',e=>{dot.style.left=e.clientX+'px';dot.style.top=e.clientY+'px';setTimeout(()=>{ring.style.left=e.clientX+'px';ring.style.top=e.clientY+'px';},80);});
+  
+  function pad(n){return String(n).padStart(2,'0');}
+  function tick(){
+    const now=Date.now();
+    const s=Math.floor(now/1000);
+    document.getElementById('live-ts').textContent=s;
+    const d=new Date(now);
+    document.getElementById('live-date').textContent=d.toUTCString();
+  }
+  setInterval(tick,1000);tick();
+
+  function copyNow(){navigator.clipboard.writeText(String(Math.floor(Date.now()/1000)));const b=event.target;b.textContent='Copied!';setTimeout(()=>b.textContent='Copy Now',1500);}
+  function copyNowMs(){navigator.clipboard.writeText(String(Date.now()));const b=event.target;b.textContent='Copied!';setTimeout(()=>b.textContent='Copy ms',1500);}
+
+  function tsToDate(){
+    let ts=+document.getElementById('ts-input').value;
+    if(!ts)return;
+    if(ts<1e10)ts*=1000; // convert seconds to ms
+    const d=new Date(ts);
+    if(isNaN(d))return;
+    const results=[
+      {label:'Local Time',val:d.toLocaleString()},
+      {label:'UTC',val:d.toUTCString()},
+      {label:'ISO 8601',val:d.toISOString()},
+      {label:'Date only',val:d.toISOString().slice(0,10)},
+      {label:'Time only',val:d.toISOString().slice(11,19)+' UTC'},
+      {label:'Milliseconds',val:String(ts)},
+    ];
+    document.getElementById('conv-results').innerHTML=results.map(r=>`
+      <div class="result-box">
+        <div class="result-label">${r.label}</div>
+        <div class="result-val">${r.val}</div>
+        <div class="copy-val" onclick="navigator.clipboard.writeText('${r.val.replace(/'/g,'\\'')}');this.textContent='Copied!';setTimeout(()=>this.textContent='Copy',1500)">Copy</div>
+      </div>`).join('');
+  }
+
+  function dateToTs(){
+    const d=new Date(document.getElementById('date-input').value);
+    if(isNaN(d))return;
+    const ts=Math.floor(d.getTime()/1000);
+    document.getElementById('ts-input').value=ts;
+    tsToDate();
+  }
+
+  // Set default
+  document.getElementById('ts-input').value=Math.floor(Date.now()/1000);
+  const now=new Date();now.setSeconds(0,0);
+  document.getElementById('date-input').value=now.toISOString().slice(0,16);
+  tsToDate();
+  
+</script>
+</body>
+</html>

@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Habit Tracker — JustTools</title>
+  <link rel="icon" type="image/svg+xml" href="favicon.svg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;700;800&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; cursor: none !important; }
+    :root { --bg: #0a0a0a; --surface: #111; --surface2: #161616; --border: #1e1e1e; --border-bright: #2e2e2e; --text: #f0f0f0; --muted: #666; --accent: #e8ff47; --accent-dim: rgba(232,255,71,0.08); --blue: #79c0ff; --green: #3fb950; --red: #ff7b72; }
+    body { background: var(--bg); color: var(--text); font-family: 'DM Mono', monospace; min-height: 100vh; }
+    #cursor-dot { width: 6px; height: 6px; background: var(--accent); border-radius: 50%; position: fixed; pointer-events: none; z-index: 9999; transform: translate(-50%,-50%); }
+    #cursor-ring { width: 28px; height: 28px; border: 1px solid rgba(232,255,71,0.4); border-radius: 50%; position: fixed; pointer-events: none; z-index: 9998; transform: translate(-50%,-50%); transition: left 0.12s ease, top 0.12s ease; }
+    ::-webkit-scrollbar { width: 6px; } ::-webkit-scrollbar-track { background: transparent; } ::-webkit-scrollbar-thumb { background: #2e2e2e; border-radius: 3px; } ::-webkit-scrollbar-thumb:hover { background: #666; }
+    nav { display: flex; align-items: center; justify-content: space-between; padding: 20px 40px; border-bottom: 1px solid var(--border); position: sticky; top: 0; z-index: 100; background: rgba(10,10,10,0.85); backdrop-filter: blur(12px); }
+    .nav-logo { font-family: 'Syne', sans-serif; font-weight: 800; font-size: 18px; color: var(--text); text-decoration: none; }
+    .nav-logo span { color: var(--accent); }
+    .nav-back { font-size: 12px; color: var(--muted); text-decoration: none; transition: color 0.2s; }
+    .nav-back:hover { color: var(--text); }
+    .container { max-width: 860px; margin: 0 auto; padding: 60px 40px; }
+    .tool-label { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.14em; margin-bottom: 12px; }
+    .tool-title { font-family: 'Syne', sans-serif; font-weight: 800; font-size: 52px; line-height: 1.05; margin-bottom: 16px; }
+    .tool-desc { font-size: 14px; color: var(--muted); line-height: 1.7; margin-bottom: 40px; max-width: 520px; }
+    .card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 24px; margin-bottom: 16px; }
+    .btn { background: var(--accent); color: #000; border: none; padding: 12px 28px; border-radius: 10px; font-family: 'Syne', sans-serif; font-weight: 800; font-size: 14px; transition: all 0.2s; }
+    .btn:hover { opacity: 0.85; transform: translateY(-1px); }
+    .btn:disabled { opacity: 0.5; transform: none; }
+    .btn-ghost { background: none; border: 1px solid var(--border); color: var(--muted); padding: 10px 20px; border-radius: 8px; font-family: 'DM Mono', monospace; font-size: 13px; transition: all 0.2s; }
+    .btn-ghost:hover { border-color: var(--border-bright); color: var(--text); }
+    textarea, input[type=text], input[type=number], select { background: var(--surface); border: 1px solid var(--border); color: var(--text); padding: 12px 16px; border-radius: 8px; font-family: 'DM Mono', monospace; font-size: 13px; outline: none; transition: border-color 0.2s; width: 100%; }
+    textarea:focus, input:focus, select:focus { border-color: var(--border-bright); }
+    textarea { resize: vertical; }
+    label { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.1em; display: block; margin-bottom: 8px; }
+    .row { display: flex; gap: 12px; flex-wrap: wrap; }
+    .col { flex: 1; min-width: 200px; }
+    @media(max-width:640px) { nav { padding: 16px 20px; } .container { padding: 40px 16px; } .tool-title { font-size: 36px; } }
+    .habit-row{display:flex;align-items:center;gap:12px;padding:14px 16px;background:var(--surface2);border:1px solid var(--border);border-radius:8px;margin-bottom:8px;transition:border-color 0.2s;} .habit-row.done{border-color:rgba(63,185,80,0.3);} .habit-check{width:22px;height:22px;border:2px solid var(--border-bright);border-radius:6px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:13px;transition:all 0.2s;} .habit-row.done .habit-check{background:var(--green);border-color:var(--green);} .habit-name{flex:1;font-size:14px;} .habit-row.done .habit-name{text-decoration:line-through;color:var(--muted);} .streak{font-size:11px;color:var(--accent);font-weight:700;} .del-btn{background:none;border:none;color:var(--muted);font-size:16px;padding:4px;transition:color 0.2s;} .del-btn:hover{color:var(--red);} .add-row{display:flex;gap:10px;margin-bottom:20px;} .progress-bar{height:4px;background:var(--border);border-radius:2px;margin-bottom:24px;overflow:hidden;} .progress-fill{height:100%;background:var(--accent);border-radius:2px;transition:width 0.4s ease;}
+  </style>
+</head>
+<body>
+<div id="cursor-dot"></div>
+<div id="cursor-ring"></div>
+<nav>
+  <a href="index.html" class="nav-logo">Just<span>Tools</span></a>
+  <a href="index.html" class="nav-back">← All Tools</a>
+</nav>
+<div class="container">
+  <div class="tool-label">⏱ Productivity</div>
+  <h1 class="tool-title">Habit<br>Tracker</h1>
+  <p class="tool-desc">Track your daily habits. Add habits, check them off each day, and watch your streaks grow. Saves in your browser.</p>
+  
+  <div class="add-row">
+    <input type="text" id="new-habit" placeholder="Add a new habit..." onkeydown="if(event.key==='Enter')addHabit()">
+    <button class="btn" onclick="addHabit()">Add</button>
+  </div>
+  <div class="progress-bar"><div class="progress-fill" id="progress-fill" style="width:0%"></div></div>
+  <div id="habit-list"></div>
+  <div id="empty-state" style="text-align:center;padding:40px;color:var(--muted);font-size:13px">No habits yet. Add one above!</div>
+</div>
+<script>
+  const dot = document.getElementById('cursor-dot'), ring = document.getElementById('cursor-ring');
+  document.addEventListener('mousemove', e => { dot.style.left=e.clientX+'px'; dot.style.top=e.clientY+'px'; setTimeout(()=>{ring.style.left=e.clientX+'px';ring.style.top=e.clientY+'px';},80); });
+  
+  const TODAY = new Date().toDateString();
+  let data = JSON.parse(localStorage.getItem('jt-habits') || '[]');
+  function save(){localStorage.setItem('jt-habits',JSON.stringify(data));}
+  function addHabit(){
+    const name=document.getElementById('new-habit').value.trim();
+    if(!name)return;
+    data.push({id:Date.now(),name,done:{},streak:0});
+    document.getElementById('new-habit').value='';
+    save();render();
+  }
+  function toggle(id){
+    const h=data.find(h=>h.id===id);
+    if(!h)return;
+    h.done[TODAY]=!h.done[TODAY];
+    // Update streak
+    let streak=0,d=new Date();
+    while(true){const k=d.toDateString();if(h.done[k]){streak++;d.setDate(d.getDate()-1);}else break;}
+    h.streak=streak;
+    save();render();
+  }
+  function deleteHabit(id){data=data.filter(h=>h.id!==id);save();render();}
+  function render(){
+    const list=document.getElementById('habit-list');
+    const empty=document.getElementById('empty-state');
+    empty.style.display=data.length?'none':'block';
+    const done=data.filter(h=>h.done[TODAY]).length;
+    document.getElementById('progress-fill').style.width=data.length?(done/data.length*100)+'%':'0%';
+    list.innerHTML=data.map(h=>`
+      <div class="habit-row ${h.done[TODAY]?'done':''}" onclick="toggle(${h.id})">
+        <div class="habit-check">${h.done[TODAY]?'✓':''}</div>
+        <div class="habit-name">${h.name}</div>
+        ${h.streak>1?`<span class="streak">🔥 ${h.streak}</span>`:''}
+        <button class="del-btn" onclick="event.stopPropagation();deleteHabit(${h.id})">×</button>
+      </div>`).join('');
+  }
+  render();
+  
+</script>
+</body>
+</html>

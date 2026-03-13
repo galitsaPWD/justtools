@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Border Radius Generator — JustTools</title>
+  <link rel="icon" type="image/svg+xml" href="favicon.svg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;700;800&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; cursor: none !important; }
+    :root { --bg: #0a0a0a; --surface: #111; --surface2: #161616; --border: #1e1e1e; --border-bright: #2e2e2e; --text: #f0f0f0; --muted: #666; --accent: #e8ff47; --accent-dim: rgba(232,255,71,0.08); --blue: #79c0ff; --green: #3fb950; --red: #ff7b72; }
+    body { background: var(--bg); color: var(--text); font-family: 'DM Mono', monospace; min-height: 100vh; }
+    #cursor-dot { width: 6px; height: 6px; background: var(--accent); border-radius: 50%; position: fixed; pointer-events: none; z-index: 9999; transform: translate(-50%,-50%); }
+    #cursor-ring { width: 28px; height: 28px; border: 1px solid rgba(232,255,71,0.4); border-radius: 50%; position: fixed; pointer-events: none; z-index: 9998; transform: translate(-50%,-50%); transition: left 0.12s ease, top 0.12s ease; }
+    ::-webkit-scrollbar { width: 6px; } ::-webkit-scrollbar-track { background: transparent; } ::-webkit-scrollbar-thumb { background: #2e2e2e; border-radius: 3px; } ::-webkit-scrollbar-thumb:hover { background: #666; }
+    nav { display: flex; align-items: center; justify-content: space-between; padding: 20px 40px; border-bottom: 1px solid var(--border); position: sticky; top: 0; z-index: 100; background: rgba(10,10,10,0.85); backdrop-filter: blur(12px); }
+    .nav-logo { font-family: 'Syne', sans-serif; font-weight: 800; font-size: 18px; color: var(--text); text-decoration: none; }
+    .nav-logo span { color: var(--accent); }
+    .nav-back { font-size: 12px; color: var(--muted); text-decoration: none; transition: color 0.2s; }
+    .nav-back:hover { color: var(--text); }
+    .container { max-width: 900px; margin: 0 auto; padding: 60px 40px; }
+    .tool-label { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.14em; margin-bottom: 12px; }
+    .tool-title { font-family: 'Syne', sans-serif; font-weight: 800; font-size: 52px; line-height: 1.05; margin-bottom: 16px; }
+    .tool-desc { font-size: 14px; color: var(--muted); line-height: 1.7; margin-bottom: 40px; max-width: 520px; }
+    .card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 24px; margin-bottom: 16px; }
+    .btn { background: var(--accent); color: #000; border: none; padding: 12px 28px; border-radius: 10px; font-family: 'Syne', sans-serif; font-weight: 800; font-size: 14px; transition: all 0.2s; }
+    .btn:hover { opacity: 0.85; transform: translateY(-1px); }
+    .btn-ghost { background: none; border: 1px solid var(--border); color: var(--muted); padding: 10px 20px; border-radius: 8px; font-family: 'DM Mono', monospace; font-size: 13px; transition: all 0.2s; }
+    .btn-ghost:hover { border-color: var(--border-bright); color: var(--text); }
+    input[type=text], input[type=number], select, textarea { background: var(--surface); border: 1px solid var(--border); color: var(--text); padding: 12px 16px; border-radius: 8px; font-family: 'DM Mono', monospace; font-size: 13px; outline: none; transition: border-color 0.2s; width: 100%; }
+    input:focus, select:focus, textarea:focus { border-color: var(--border-bright); }
+    label { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.1em; display: block; margin-bottom: 8px; }
+    .row { display: flex; gap: 12px; flex-wrap: wrap; }
+    .col { flex: 1; min-width: 180px; }
+    @media(max-width:640px) { nav { padding: 16px 20px; } .container { padding: 40px 16px; } .tool-title { font-size: 36px; } }
+    
+  .br-wrap { display: flex; gap: 40px; align-items: flex-start; flex-wrap: wrap; }
+  .br-preview { width: 220px; height: 220px; background: var(--accent); flex-shrink: 0; transition: border-radius 0.3s; }
+  .br-controls { flex: 1; min-width: 260px; }
+  .corner-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 20px; }
+  .corner-input { display: flex; flex-direction: column; gap: 6px; }
+  .corner-slider { accent-color: var(--accent); width: 100%; }
+  .css-output { background: var(--surface2); border: 1px solid var(--border); border-radius: 8px; padding: 14px; font-size: 12px; color: var(--accent); word-break: break-all; margin: 16px 0; }
+  .preset-row { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 20px; }
+  .preset-btn { background: var(--surface2); border: 1px solid var(--border); color: var(--muted); padding: 6px 14px; border-radius: 6px; font-size: 12px; transition: all 0.2s; }
+  .preset-btn:hover { border-color: var(--accent); color: var(--accent); }
+  
+  </style>
+</head>
+<body>
+<div id="cursor-dot"></div>
+<div id="cursor-ring"></div>
+<nav>
+  <a href="index.html" class="nav-logo">Just<span>Tools</span></a>
+  <a href="index.html" class="nav-back">← All Tools</a>
+</nav>
+<div class="container">
+  <div class="tool-label">🎨 Design</div>
+  <h1 class="tool-title">Border Radius<br>Generator</h1>
+  <p class="tool-desc">Create custom CSS border-radius shapes visually. From simple rounded corners to organic blobs.</p>
+  
+  <div class="br-wrap">
+    <div class="br-preview" id="br-preview"></div>
+    <div class="br-controls">
+      <label style="margin-bottom:12px;display:block">Presets</label>
+      <div class="preset-row">
+        <button class="preset-btn" onclick="setPreset('0')">Sharp</button>
+        <button class="preset-btn" onclick="setPreset('8px')">Subtle</button>
+        <button class="preset-btn" onclick="setPreset('16px')">Rounded</button>
+        <button class="preset-btn" onclick="setPreset('50%')">Circle</button>
+        <button class="preset-btn" onclick="setPreset('40% 60% 60% 40% / 40% 40% 60% 60%')">Blob</button>
+        <button class="preset-btn" onclick="setRandom()">🎲 Random</button>
+      </div>
+      <div class="corner-grid">
+        <div class="corner-input"><label>Top Left</label><input type="range" class="corner-slider" id="tl" min="0" max="100" value="12" oninput="render()"><span id="tl-v" style="font-size:12px;color:var(--muted)">12px</span></div>
+        <div class="corner-input"><label>Top Right</label><input type="range" class="corner-slider" id="tr" min="0" max="100" value="12" oninput="render()"><span id="tr-v" style="font-size:12px;color:var(--muted)">12px</span></div>
+        <div class="corner-input"><label>Bottom Left</label><input type="range" class="corner-slider" id="bl" min="0" max="100" value="12" oninput="render()"><span id="bl-v" style="font-size:12px;color:var(--muted)">12px</span></div>
+        <div class="corner-input"><label>Bottom Right</label><input type="range" class="corner-slider" id="br" min="0" max="100" value="12" oninput="render()"><span id="br-v" style="font-size:12px;color:var(--muted)">12px</span></div>
+      </div>
+      <label>Preview Color</label>
+      <input type="color" id="prev-color" value="#e8ff47" oninput="document.getElementById('br-preview').style.background=this.value" style="height:40px;margin-bottom:16px">
+      <div class="css-output" id="css-output"></div>
+      <button class="btn" onclick="copyCSS()">Copy CSS</button>
+    </div>
+  </div>
+</div>
+<script>
+  const dot=document.getElementById('cursor-dot'),ring=document.getElementById('cursor-ring');
+  document.addEventListener('mousemove',e=>{dot.style.left=e.clientX+'px';dot.style.top=e.clientY+'px';setTimeout(()=>{ring.style.left=e.clientX+'px';ring.style.top=e.clientY+'px';},80);});
+  
+  function render(){
+    const tl=document.getElementById('tl').value,tr=document.getElementById('tr').value,bl=document.getElementById('bl').value,br=document.getElementById('br').value;
+    document.getElementById('tl-v').textContent=tl+'px';document.getElementById('tr-v').textContent=tr+'px';document.getElementById('bl-v').textContent=bl+'px';document.getElementById('br-v').textContent=br+'px';
+    const val=`${tl}px ${tr}px ${br}px ${bl}px`;
+    document.getElementById('br-preview').style.borderRadius=val;
+    document.getElementById('css-output').textContent=`border-radius: ${val};`;
+  }
+  function setPreset(v){
+    document.getElementById('br-preview').style.borderRadius=v;
+    document.getElementById('css-output').textContent=`border-radius: ${v};`;
+    if(v==='0'){['tl','tr','bl','br'].forEach(id=>{document.getElementById(id).value=0;document.getElementById(id+'-v').textContent='0px';});}
+    else if(v.endsWith('%')){['tl','tr','bl','br'].forEach(id=>{document.getElementById(id).value=50;document.getElementById(id+'-v').textContent='50%';});}
+  }
+  function setRandom(){
+    ['tl','tr','bl','br'].forEach(id=>{const v=Math.floor(Math.random()*80)+5;document.getElementById(id).value=v;});render();}
+  function copyCSS(){navigator.clipboard.writeText(document.getElementById('css-output').textContent);const b=event.target;b.textContent='Copied!';setTimeout(()=>b.textContent='Copy CSS',1500);}
+  render();
+  
+</script>
+</body>
+</html>

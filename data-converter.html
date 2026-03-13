@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Data Converter — JustTools</title>
+  <link rel="icon" type="image/svg+xml" href="favicon.svg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;700;800&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+  <style>
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;cursor:none!important}
+    :root{--bg:#0a0a0a;--surface:#111;--surface2:#161616;--border:#1e1e1e;--border-bright:#2e2e2e;--text:#f0f0f0;--muted:#666;--accent:#e8ff47;--accent-dim:rgba(232,255,71,0.08);--blue:#79c0ff;--green:#3fb950;--red:#ff7b72}
+    body{background:var(--bg);color:var(--text);font-family:'DM Mono',monospace;min-height:100vh}
+    #cursor-dot{width:6px;height:6px;background:var(--accent);border-radius:50%;position:fixed;pointer-events:none;z-index:9999;transform:translate(-50%,-50%)}
+    #cursor-ring{width:28px;height:28px;border:1px solid rgba(232,255,71,0.4);border-radius:50%;position:fixed;pointer-events:none;z-index:9998;transform:translate(-50%,-50%);transition:left 0.12s ease,top 0.12s ease}
+    ::-webkit-scrollbar{width:6px}::-webkit-scrollbar-track{background:transparent}::-webkit-scrollbar-thumb{background:#2e2e2e;border-radius:3px}::-webkit-scrollbar-thumb:hover{background:#666}
+    nav{display:flex;align-items:center;justify-content:space-between;padding:20px 40px;border-bottom:1px solid var(--border);position:sticky;top:0;z-index:100;background:rgba(10,10,10,0.85);backdrop-filter:blur(12px)}
+    .nav-logo{font-family:'Syne',sans-serif;font-weight:800;font-size:18px;color:var(--text);text-decoration:none}
+    .nav-logo span{color:var(--accent)}
+    .nav-back{font-size:12px;color:var(--muted);text-decoration:none;transition:color 0.2s}
+    .nav-back:hover{color:var(--text)}
+    .container{max-width:900px;margin:0 auto;padding:60px 40px}
+    .tool-label{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:0.14em;margin-bottom:12px}
+    .tool-title{font-family:'Syne',sans-serif;font-weight:800;font-size:52px;line-height:1.05;margin-bottom:16px}
+    .tool-desc{font-size:14px;color:var(--muted);line-height:1.7;margin-bottom:40px;max-width:520px}
+    .card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:24px;margin-bottom:16px}
+    .btn{background:var(--accent);color:#000;border:none;padding:12px 28px;border-radius:10px;font-family:'Syne',sans-serif;font-weight:800;font-size:14px;transition:all 0.2s}
+    .btn:hover{opacity:0.85;transform:translateY(-1px)}
+    .btn:disabled{opacity:0.5;transform:none}
+    .btn-ghost{background:none;border:1px solid var(--border);color:var(--muted);padding:10px 20px;border-radius:8px;font-family:'DM Mono',monospace;font-size:13px;transition:all 0.2s}
+    .btn-ghost:hover{border-color:var(--border-bright);color:var(--text)}
+    input[type=text],input[type=number],select,textarea{background:var(--surface);border:1px solid var(--border);color:var(--text);padding:12px 16px;border-radius:8px;font-family:'DM Mono',monospace;font-size:13px;outline:none;transition:border-color 0.2s;width:100%}
+    input:focus,select:focus,textarea:focus{border-color:var(--border-bright)}
+    label{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:0.1em;display:block;margin-bottom:8px}
+    .row{display:flex;gap:12px;flex-wrap:wrap}
+    .col{flex:1;min-width:180px}
+    @media(max-width:640px){nav{padding:16px 20px}.container{padding:40px 16px}.tool-title{font-size:36px}}
+    
+  .conv-panels{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+  #input-area,#output-area{height:52vh;font-size:12px;line-height:1.6;}
+  .format-row{display:flex;gap:8px;flex-wrap:wrap;}
+  .fmt-btn{background:var(--surface2);border:1px solid var(--border);color:var(--muted);padding:8px 16px;border-radius:8px;font-size:12px;transition:all 0.2s;}
+  .fmt-btn.active{border-color:var(--accent);color:var(--accent);}
+  .arrow-btn{background:var(--accent);color:#000;border:none;padding:10px 20px;border-radius:8px;font-family:'Syne',sans-serif;font-weight:800;font-size:13px;transition:all 0.2s;white-space:nowrap;}
+  .arrow-btn:hover{opacity:0.85;}
+  .err{color:var(--red);font-size:12px;margin-top:6px;}
+  
+  </style>
+</head>
+<body>
+<div id="cursor-dot"></div>
+<div id="cursor-ring"></div>
+<nav>
+  <a href="index.html" class="nav-logo">Just<span>Tools</span></a>
+  <a href="index.html" class="nav-back">← All Tools</a>
+</nav>
+<div class="container">
+  <div class="tool-label">📊 Data</div>
+  <h1 class="tool-title">Data<br>Converter</h1>
+  <p class="tool-desc">Convert between JSON, CSV, YAML, TOML and XML. Paste in one format, get it out in another.</p>
+  
+  <div class="card" style="margin-bottom:16px">
+    <div style="display:flex;gap:16px;align-items:center;flex-wrap:wrap">
+      <div style="flex:1;min-width:200px">
+        <label style="margin-bottom:8px">From</label>
+        <div class="format-row" id="from-row">
+          <button class="fmt-btn active" onclick="setFrom('json',this)">JSON</button>
+          <button class="fmt-btn" onclick="setFrom('csv',this)">CSV</button>
+          <button class="fmt-btn" onclick="setFrom('yaml',this)">YAML</button>
+          <button class="fmt-btn" onclick="setFrom('xml',this)">XML</button>
+        </div>
+      </div>
+      <button class="arrow-btn" onclick="convert()">Convert →</button>
+      <div style="flex:1;min-width:200px">
+        <label style="margin-bottom:8px">To</label>
+        <div class="format-row" id="to-row">
+          <button class="fmt-btn" onclick="setTo('json',this)">JSON</button>
+          <button class="fmt-btn" onclick="setTo('csv',this)">CSV</button>
+          <button class="fmt-btn active" onclick="setTo('yaml',this)">YAML</button>
+          <button class="fmt-btn" onclick="setTo('xml',this)">XML</button>
+        </div>
+      </div>
+    </div>
+    <div class="err" id="conv-err" style="display:none"></div>
+  </div>
+  <div class="conv-panels">
+    <div><label id="in-label">JSON Input</label><textarea id="input-area" spellcheck="false"></textarea></div>
+    <div>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+        <label id="out-label" style="margin:0">YAML Output</label>
+        <div style="display:flex;gap:8px">
+          <button class="btn-ghost" style="padding:6px 12px;font-size:11px" onclick="copyOutput()">Copy</button>
+          <button class="btn-ghost" style="padding:6px 12px;font-size:11px" onclick="downloadOutput()">⬇</button>
+        </div>
+      </div>
+      <textarea id="output-area" readonly spellcheck="false"></textarea>
+    </div>
+  </div>
+</div>
+<script>
+  const dot=document.getElementById('cursor-dot'),ring=document.getElementById('cursor-ring');
+  document.addEventListener('mousemove',e=>{dot.style.left=e.clientX+'px';dot.style.top=e.clientY+'px';setTimeout(()=>{ring.style.left=e.clientX+'px';ring.style.top=e.clientY+'px';},80);});
+  
+  let fromFmt='json', toFmt='yaml';
+  function setFrom(f,btn){fromFmt=f;document.querySelectorAll('#from-row .fmt-btn').forEach(b=>b.classList.remove('active'));btn.classList.add('active');document.getElementById('in-label').textContent=f.toUpperCase()+' Input';}
+  function setTo(f,btn){toFmt=f;document.querySelectorAll('#to-row .fmt-btn').forEach(b=>b.classList.remove('active'));btn.classList.add('active');document.getElementById('out-label').textContent=f.toUpperCase()+' Output';}
+
+  function parseInput(txt,fmt){
+    if(fmt==='json') return JSON.parse(txt);
+    if(fmt==='csv'){
+      const lines=txt.trim().split('\n');
+      const headers=lines[0].split(',').map(h=>h.trim().replace(/^"|"$/g,''));
+      return lines.slice(1).map(l=>{const vals=l.split(',');const obj={};headers.forEach((h,i)=>{obj[h]=(vals[i]||'').trim().replace(/^"|"$/g,'');});return obj;});
+    }
+    if(fmt==='yaml') return parseYAML(txt);
+    if(fmt==='xml'){
+      const parser=new DOMParser();
+      const doc=parser.parseFromString(txt,'text/xml');
+      return xmlToObj(doc.documentElement);
+    }
+  }
+
+  function xmlToObj(node){
+    if(node.children.length===0) return node.textContent;
+    const obj={};
+    for(const child of node.children){
+      const k=child.tagName;
+      if(obj[k]){if(!Array.isArray(obj[k]))obj[k]=[obj[k]];obj[k].push(xmlToObj(child));}
+      else obj[k]=xmlToObj(child);
+    }
+    return obj;
+  }
+
+  function parseYAML(txt){
+    // Simple YAML parser for flat/one-level objects and arrays
+    const lines=txt.split('\n');
+    const result={};let arrKey=null,arr=null;
+    for(const line of lines){
+      if(!line.trim()||line.trim().startsWith('#'))continue;
+      const listMatch=line.match(/^(\s*)-(\s+)(.+)/);
+      const kvMatch=line.match(/^([^:]+):\s*(.*)/);
+      if(listMatch&&arrKey){arr.push(isNaN(listMatch[3])?listMatch[3]:+listMatch[3]);}
+      else if(kvMatch){
+        if(arrKey&&arr)result[arrKey]=arr;
+        arrKey=null;arr=null;
+        const k=kvMatch[1].trim(),v=kvMatch[2].trim();
+        if(v===''){arrKey=k;arr=[];}
+        else result[k]=isNaN(v)?v.replace(/^['"]|['"]$/g,''):+v;
+      }
+    }
+    if(arrKey&&arr)result[arrKey]=arr;
+    return result;
+  }
+
+  function serialize(data,fmt){
+    if(fmt==='json') return JSON.stringify(data,null,2);
+    if(fmt==='csv'){
+      const arr=Array.isArray(data)?data:[data];
+      const keys=[...new Set(arr.flatMap(o=>Object.keys(o)))];
+      return [keys.join(','),...arr.map(o=>keys.map(k=>{const v=String(o[k]??'');return v.includes(',')||v.includes('"')?`"${v.replace(/"/g,'""')}"`:`${v}`;}).join(','))].join('\n');
+    }
+    if(fmt==='yaml') return toYAML(data);
+    if(fmt==='xml'){
+      const arr=Array.isArray(data)?data:[data];
+      const inner=arr.map(obj=>'  <item>\n'+Object.entries(obj).map(([k,v])=>`    <${k}>${v}</${k}>`).join('\n')+'\n  </item>').join('\n');
+      return `<?xml version="1.0" encoding="UTF-8"?>\n<root>\n${inner}\n</root>`;
+    }
+  }
+
+  function toYAML(data,indent=0){
+    const pad='  '.repeat(indent);
+    if(Array.isArray(data)) return data.map(v=>`${pad}- ${typeof v==='object'?'\n'+toYAML(v,indent+1):v}`).join('\n');
+    if(typeof data==='object'&&data) return Object.entries(data).map(([k,v])=>typeof v==='object'?`${pad}${k}:\n${toYAML(v,indent+1)}`:`${pad}${k}: ${v}`).join('\n');
+    return String(data);
+  }
+
+  function convert(){
+    const err=document.getElementById('conv-err');
+    try{
+      const data=parseInput(document.getElementById('input-area').value,fromFmt);
+      document.getElementById('output-area').value=serialize(data,toFmt);
+      err.style.display='none';
+    }catch(e){err.textContent='Error: '+e.message;err.style.display='block';}
+  }
+
+  function copyOutput(){navigator.clipboard.writeText(document.getElementById('output-area').value);const b=event.target;b.textContent='Copied!';setTimeout(()=>b.textContent='Copy',1500);}
+  function downloadOutput(){const ext={json:'json',csv:'csv',yaml:'yaml',xml:'xml'};const a=document.createElement('a');a.href='data:text/plain;charset=utf-8,'+encodeURIComponent(document.getElementById('output-area').value);a.download='output.'+ext[toFmt];a.click();}
+
+  document.getElementById('input-area').value=`[\n  {"name": "Alice", "age": 30, "city": "New York"},\n  {"name": "Bob", "age": 25, "city": "London"},\n  {"name": "Carol", "age": 35, "city": "Tokyo"}\n]`;
+  
+</script>
+</body>
+</html>
