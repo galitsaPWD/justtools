@@ -183,6 +183,12 @@
     renderSaved();
   }
 
+  function deleteSavedIdx(i) {
+    savedSearches.splice(i, 1);
+    localStorage.setItem('jr-saved', JSON.stringify(savedSearches));
+    renderSaved();
+  }
+
   function deleteSearch(q) {
     savedSearches = savedSearches.filter(s => s !== q);
     localStorage.setItem('jr-saved', JSON.stringify(savedSearches));
@@ -194,10 +200,10 @@
     const chips = document.getElementById('saved-chips');
     if (!savedSearches.length) { row.style.display = 'none'; return; }
     row.style.display = 'flex';
-    chips.innerHTML = savedSearches.map(q => `
+    chips.innerHTML = savedSearches.map((q, i) => `
       <span class="saved-chip">
-        <span onclick="loadSaved(this)"  data-q="${q}">${q}</span>
-        <span class="del" onclick="deleteSearch('${q.replace(/'/g,"\'")}')">×</span>
+        <span onclick="loadSaved(this)" data-q="${esc(q)}">${esc(q)}</span>
+        <span class="del" onclick="deleteSavedIdx(${i})">×</span>
       </span>`).join('');
   }
 
