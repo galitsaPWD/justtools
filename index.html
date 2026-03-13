@@ -156,7 +156,7 @@
     <a href="#why" class="btn-ghost">Why JustTools?</a>
   </div>
   <div class="hero-stats">
-    <div class="stat"><div class="stat-num">16</div><div class="stat-label">Free Tools</div></div>
+    <div class="stat"><div class="stat-num">17</div><div class="stat-label">Free Tools</div></div>
     <div class="stat"><div class="stat-num">0</div><div class="stat-label">Signups Needed</div></div>
     <div class="stat"><div class="stat-num">100%</div><div class="stat-label">Browser-side</div></div>
   </div>
@@ -206,11 +206,11 @@
   <div class="tools-header">
     <div>
       <p class="section-label">The Toolbox</p>
-      <h2 class="section-title">16 tools.<br>Zero signups.</h2>
+      <h2 class="section-title">17 tools.<br>Zero signups.</h2>
     </div>
   </div>
   <div class="cat-filter" id="cat-filter">
-    <button class="cat-btn active" onclick="filterCat('all',this)">All (16)</button>
+    <button class="cat-btn active" onclick="filterCat('all',this)">All (17)</button>
     <button class="cat-btn" onclick="filterCat('Dev',this)">Dev</button>
     <button class="cat-btn" onclick="filterCat('Writing',this)">Writing</button>
     <button class="cat-btn" onclick="filterCat('Design',this)">Design</button>
@@ -236,7 +236,9 @@
     <a href="grammar-checker.html" class="tool-card" data-cat="AI"><span class="tool-icon">✍️</span><div class="tool-name">Grammar Checker</div><div class="tool-desc">Fix grammar, spelling and punctuation errors instantly</div><span class="tool-tag">✨ AI</span></a>
     <a href="paraphraser.html" class="tool-card" data-cat="AI"><span class="tool-icon">↺</span><div class="tool-name">Paraphraser</div><div class="tool-desc">Rewrite text in 6 different tones and styles</div><span class="tool-tag">✨ AI</span></a>
     <a href="text-summarizer.html" class="tool-card" data-cat="AI"><span class="tool-icon">📋</span><div class="tool-name">Text Summarizer</div><div class="tool-desc">Condense long articles and documents into key points</div><span class="tool-tag">✨ AI</span></a>
+    <a href="trend-radar.html" class="tool-card" data-cat="Utilities"><span class="tool-icon">📡</span><div class="tool-name">Trend Radar</div><div class="tool-desc">Search Reddit, HN, GitHub & Product Hunt all at once</div><span class="tool-tag">Utilities</span></a>
     <a href="image-to-text.html" class="tool-card" data-cat="Utilities"><span class="tool-icon">📸</span><div class="tool-name">Image to Text</div><div class="tool-desc">Extract text from any image or screenshot instantly</div><span class="tool-tag">Utilities</span></a>
+    <a href="trend-radar.html" class="tool-card" data-cat="Utilities"><span class="tool-icon">📡</span><div class="tool-name">Trend Radar</div><div class="tool-desc">Search trending posts across Reddit, HackerNews, GitHub and RSS feeds</div><span class="tool-tag">Utilities</span></a>
   </div>
 </div>
 <div class="manifesto" id="about">
@@ -341,13 +343,15 @@
     submitBtn.disabled = true;
 
     try {
-      const res = await fetch('https://formspree.io/f/mnjgdvbg', {
+      const formData = new FormData();
+      formData.append('_replyto', document.getElementById('suggest-email').value || 'not provided');
+      formData.append('_subject', 'New Tool Suggestion — JustTools');
+      formData.append('message', `Tool: ${name}\n\nDescription: ${document.getElementById('suggest-desc').value}`);
+
+      const res = await fetch('https://formspree.io/f/mlgpbnak', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
-        body: JSON.stringify({
-          email: document.getElementById('suggest-email').value || 'not provided',
-          message: `Tool: ${name}\n\nDescription: ${document.getElementById('suggest-desc').value}`,
-        })
+        headers: { 'Accept': 'application/json' },
+        body: formData
       });
 
       if (res.ok) {
