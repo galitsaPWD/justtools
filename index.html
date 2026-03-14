@@ -12,18 +12,23 @@
     --bg: #0a0a0a; --surface: #111; --border: #1e1e1e; --border-bright: #2e2e2e;
     --text: #f0f0f0; --muted: #666; --accent: #e8ff47; --accent-dim: rgba(232,255,71,0.12);
     --accent-glow: rgba(232,255,71,0.25);
+    --sidebar-w: 240px; --sidebar-c: 0px;
   }
   html { scroll-behavior: smooth; }
-  body { background: var(--bg); color: var(--text); font-family: 'DM Mono', monospace; font-size: 15px; line-height: 1.6; overflow-x: hidden; }
+  body { background: var(--bg); color: var(--text); font-family: 'DM Mono', monospace; font-size: 15px; line-height: 1.6; overflow-x: hidden; padding-left: var(--sidebar-w); transition: padding-left 0.3s cubic-bezier(0.25, 1, 0.5, 1); }
+  body.sb-collapsed { padding-left: 0; }
   .cursor { width: 10px; height: 10px; background: var(--accent); border-radius: 50%; position: fixed; pointer-events: none; z-index: 9999; transition: transform 0.15s ease; transform: translate(-50%, -50%); }
   .cursor-ring { width: 36px; height: 36px; border: 1px solid rgba(232,255,71,0.4); border-radius: 50%; position: fixed; pointer-events: none; z-index: 9998; transition: width 0.2s, height 0.2s; transform: translate(-50%, -50%); }
   body::before { content: ''; position: fixed; inset: 0; background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E"); pointer-events: none; z-index: 1000; opacity: 0.4; }
-  nav { position: fixed; top: 0; left: 0; right: 0; display: flex; align-items: center; justify-content: space-between; padding: 20px 48px; border-bottom: 1px solid var(--border); background: rgba(10,10,10,0.85); backdrop-filter: blur(20px); z-index: 100; animation: fadeDown 0.8s ease both; }
+  nav { position: fixed; top: 0; left: var(--sidebar-w); right: 0; display: flex; align-items: center; justify-content: space-between; padding: 20px 48px; border-bottom: 1px solid var(--border); background: rgba(10,10,10,0.85); backdrop-filter: blur(20px); z-index: 100; animation: fadeDown 0.8s ease both; transition: left 0.3s cubic-bezier(0.25, 1, 0.5, 1); }
+  body.sb-collapsed nav { left: 0; }
   .nav-logo { font-family: 'Syne', sans-serif; font-weight: 800; font-size: 20px; letter-spacing: -0.5px; color: var(--text); }
   .nav-logo span { color: var(--accent); }
-  .nav-links { display: flex; gap: 32px; list-style: none; }
+  .nav-left { display: flex; align-items: center; gap: 16px; flex: 1; }
+  .nav-links { display: flex; gap: 32px; list-style: none; flex: 1; justify-content: center; }
   .nav-links a { color: var(--muted); text-decoration: none; font-size: 13px; letter-spacing: 0.04em; transition: color 0.2s; }
   .nav-links a:hover { color: var(--text); }
+  .nav-right { flex: 1; display: flex; justify-content: flex-end; }
   .nav-cta { background: var(--accent); color: #000; padding: 8px 20px; border-radius: 4px; font-family: 'Syne', sans-serif; font-weight: 700; font-size: 13px; text-decoration: none; transition: opacity 0.2s, transform 0.2s; }
   .nav-cta:hover { opacity: 0.85; transform: translateY(-1px); }
   .hero { min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 120px 24px 80px; position: relative; overflow: hidden; }
@@ -91,6 +96,41 @@
   .footer-logo { font-family: 'Syne', sans-serif; font-weight: 800; font-size: 16px; }
   .footer-logo span { color: var(--accent); }
   footer p { color: var(--muted); font-size: 12px; }
+  /* Sidebar Styles */
+  .sidebar { position: fixed; top: 0; left: 0; bottom: 0; width: var(--sidebar-w); background: rgba(10,10,10,0.95); backdrop-filter: blur(20px); border-right: 1px solid var(--border); z-index: 800; transition: transform 0.3s cubic-bezier(0.25, 1, 0.5, 1); display: flex; flex-direction: column; transform: translateX(0); }
+  .sidebar.collapsed { transform: translateX(-100%); }
+  .nav-left { display: flex; align-items: center; gap: 16px; }
+  .nav-toggle { background: var(--surface); border: 1px solid var(--border); color: var(--text); display: flex; align-items: center; justify-content: center; width: 44px; height: 44px; border-radius: 12px; transition: opacity 0.3s, transform 0.3s, background 0.2s; cursor: pointer; opacity: 1; transform: scale(1); }
+  .nav-toggle:hover { border-color: var(--muted); background: #1a1a1a; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+  body:not(.sb-collapsed) .nav-toggle { opacity: 0; pointer-events: none; transform: scale(0.8); }
+  .sb-header { height: 74px; display: flex; align-items: center; justify-content: space-between; padding: 0 20px; border-bottom: 1px solid var(--border); overflow: hidden; white-space: nowrap; flex-shrink: 0; }
+  .sb-logo { font-family: 'Syne', sans-serif; font-weight: 800; font-size: 18px; letter-spacing: -0.5px; opacity: 1; transition: opacity 0.2s; }
+  .sb-logo span { color: var(--accent); }
+  .sb-toggle { background: none; border: none; color: var(--text); font-size: 20px; font-family: monospace; display: flex; align-items: center; justify-content: center; width: 32px; height: 32px; transition: color 0.2s, background 0.2s; margin-left: auto; border-radius: 6px; }
+  .sb-toggle:hover { color: var(--accent); background: var(--surface); }
+  .sb-search-wrap { padding: 16px; border-bottom: 1px solid var(--border); transition: opacity 0.2s, padding 0.2s; overflow: hidden; flex-shrink: 0; }
+  .sb-search-input { width: 100%; background: var(--bg); border: 1px solid var(--border); border-radius: 6px; padding: 8px 12px; color: var(--text); font-family: 'DM Mono', monospace; font-size: 12px; outline: none; transition: border-color 0.2s; }
+  .sb-search-input:focus { border-color: var(--accent); }
+  .sb-content { flex: 1; overflow-y: auto; padding: 12px 0; scrollbar-width: none; }
+  .sb-content::-webkit-scrollbar { display: none; }
+  .sb-group { margin-bottom: 6px; transition: height 0.3s ease; overflow: hidden; }
+  .sb-group-title { font-size: 10px; text-transform: uppercase; letter-spacing: 0.15em; color: var(--muted); padding: 8px 20px; position: relative; user-select: none; white-space: nowrap; cursor: pointer !important; }
+  .sb-group-title::after { content: '▾'; position: absolute; right: 20px; font-size: 14px; top: 50%; transform: translateY(-50%); transition: transform 0.2s; }
+  .sb-group.closed .sb-group-title::after { transform: translateY(-50%) rotate(-90deg); }
+  .sb-group.closed .sb-item { display: none; }
+  .sb-item { display: flex; align-items: center; padding: 10px 20px; color: var(--text); text-decoration: none; font-size: 13px; transition: background 0.2s, color 0.2s; white-space: nowrap; overflow: hidden; }
+  .sb-item:hover { background: var(--surface); color: var(--accent); }
+  .sb-icon { font-size: 16px; min-width: 24px; text-align: center; margin-right: 12px; transition: margin 0.3s, font-size 0.3s; }
+  .sb-name { opacity: 1; transition: opacity 0.2s; font-family: 'Syne', sans-serif; font-weight: 600; display: block; overflow: hidden; text-overflow: ellipsis; }
+  .sb-item.hidden { display: none !important; }
+
+  @media (max-width: 768px) {
+    body { padding-left: 0 !important; }
+    nav { left: 0 !important; }
+    .sidebar { transform: translateX(-100%); width: var(--sidebar-w); }
+    .sidebar.mobile-open { transform: translateX(0); }
+  }
+
   /* Custom scrollbar */
   ::-webkit-scrollbar { width: 6px; }
   ::-webkit-scrollbar-track { background: var(--bg); }
@@ -136,14 +176,36 @@
 <body>
 <div class="cursor" id="cursor"></div>
 <div class="cursor-ring" id="cursorRing"></div>
+
+<!-- Sidebar -->
+<aside class="sidebar" id="sidebar">
+  <div class="sb-header">
+    <div class="sb-logo">Just<span>Tools</span></div>
+    <button class="sb-toggle" id="sb-toggle" onclick="toggleSidebar()">✕</button>
+  </div>
+  <div class="sb-search-wrap">
+    <input type="text" class="sb-search-input" placeholder="Search tools..." oninput="sbSearch(this.value)">
+  </div>
+  <div class="sb-content" id="sb-content">
+    <!-- Tools injected via JS -->
+  </div>
+</aside>
+
 <nav>
-  <div class="nav-logo">Just<span>Tools</span></div>
+  <div class="nav-left">
+    <button class="nav-toggle" onclick="toggleSidebar()" aria-label="Toggle Sidebar">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
+    </button>
+    <div class="nav-logo">Just<span>Tools</span></div>
+  </div>
   <ul class="nav-links">
     <li><a href="#tools">Tools</a></li>
     <li><a href="#why">Why</a></li>
     <li><a href="#about">About</a></li>
   </ul>
-  <a href="#tools" class="nav-cta">Open a Tool</a>
+  <div class="nav-right">
+    <a href="#tools" class="nav-cta">Open a Tool</a>
+  </div>
 </nav>
 <section class="hero">
   <div class="hero-grid"></div>
@@ -218,6 +280,7 @@
     <button class="cat-btn" onclick="filterCat('Documents',this)">Documents</button>
     <button class="cat-btn" onclick="filterCat('Data',this)">Data</button>
     <button class="cat-btn" onclick="filterCat('Utilities',this)">Utilities</button>
+    <button class="cat-btn" onclick="filterCat('Security',this)">Security</button>
     <button class="cat-btn" onclick="filterCat('AI',this)">✨ AI</button>
   </div>
   <div class="tools-grid reveal" id="tools-grid">
@@ -395,10 +458,8 @@
 
 function toggleSidebar() {
   const sb = document.getElementById('sidebar');
-  const btn = document.getElementById('sb-toggle');
   sb.classList.toggle('collapsed');
-  btn.classList.toggle('open');
-  btn.textContent = sb.classList.contains('collapsed') ? '☰' : '✕';
+  document.body.classList.toggle('sb-collapsed');
   localStorage.setItem('jt-sidebar', sb.classList.contains('collapsed') ? '0' : '1');
 }
 function toggleGroup(btn) {
@@ -407,7 +468,7 @@ function toggleGroup(btn) {
 function sbSearch(q) {
   const lq = q.toLowerCase();
   document.querySelectorAll('.sb-item').forEach(el => {
-    const match = el.querySelector('.sb-name').textContent.toLowerCase().includes(lq);
+    const match = el.dataset.name.toLowerCase().includes(lq);
     el.classList.toggle('hidden', !match);
   });
   // Show/hide groups based on visible items
@@ -417,15 +478,74 @@ function sbSearch(q) {
     if (q && visible) g.classList.remove('closed');
   });
 }
-// Restore sidebar state
+
+// Init Sidebar Content dynamically
+function initSidebar() {
+  const toolsGrid = document.getElementById('tools-grid');
+  if(!toolsGrid) return;
+  const cards = toolsGrid.querySelectorAll('.tool-card');
+  const groups = {};
+  cards.forEach(card => {
+    const cat = card.dataset.cat || 'Misc';
+    const name = card.querySelector('.tool-name').textContent;
+    const icon = card.querySelector('.tool-icon').textContent;
+    const href = card.getAttribute('href');
+    if(!groups[cat]) groups[cat] = [];
+    groups[cat].push({ name, icon, href });
+    
+    // Remember scroll position when clicking a tool on the main page
+    card.addEventListener('click', () => {
+      sessionStorage.setItem('jt-scroll', window.scrollY);
+    });
+  });
+
+  const content = document.getElementById('sb-content');
+  if(!content) return;
+  let html = '';
+  // Predictable order for major categories
+  const order = ['Dev', 'Writing', 'Design', 'Productivity', 'Documents', 'Data', 'Utilities', 'AI', 'Security'];
+  const existingCats = Object.keys(groups);
+  existingCats.forEach(c => { if(!order.includes(c)) order.push(c); });
+
+  order.forEach(cat => {
+    if(!groups[cat]) return;
+    html += `<div class="sb-group">
+      <div class="sb-group-title" onclick="toggleGroup(this)">${cat}</div>`;
+    groups[cat].forEach(t => {
+      html += `<a href="${t.href}" class="sb-item" data-name="${t.name}" onclick="sessionStorage.setItem('jt-scroll', window.scrollY)"><span class="sb-icon">${t.icon}</span><span class="sb-name">${t.name}</span></a>`;
+    });
+    html += `</div>`;
+  });
+  content.innerHTML = html;
+}
+
+// Restore sidebar and scroll state
 (function() {
   const state = localStorage.getItem('jt-sidebar');
   if (state === '0') {
-    document.getElementById('sidebar').classList.add('collapsed');
-    document.getElementById('sb-toggle').classList.remove('open');
-    document.getElementById('sb-toggle').textContent = '☰';
+    const sb = document.getElementById('sidebar');
+    if (sb) sb.classList.add('collapsed');
+    document.body.classList.add('sb-collapsed');
+  } else {
+    document.body.classList.remove('sb-collapsed');
+  }
+  
+  // Restore scroll position if returning from a tool
+  const savedScroll = sessionStorage.getItem('jt-scroll');
+  if (savedScroll) {
+    // Only restore scroll if we are not navigating to an anchor hash (like #tools)
+    if (!window.location.hash) {
+      // Use standard setTimeout to ensure DOM is ready
+      setTimeout(() => {
+        window.scrollTo({ top: parseInt(savedScroll), left: 0, behavior: 'auto' });
+        // Clear the scroll so we don't accidentally enforce it on normal reloads
+        sessionStorage.removeItem('jt-scroll');
+      }, 50);
+    }
   }
 })();
+
+document.addEventListener('DOMContentLoaded', initSidebar);
 
 </script>
 </body>

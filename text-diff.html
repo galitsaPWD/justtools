@@ -65,30 +65,57 @@
     <div class="diff-output" id="diff-result"></div>
   </div>
 </div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/diff_match_patch/20121119/diff_match_patch.js"></script>
 <script>
   const dot = document.getElementById('cursor-dot'), ring = document.getElementById('cursor-ring');
   document.addEventListener('mousemove', e => { dot.style.left=e.clientX+'px'; dot.style.top=e.clientY+'px'; setTimeout(()=>{ring.style.left=e.clientX+'px';ring.style.top=e.clientY+'px';},80); });
   
   function diffTexts(){
-    const a=document.getElementById('original').value.split('\n');
-    const b=document.getElementById('modified').value.split('\n');
-    if(!a[0]&&!b[0]){document.getElementById('diff-out').style.display='none';document.getElementById('stats').style.display='none';return;}
-    let added=0,removed=0,html='';
-    const maxLen=Math.max(a.length,b.length);
-    for(let i=0;i<maxLen;i++){
-      const lineA=a[i]??'', lineB=b[i]??'';
-      if(lineA===lineB){html+=`<span>${escH(lineA)}</span>\n`;}
-      else{
-        if(lineA){html+=`<span class="del">${escH(lineA)}</span>\n`;removed++;}
-        if(lineB){html+=`<span class="add">${escH(lineB)}</span>\n`;added++;}
-      }
+    const a = document.getElementById('original').value;
+    const b = document.getElementById('modified').value;
+    
+    if (!a && !b) {
+      document.getElementById('diff-out').style.display = 'none';
+      document.getElementById('stats').style.display = 'none';
+      return;
     }
-    document.getElementById('diff-result').innerHTML=html;
-    document.getElementById('added-count').textContent=added;
-    document.getElementById('removed-count').textContent=removed;
-    document.getElementById('changed-count').textContent=Math.min(added,removed);
-    document.getElementById('diff-out').style.display='block';
-    document.getElementById('stats').style.display='flex';
+    
+    // If one is empty and the other isn't, but they are just initial placeholders or being cleared out, we might want to just show nothing if we don't want a massive "removed" block.
+    // Actually, showing a massive removed block IS the correct diff. However, if the user finds it annoying, we can hide the diff until BOTH have content, or at least if one is completely empty we hide it.
+    // The previous implementation hid it if `!a[0] && !b[0]`.
+    if (!a || !b) {
+        document.getElementById('diff-out').style.display = 'none';
+        document.getElementById('stats').style.display = 'none';
+        return;
+    }
+    
+    const dmp = new diff_match_patch();
+    const diffs = dmp.diff_main(a, b);
+    dmp.diff_cleanupSemantic(diffs);
+    
+    let added = 0, removed = 0, html = '';
+    
+    diffs.forEach(diff => {
+      const type = diff[0];
+      const text = escH(diff[1]);
+      
+      if (type === 1) { // Insert
+        html += `<span class="add">${text}</span>`;
+        added += diff[1].length;
+      } else if (type === -1) { // Delete
+        html += `<span class="del">${text}</span>`;
+        removed += diff[1].length;
+      } else { // Equal
+        html += `<span>${text}</span>`;
+      }
+    });
+
+    document.getElementById('diff-result').innerHTML = html.replace(/\n/g, '<br>');
+    document.getElementById('added-count').textContent = added;
+    document.getElementById('removed-count').textContent = removed;
+    document.getElementById('changed-count').textContent = Math.min(added, removed);
+    document.getElementById('diff-out').style.display = 'block';
+    document.getElementById('stats').style.display = 'flex';
   }
   function escH(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
   

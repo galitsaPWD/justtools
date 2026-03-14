@@ -35,8 +35,8 @@
     .col { flex: 1; min-width: 180px; }
     @media(max-width:640px) { nav { padding: 16px 20px; } .container { padding: 40px 16px; } .tool-title { font-size: 36px; } }
     
-  .shadow-preview-wrap { display: flex; align-items: center; justify-content: center; padding: 60px; background: var(--surface2); border-radius: 12px; margin-bottom: 24px; border: 1px solid var(--border); }
-  .shadow-box { width: 160px; height: 160px; background: var(--surface); border-radius: 12px; transition: box-shadow 0.2s; }
+  .shadow-preview-wrap { display: flex; align-items: center; justify-content: center; padding: 60px; background: #ffffff; border-radius: 12px; margin-bottom: 24px; border: 1px solid var(--border); transition: background 0.2s; }
+  .shadow-box { width: 160px; height: 160px; background: #ffffff; border-radius: 12px; transition: box-shadow 0.2s, background 0.2s; }
   .slider-row { display: grid; grid-template-columns: 120px 1fr 48px; gap: 12px; align-items: center; margin-bottom: 12px; }
   .slider-label { font-size: 11px; color: var(--muted); }
   input[type=range] { width: 100%; accent-color: var(--accent); background: transparent; }
@@ -74,7 +74,8 @@
     <div class="row" style="margin-top:12px">
       <div class="col"><label>Color</label><input type="color" id="s-color" value="#000000" oninput="render()" style="height:44px"></div>
       <div class="col"><label>Inset</label><select id="s-inset" onchange="render()"><option value="">No</option><option value="inset">Yes</option></select></div>
-      <div class="col"><label>Box Color</label><input type="color" id="box-color" value="#111111" oninput="document.getElementById('shadow-box').style.background=this.value" style="height:44px"></div>
+      <div class="col"><label>Canvas</label><input type="color" id="canvas-color" value="#ffffff" oninput="document.querySelector('.shadow-preview-wrap').style.background=this.value" style="height:44px"></div>
+      <div class="col"><label>Box</label><input type="color" id="box-color" value="#ffffff" oninput="document.getElementById('shadow-box').style.background=this.value" style="height:44px"></div>
     </div>
     <div class="css-output" id="css-output"></div>
     <div style="display:flex;gap:10px;margin-top:14px">
