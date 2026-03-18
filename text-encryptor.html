@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Text Encryptor — JustTools</title>
+  <link rel="icon" type="image/svg+xml" href="favicon.svg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;700;800&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="common.css">
+  <style>
+    .tabs { display: flex; gap: 8px; margin-bottom: 24px; border-bottom: 1px solid var(--border); padding-bottom: 12px; }
+    .tab { background: none; border: none; color: var(--muted); padding: 8px 16px; font-family: 'Syne', sans-serif; font-weight: 700; font-size: 14px; cursor: pointer; transition: all 0.2s; position: relative; }
+    .tab.active { color: var(--accent); }
+    .tab.active::after { content: ''; position: absolute; bottom: -13px; left: 0; right: 0; height: 2px; background: var(--accent); }
+    
+    .input-group { margin-bottom: 20px; }
+    .result-box { background: var(--surface2); border: 1px solid var(--border); border-radius: 12px; padding: 20px; margin-top: 24px; display: none; }
+    .result-box.visible { display: block; animation: fadeIn 0.3s ease both; }
+    .res-label { font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 8px; }
+    .res-val { font-size: 13px; color: var(--text); word-break: break-all; font-family: 'DM Mono', monospace; line-height: 1.6; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+    
+    .pass-wrap { position: relative; }
+    .pass-toggle { position: absolute; right: 12px; top: 50%; transform: translateY(-50%); background: none; border: none; color: var(--muted); font-size: 11px; cursor: pointer; }
+  </style>
+</head>
+<body>
+<nav>
+  <a href="index.html" class="nav-logo">Just<span>Tools</span></a>
+  <a href="index.html" class="nav-back">← All Tools</a>
+</nav>
+<div class="container">
+  <div class="tool-label">🔐 Security</div>
+  <h1 class="tool-title">Secure Text<br>Encryptor</h1>
+  <p class="tool-desc">Securely encrypt and decrypt messages using AES-256-GCM. Your passphrase stays private — encryption happens entirely in your browser.</p>
+  
+  <div class="card">
+    <div class="tabs">
+      <button class="tab active" onclick="setMode('encrypt', this)">Encrypt</button>
+      <button class="tab" onclick="setMode('decrypt', this)">Decrypt</button>
+    </div>
+
+    <div class="input-group">
+      <label id="content-label">Text to Encrypt</label>
+      <textarea id="content-input" placeholder="Enter your secret message..." rows="5"></textarea>
+    </div>
+
+    <div class="input-group">
+      <label>Passphrase (Required)</label>
+      <div class="pass-wrap">
+        <input type="password" id="pass-input" placeholder="Enter a strong passphrase" autocomplete="off">
+        <button class="pass-toggle" onclick="togglePass()">Show</button>
+      </div>
+    </div>
+
+    <button class="btn" id="action-btn" onclick="handleAction()">🔐 Encrypt Text</button>
+
+    <div class="result-box" id="result-box">
+      <div class="res-label" id="res-label">Encrypted Output</div>
+      <div class="res-val" id="res-val"></div>
+      <button class="btn-ghost" style="margin-top:16px; font-size:11px;" onclick="copyResult()">Copy Result</button>
+    </div>
+    
+    <div id="error-msg" style="color:var(--red); font-size:13px; margin-top:16px; display:none"></div>
+  </div>
+</div>
+
+<script>
+  let currentMode = 'encrypt';
+
+  function setMode(mode, btn) {
+    currentMode = mode;
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById('content-label').textContent = mode === 'encrypt' ? 'Text to Encrypt' : 'Text to Decrypt';
+    document.getElementById('content-input').placeholder = mode === 'encrypt' ? 'Enter your secret message...' : 'Paste the encrypted code here...';
+    document.getElementById('action-btn').textContent = mode === 'encrypt' ? '🔐 Encrypt Text' : '🔓 Decrypt Text';
+    document.getElementById('res-label').textContent = mode === 'encrypt' ? 'Encrypted Output' : 'Decrypted Output';
+    document.getElementById('result-box').classList.remove('visible');
+    document.getElementById('error-msg').style.display = 'none';
+  }
+
+  function togglePass() {
+    const input = document.getElementById('pass-input');
+    const btn = event.target;
+    if (input.type === 'password') {
+      input.type = 'text';
+      btn.textContent = 'Hide';
+    } else {
+      input.type = 'password';
+      btn.textContent = 'Show';
+    }
+  }
+
+  function showError(msg) {
+    const el = document.getElementById('error-msg');
+    el.textContent = '⚠ ' + msg;
+    el.style.display = 'block';
+    document.getElementById('result-box').classList.remove('visible');
+  }
+
+  async function deriveKey(passphrase, salt) {
+    const encoder = new TextEncoder();
+    const keyMaterial = await crypto.subtle.importKey(
+      "raw", encoder.encode(passphrase), "PBKDF2", false, ["deriveKey"]
+    );
+    return crypto.subtle.deriveKey(
+      { name: "PBKDF2", salt, iterations: 100000, hash: "SHA-256" },
+      keyMaterial,
+      { name: "AES-GCM", length: 256 },
+      false,
+      ["encrypt", "decrypt"]
+    );
+  }
+
+  async function handleAction() {
+    const content = document.getElementById('content-input').value.trim();
+    const passphrase = document.getElementById('pass-input').value;
+    const resBox = document.getElementById('result-box');
+    const resVal = document.getElementById('res-val');
+    const errorEl = document.getElementById('error-msg');
+    
+    errorEl.style.display = 'none';
+    if (!content || !passphrase) {
+      showError("Please enter both content and a passphrase.");
+      return;
+    }
+
+    try {
+      if (currentMode === 'encrypt') {
+        const salt = crypto.getRandomValues(new Uint8Array(16));
+        const iv = crypto.getRandomValues(new Uint8Array(12));
+        const key = await deriveKey(passphrase, salt);
+        const encoded = new TextEncoder().encode(content);
+        const ciphertext = await crypto.subtle.encrypt({ name: "AES-GCM", iv }, key, encoded);
+        
+        const packed = btoa(String.fromCharCode(...salt)) + ":" + 
+                       btoa(String.fromCharCode(...iv)) + ":" + 
+                       btoa(String.fromCharCode(...new Uint8Array(ciphertext)));
+        resVal.textContent = packed;
+      } else {
+        const parts = content.split(':');
+        if (parts.length !== 3) throw new Error("Invalid format.");
+        
+        const salt = Uint8Array.from(atob(parts[0]), c => c.charCodeAt(0));
+        const iv = Uint8Array.from(atob(parts[1]), c => c.charCodeAt(0));
+        const data = Uint8Array.from(atob(parts[2]), c => c.charCodeAt(0));
+        
+        const key = await deriveKey(passphrase, salt);
+        const decrypted = await crypto.subtle.decrypt({ name: "AES-GCM", iv }, key, data);
+        resVal.textContent = new TextDecoder().decode(decrypted);
+      }
+      resBox.classList.add('visible');
+    } catch (e) {
+      showError("Action failed. Check your passphrase or encrypted code.");
+      console.error(e);
+    }
+  }
+
+  function copyResult() {
+    navigator.clipboard.writeText(document.getElementById('res-val').textContent);
+    const btn = event.target;
+    const old = btn.textContent;
+    btn.textContent = 'Copied!';
+    setTimeout(() => btn.textContent = old, 1500);
+  }
+</script>
+<script src="common.js"></script>
+</body>
+</html>

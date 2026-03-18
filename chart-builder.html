@@ -7,8 +7,9 @@
   <link rel="icon" type="image/svg+xml" href="favicon.svg">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;700;800&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="common.css">
   <style>
-    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;cursor:none!important}
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
     :root{--bg:#0a0a0a;--surface:#111;--surface2:#161616;--border:#1e1e1e;--border-bright:#2e2e2e;--text:#f0f0f0;--muted:#666;--accent:#e8ff47;--accent-dim:rgba(232,255,71,0.08);--blue:#79c0ff;--green:#3fb950;--red:#ff7b72}
     body{background:var(--bg);color:var(--text);font-family:'DM Mono',monospace;min-height:100vh}
     #cursor-dot{width:6px;height:6px;background:var(--accent);border-radius:50%;position:fixed;pointer-events:none;z-index:9999;transform:translate(-50%,-50%)}
@@ -49,8 +50,6 @@
   </style>
 </head>
 <body>
-<div id="cursor-dot"></div>
-<div id="cursor-ring"></div>
 <nav>
   <a href="index.html" class="nav-logo">Just<span>Tools</span></a>
   <a href="index.html" class="nav-back">← All Tools</a>
@@ -89,9 +88,6 @@
   </div>
 </div>
 <script>
-  const dot=document.getElementById('cursor-dot'),ring=document.getElementById('cursor-ring');
-  document.addEventListener('mousemove',e=>{dot.style.left=e.clientX+'px';dot.style.top=e.clientY+'px';setTimeout(()=>{ring.style.left=e.clientX+'px';ring.style.top=e.clientY+'px';},80);});
-  
   const CDN='https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js';
   const s=document.createElement('script');s.src=CDN;document.head.appendChild(s);
   s.onload=()=>{init()};
@@ -118,15 +114,51 @@
     if(chartInst)chartInst.destroy();
     const labels=rows.map(r=>r.label), data=rows.map(r=>r.value);
     const bg=rows.map((_,i)=>colors[i%colors.length]);
+    
+    let borderCol = chartType === 'line' ? colors[0] : (chartType === 'bar' ? bg : '#161616');
+    let borderW = (chartType === 'pie' || chartType === 'doughnut' || chartType === 'polarArea') ? 3 : 2;
+    let bkVals = chartType === 'line' ? colors[0] + '40' : bg;
+
+    const ds = {
+      label: document.getElementById('chart-title').value || 'Data',
+      data: data,
+      backgroundColor: bkVals,
+      borderColor: borderCol,
+      borderWidth: borderW,
+      tension: 0.4,
+      borderRadius: chartType === 'bar' ? 6 : 0,
+      hoverOffset: (chartType === 'pie' || chartType === 'doughnut' || chartType === 'polarArea') ? 12 : 0,
+      fill: chartType === 'line'
+    };
+
+    let scalesObj = {};
+    if(chartType === 'polarArea'){
+      scalesObj = { r: { ticks: { backdropColor: 'transparent', color: '#888', font:{family:'DM Mono'} }, grid: { color: '#2e2e2e' }, angleLines: { color: '#2e2e2e' } } };
+    } else if(chartType !== 'pie' && chartType !== 'doughnut'){
+      scalesObj = { 
+        x: { ticks: {color: '#888', font:{family:'DM Mono'}}, grid: { color: '#1e1e1e', display: false } }, 
+        y: { beginAtZero: true, ticks: {color: '#888', font:{family:'DM Mono'}}, grid: { color: '#1e1e1e' } } 
+      };
+    }
+
     chartInst=new Chart(ctx,{
       type:chartType,
-      data:{labels,datasets:[{label:document.getElementById('chart-title').value||'Data',data,backgroundColor:bg,borderColor:bg,borderWidth:2,tension:0.4}]},
-      options:{responsive:true,plugins:{legend:{labels:{color:'#f0f0f0',font:{family:'DM Mono'}}},title:{display:true,text:document.getElementById('chart-title').value,color:'#f0f0f0',font:{family:'Syne',size:16,weight:'800'}}},scales:chartType==='pie'||chartType==='doughnut'||chartType==='polarArea'?{}:{x:{ticks:{color:'#666'},grid:{color:'#1e1e1e'}},y:{ticks:{color:'#666'},grid:{color:'#1e1e1e'}}}}
+      data:{labels,datasets:[ds]},
+      options:{
+        responsive:true,
+        plugins:{
+          legend:{labels:{color:'#f0f0f0',font:{family:'DM Mono',size:13},padding:20}},
+          title:{display:!!document.getElementById('chart-title').value,text:document.getElementById('chart-title').value,color:'#f0f0f0',font:{family:'Syne',size:24,weight:'800'},padding:{bottom:24}},
+          tooltip:{backgroundColor:'#111',titleColor:'#f0f0f0',bodyColor:'#888',titleFont:{family:'Syne',size:15},bodyFont:{family:'DM Mono',size:13},padding:14,borderColor:'#2e2e2e',borderWidth:1,cornerRadius:8}
+        },
+        scales:scalesObj
+      }
     });
   }
   function downloadChart(){const a=document.createElement('a');a.href=document.getElementById('myChart').toDataURL();a.download='chart.png';a.click();}
   function init(){renderRows();buildChart();}
   
 </script>
+<script src="common.js"></script>
 </body>
 </html>

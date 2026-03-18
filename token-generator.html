@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Token Generator — JustTools</title>
+  <link rel="icon" type="image/svg+xml" href="favicon.svg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;700;800&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="common.css">
+  <style>
+    .opt-group { margin-bottom: 24px; border: 1px solid var(--border); border-radius: 12px; padding: 20px; background: var(--surface2); }
+    .check-row { display: flex; gap: 16px; flex-wrap: wrap; margin-top: 12px; }
+    .check-item { display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--muted); cursor: pointer; }
+    .check-item input { width: auto; cursor: pointer; accent-color: var(--accent); }
+    
+    .results-area { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 8px; margin-top: 24px; min-height: 100px; }
+    .token-row { display: flex; align-items: center; justify-content: space-between; padding: 10px 16px; border-bottom: 1px solid var(--border); transition: background 0.2s; }
+    .token-row:last-child { border-bottom: none; }
+    .token-row:hover { background: var(--surface2); }
+    .token-val { font-family: 'DM Mono', monospace; font-size: 13px; color: var(--text); word-break: break-all; }
+    .token-copy { background: none; border: none; color: var(--accent); font-size: 11px; cursor: pointer; text-decoration: underline; opacity: 0.6; }
+    .token-copy:hover { opacity: 1; }
+    
+    .bulk-actions { display: flex; justify-content: space-between; align-items: center; margin-top: 16px; }
+  </style>
+</head>
+<body>
+<nav>
+  <a href="index.html" class="nav-logo">Just<span>Tools</span></a>
+  <a href="index.html" class="nav-back">← All Tools</a>
+</nav>
+<div class="container">
+  <div class="tool-label">🔐 Security</div>
+  <h1 class="tool-title">Token & UUID<br>Generator</h1>
+  <p class="tool-desc">Generate secure random tokens and UUIDs for API keys, passwords, or test data. Uses cryptographically secure random values.</p>
+  
+  <div class="card">
+    <div class="row">
+      <div class="col">
+        <label>Format</label>
+        <select id="format" onchange="toggleOpts()">
+          <option value="uuid">UUID v4 (Standard)</option>
+          <option value="custom">Custom Random Token</option>
+        </select>
+      </div>
+      <div class="col">
+        <label>Quantity</label>
+        <input type="number" id="qty" value="5" min="1" max="100">
+      </div>
+    </div>
+
+    <div class="opt-group" id="custom-opts" style="display:none">
+      <div class="row" style="margin-bottom:0">
+        <div class="col">
+          <label>Token Length</label>
+          <input type="number" id="length" value="32" min="1" max="256">
+        </div>
+      </div>
+      <div class="check-row">
+        <label class="check-item"><input type="checkbox" id="use-upper" checked> ABC</label>
+        <label class="check-item"><input type="checkbox" id="use-lower" checked> abc</label>
+        <label class="check-item"><input type="checkbox" id="use-num" checked> 123</label>
+        <label class="check-item"><input type="checkbox" id="use-spec"> !@#</label>
+      </div>
+    </div>
+
+    <button class="btn" style="width:100%" onclick="generate()">⚡ Generate Tokens</button>
+
+    <div id="results-wrap" style="display:none">
+      <div class="results-area" id="results"></div>
+      <div class="bulk-actions">
+        <span style="font-size:11px; color:var(--muted)" id="count-info"></span>
+        <button class="btn-ghost" style="padding:4px 12px; font-size:11px" onclick="copyAll()">Copy All</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  function toggleOpts() {
+    const isCustom = document.getElementById('format').value === 'custom';
+    document.getElementById('custom-opts').style.display = isCustom ? 'block' : 'none';
+  }
+
+  function getCharset() {
+    let s = '';
+    if (document.getElementById('use-upper').checked) s += 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+    if (document.getElementById('use-lower').checked) s += 'abcdefghijklmnopqrstuvwxyz';
+    if (document.getElementById('use-num').checked) s += '0123456789';
+    if (document.getElementById('use-spec').checked) s += '!@#$%^&*()_+-=[]{}|;:,.<>?';
+    return s || 'abcdefghijklmnopqrstuvwxyz0123456789';
+  }
+
+  function generateToken(len, charset) {
+    const arr = new Uint32Array(len);
+    crypto.getRandomValues(arr);
+    return Array.from(arr).map(n => charset[n % charset.length]).join('');
+  }
+
+  function generateUUID() {
+    return ([1e7]+-1e3+-4e3+-8e3+-1e11).replace(/[018]/g, c =>
+      (c ^ crypto.getRandomValues(new Uint8Array(1))[0] & 15 >> c / 4).toString(16)
+    );
+  }
+
+  function generate() {
+    const fmt = document.getElementById('format').value;
+    const qty = parseInt(document.getElementById('qty').value) || 1;
+    const len = parseInt(document.getElementById('length').value) || 32;
+    const charset = getCharset();
+    const results = [];
+
+    for (let i = 0; i < qty; i++) {
+        results.push(fmt === 'uuid' ? generateUUID() : generateToken(len, charset));
+    }
+
+    const html = results.map(t => `
+      <div class="token-row">
+        <span class="token-val">${t}</span>
+        <button class="token-copy" onclick="copyToken(this)">Copy</button>
+      </div>
+    `).join('');
+
+    document.getElementById('results').innerHTML = html;
+    document.getElementById('results-wrap').style.display = 'block';
+    document.getElementById('count-info').textContent = `Generated ${qty} item${qty>1?'s':''}`;
+  }
+
+  function copyToken(btn) {
+    const val = btn.previousElementSibling.textContent;
+    navigator.clipboard.writeText(val);
+    btn.textContent = 'Copied!';
+    setTimeout(() => btn.textContent = 'Copy', 1500);
+  }
+
+  function copyAll() {
+    const vals = Array.from(document.querySelectorAll('.token-val')).map(el => el.textContent).join('\n');
+    navigator.clipboard.writeText(vals);
+    const btn = event.target;
+    btn.textContent = 'All Copied!';
+    setTimeout(() => btn.textContent = 'Copy All', 1500);
+  }
+
+  generate();
+</script>
+<script src="common.js"></script>
+</body>
+</html>

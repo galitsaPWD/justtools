@@ -7,122 +7,141 @@
   <link rel="icon" type="image/svg+xml" href="favicon.svg">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;700;800&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet">
-  <style>
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; cursor: none !important; }
-    :root {
-      --bg: #0a0a0a; --surface: #111; --surface2: #161616;
-      --border: #1e1e1e; --border-bright: #2e2e2e;
-      --text: #f0f0f0; --muted: #666; --accent: #e8ff47;
-      --accent-dim: rgba(232,255,71,0.08);
-      --blue: #79c0ff; --green: #3fb950; --orange: #f78166; --purple: #d2a8ff; --red: #ff7b72;
-    }
-    body { background: var(--bg); color: var(--text); font-family: 'DM Mono', monospace; min-height: 100vh; }
-    #cursor-dot { width: 6px; height: 6px; background: var(--accent); border-radius: 50%; position: fixed; pointer-events: none; z-index: 9999; transform: translate(-50%,-50%); }
-    #cursor-ring { width: 28px; height: 28px; border: 1px solid rgba(232,255,71,0.4); border-radius: 50%; position: fixed; pointer-events: none; z-index: 9998; transform: translate(-50%,-50%); transition: left 0.12s ease, top 0.12s ease; }
-    ::-webkit-scrollbar { width: 6px; } ::-webkit-scrollbar-track { background: transparent; }
-    ::-webkit-scrollbar-thumb { background: #2e2e2e; border-radius: 3px; } ::-webkit-scrollbar-thumb:hover { background: #666; }
-    nav { display: flex; align-items: center; justify-content: space-between; padding: 20px 40px; border-bottom: 1px solid var(--border); position: sticky; top: 0; z-index: 100; background: rgba(10,10,10,0.85); backdrop-filter: blur(12px); }
-    .nav-logo { font-family: 'Syne', sans-serif; font-weight: 800; font-size: 18px; color: var(--text); text-decoration: none; }
-    .nav-logo span { color: var(--accent); }
-    .nav-back { font-size: 12px; color: var(--muted); text-decoration: none; transition: color 0.2s; }
-    .nav-back:hover { color: var(--text); }
-    .container { max-width: 1100px; margin: 0 auto; padding: 60px 40px; }
-    .tool-label { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.14em; margin-bottom: 12px; }
-    .tool-title { font-family: 'Syne', sans-serif; font-weight: 800; font-size: 52px; line-height: 1.05; margin-bottom: 16px; }
-    .tool-desc { font-size: 14px; color: var(--muted); line-height: 1.7; margin-bottom: 40px; max-width: 560px; }
-    .search-wrap { display: flex; gap: 12px; margin-bottom: 20px; }
-    .search-input { flex: 1; background: var(--surface); border: 1px solid var(--border); color: var(--text); padding: 14px 20px; border-radius: 10px; font-family: 'DM Mono', monospace; font-size: 14px; outline: none; transition: border-color 0.2s; }
-    .search-input:focus { border-color: var(--border-bright); }
-    .search-input::placeholder { color: var(--muted); }
-    .search-btn { background: var(--accent); color: #000; border: none; padding: 14px 28px; border-radius: 10px; font-family: 'Syne', sans-serif; font-weight: 800; font-size: 14px; transition: all 0.2s; white-space: nowrap; }
-    .search-btn:hover { opacity: 0.85; transform: translateY(-1px); }
-    .search-btn:disabled { opacity: 0.5; transform: none; }
-    .sources-row { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 16px; }
-    .source-btn { display: flex; align-items: center; gap: 7px; background: var(--surface); border: 1px solid var(--border); color: var(--muted); padding: 8px 14px; border-radius: 8px; font-family: 'DM Mono', monospace; font-size: 12px; transition: all 0.2s; }
-    .source-btn .dot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; flex-shrink: 0; }
-    .source-btn.reddit.active { border-color: #ff6314; color: #ff6314; background: rgba(255,99,20,0.08); }
-    .source-btn.hn.active { border-color: var(--orange); color: var(--orange); background: rgba(247,129,102,0.08); }
-    .source-btn.gh.active { border-color: var(--blue); color: var(--blue); background: rgba(121,192,255,0.08); }
-    .source-btn.ph.active { border-color: var(--purple); color: var(--purple); background: rgba(210,168,255,0.08); }
-    .source-btn.rss.active { border-color: var(--green); color: var(--green); background: rgba(63,185,80,0.08); }
-    .rss-input-wrap { display: none; gap: 8px; margin-bottom: 20px; align-items: center; }
-    .rss-input-wrap.visible { display: flex; }
-    .rss-url-input { flex: 1; background: var(--surface); border: 1px solid var(--border); color: var(--text); padding: 10px 14px; border-radius: 8px; font-family: 'DM Mono', monospace; font-size: 12px; outline: none; }
-    .rss-url-input:focus { border-color: var(--green); }
-    .rss-add-btn { background: rgba(63,185,80,0.1); color: var(--green); border: 1px solid rgba(63,185,80,0.25); padding: 10px 16px; border-radius: 8px; font-family: 'DM Mono', monospace; font-size: 12px; white-space: nowrap; transition: all 0.2s; }
-    .error-bar { display: none; padding: 12px 16px; border-radius: 8px; font-size: 13px; margin-bottom: 20px; }
-    .error-bar.visible { display: block; }
-    .loading-bar { display: none; gap: 12px; align-items: center; padding: 20px; background: var(--surface); border-radius: 10px; margin-bottom: 20px; font-size: 13px; color: var(--muted); border: 1px solid var(--border); }
-    .loading-bar.visible { display: flex; }
-    .spinner { width: 16px; height: 16px; border: 2px solid var(--border-bright); border-top-color: var(--accent); border-radius: 50%; animation: spin 0.7s linear infinite; flex-shrink: 0; }
-    @keyframes spin { to { transform: rotate(360deg); } }
-    .keywords-section { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 20px 24px; margin-bottom: 24px; }
-    .keywords-title { font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.14em; margin-bottom: 14px; }
-    .keywords-cloud { display: flex; flex-wrap: wrap; gap: 8px; }
-    .keyword-tag { background: var(--accent-dim); color: var(--accent); border: 1px solid rgba(232,255,71,0.12); padding: 4px 12px; border-radius: 100px; font-size: 12px; }
-    .keyword-tag .kcount { font-size: 10px; color: var(--muted); margin-left: 5px; }
-    .results-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
-    .results-count { font-size: 12px; color: var(--muted); }
-    .export-btn { background: none; border: 1px solid var(--border); color: var(--muted); padding: 6px 14px; border-radius: 6px; font-family: 'DM Mono', monospace; font-size: 11px; transition: all 0.2s; }
-    .export-btn:hover { border-color: var(--border-bright); color: var(--text); }
-    .results-grid { display: flex; flex-direction: column; gap: 6px; }
-    .result-card { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 16px 20px; display: flex; align-items: flex-start; gap: 14px; transition: border-color 0.2s, background 0.2s; text-decoration: none; color: inherit; }
-    .result-card:hover { border-color: var(--border-bright); background: var(--surface2); }
-    .result-source-badge { flex-shrink: 0; font-size: 9px; font-weight: 700; padding: 3px 8px; border-radius: 4px; text-transform: uppercase; letter-spacing: 0.1em; margin-top: 3px; }
-    .badge-reddit { background: rgba(255,99,20,0.15); color: #ff6314; }
-    .badge-hn { background: rgba(247,129,102,0.15); color: var(--orange); }
-    .badge-github { background: rgba(121,192,255,0.15); color: var(--blue); }
-    .badge-ph { background: rgba(210,168,255,0.15); color: var(--purple); }
-    .badge-rss { background: rgba(63,185,80,0.15); color: var(--green); }
-    .result-body { flex: 1; min-width: 0; }
-    .result-title { font-family: 'Syne', sans-serif; font-weight: 700; font-size: 14px; line-height: 1.4; margin-bottom: 6px; word-break: break-word; }
-    .result-meta { display: flex; align-items: center; gap: 14px; font-size: 11px; color: var(--muted); flex-wrap: wrap; }
-    .result-score { flex-shrink: 0; text-align: right; min-width: 52px; }
-    .score-num { font-family: 'Syne', sans-serif; font-weight: 800; font-size: 18px; color: var(--text); }
-    .score-label { font-size: 9px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.08em; }
-    .empty-state { text-align: center; padding: 80px 20px; color: var(--muted); }
-    .empty-icon { font-size: 48px; margin-bottom: 16px; }
-    .empty-title { font-family: 'Syne', sans-serif; font-weight: 700; font-size: 20px; color: var(--text); margin-bottom: 8px; }
-    .empty-sub { font-size: 13px; line-height: 1.6; }
-    /* Saved searches */
-    .saved-row { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 20px; align-items: center; }
-    .saved-label { font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.1em; flex-shrink: 0; }
-    .saved-chip { background: var(--surface); border: 1px solid var(--border); color: var(--muted); padding: 4px 12px; border-radius: 100px; font-size: 11px; transition: all 0.2s; display: flex; align-items: center; gap: 6px; }
-    .saved-chip:hover { border-color: var(--accent); color: var(--accent); }
-    .saved-chip .del { color: var(--muted); font-size: 13px; line-height: 1; }
-    .saved-chip .del:hover { color: var(--red); }
+  <link rel="stylesheet" href="common.css">
+<style>
+  .search-wrap { display: flex; gap: 12px; margin-bottom: 24px; }
+  .search-input { flex: 1; background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 14px 20px; color: var(--text); font-family: 'DM Mono', monospace; font-size: 14px; outline: none; transition: border-color 0.2s; }
+  .search-input:focus { border-color: var(--border-bright); }
+  .search-btn { background: var(--accent); color: #000; border: none; padding: 0 32px; border-radius: 10px; font-family: 'Syne', sans-serif; font-weight: 800; font-size: 14px; cursor: pointer; transition: opacity 0.2s; }
+  .search-btn:hover { opacity: 0.85; }
 
-    /* Why tooltip */
-    .why-btn { background: none; border: 1px solid var(--border); color: var(--muted); padding: 2px 8px; border-radius: 4px; font-family: 'DM Mono', monospace; font-size: 10px; flex-shrink: 0; margin-top: 4px; transition: all 0.2s; }
-    .why-btn:hover { border-color: var(--accent); color: var(--accent); }
-    .why-tooltip { font-size: 11px; color: var(--accent); margin-top: 6px; line-height: 1.5; display: none; }
-    .why-tooltip.visible { display: block; }
+  .sources-row { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 32px; }
+  .source-btn { display: flex; align-items: center; gap: 8px; background: var(--surface); border: 1px solid var(--border); border-radius: 100px; padding: 8px 16px; color: var(--muted); font-family: 'DM Mono', monospace; font-size: 12px; cursor: pointer; transition: all 0.2s; }
+  .source-btn .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--muted); transition: background 0.2s; }
+  .source-btn.active { color: var(--text); border-color: var(--accent-dim); background: rgba(232,255,71,0.05); }
+  .source-btn.active .dot { background: var(--accent); box-shadow: 0 0 8px var(--accent); }
+  .source-btn:hover:not(.active) { border-color: var(--border-bright); color: var(--text); }
 
-    /* AI Panel */
-    .ai-panel { background: var(--surface); border: 1px solid rgba(232,255,71,0.2); border-radius: 14px; padding: 28px; margin-bottom: 24px; animation: fadeIn 0.4s ease; }
-    @keyframes fadeIn { from { opacity:0; transform:translateY(8px); } to { opacity:1; transform:translateY(0); } }
-    .ai-panel-header { display: flex; align-items: center; gap: 10px; margin-bottom: 20px; }
-    .ai-label { font-size: 9px; text-transform: uppercase; letter-spacing: 0.14em; color: #000; background: var(--accent); padding: 3px 8px; border-radius: 4px; font-weight: 700; }
-    .ai-panel-title { font-family: 'Syne', sans-serif; font-weight: 800; font-size: 15px; color: var(--text); }
-    .ai-summary { font-size: 14px; color: var(--text); line-height: 1.75; margin-bottom: 24px; padding-bottom: 24px; border-bottom: 1px solid var(--border); }
-    .ai-cols { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
-    .ai-col-title { font-size: 9px; text-transform: uppercase; letter-spacing: 0.14em; color: var(--muted); margin-bottom: 10px; }
-    .ai-col ul { list-style: none; display: flex; flex-direction: column; gap: 6px; }
-    .ai-col ul li { font-size: 12px; color: var(--text); line-height: 1.5; padding-left: 14px; position: relative; }
-    .ai-col ul li::before { content: '→'; position: absolute; left: 0; color: var(--accent); font-size: 10px; top: 2px; }
-    .ai-col.themes ul li::before { color: var(--blue); }
-    .ai-col.pain ul li::before { color: var(--red); }
-    .ai-col.opp ul li::before { color: var(--green); }
-    .ai-loading { display: flex; align-items: center; gap: 10px; font-size: 13px; color: var(--muted); }
-    .ai-reranked-badge { font-size: 9px; background: var(--accent-dim); color: var(--accent); border: 1px solid rgba(232,255,71,0.2); padding: 2px 8px; border-radius: 4px; margin-left: 8px; }
-    @media(max-width:768px) { .ai-cols { grid-template-columns: 1fr; } }
+  .rss-input-wrap { display: none; gap: 12px; margin-bottom: 24px; animation: slideDown 0.3s ease both; }
+  .rss-input-wrap.visible { display: flex; }
+  @keyframes slideDown { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
+  .rss-url-input { flex: 1; background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 12px 20px; color: var(--text); font-family: 'DM Mono', monospace; font-size: 13px; outline: none; }
+  .rss-add-btn { background: var(--surface); border: 1px solid var(--border); color: var(--text); padding: 0 20px; border-radius: 10px; font-family: 'DM Mono', monospace; font-size: 12px; cursor: pointer; }
 
-    @media(max-width:640px) { nav{padding:16px 20px} .container{padding:40px 16px} .tool-title{font-size:36px} .search-wrap{flex-direction:column} .result-score{display:none} }
-  </style>
+  .results-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: 20px; }
+  .result-card { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 24px; transition: border-color 0.3s, transform 0.3s; position: relative; display: flex; flex-direction: column; }
+  .result-card:hover { border-color: var(--border-bright); transform: translateY(-2px); }
+  .res-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
+  .res-source { font-size: 10px; text-transform: uppercase; letter-spacing: 0.1em; padding: 4px 10px; border-radius: 100px; font-weight: 700; }
+  .res-source.reddit { background: rgba(255,69,0,0.1); color: #ff4500; }
+  .res-source.hn { background: rgba(255,102,0,0.1); color: #ff6600; }
+  .res-source.github { background: rgba(255,255,255,0.05); color: #fff; }
+  .res-source.ph { background: rgba(218,85,47,0.1); color: #da552f; }
+  .res-source.rss { background: rgba(238,128,47,0.1); color: #ee802f; }
+  .res-time { font-size: 11px; color: var(--muted); }
+  .res-title { font-family: 'Syne', sans-serif; font-weight: 700; font-size: 18px; line-height: 1.4; margin-bottom: 12px; color: var(--text); text-decoration: none; }
+  .res-title:hover { color: var(--accent); }
+  .res-meta { display: flex; gap: 16px; font-size: 12px; color: var(--muted); margin-top: auto; padding-top: 16px; border-top: 1px solid rgba(255,255,255,0.03); }
+  
+  .why-btn { position: absolute; top: 24px; right: 24px; background: none; border: 1px solid var(--border); color: var(--muted); padding: 4px 10px; border-radius: 6px; font-size: 10px; font-family: 'DM Mono', monospace; cursor: pointer; transition: all 0.2s; }
+  .why-btn:hover { border-color: var(--accent); color: var(--accent); }
+  .relevance-tooltip { display: none; margin-top: 12px; padding: 12px; background: rgba(232,255,71,0.05); border: 1px solid rgba(232,255,71,0.1); border-radius: 8px; font-size: 12px; color: var(--accent); line-height: 1.5; }
+  .relevance-tooltip.visible { display: block; animation: fadeIn 0.3s ease both; }
+  @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+  .loading-bar { display: none; align-items: center; gap: 12px; margin-bottom: 32px; color: var(--muted); font-size: 14px; }
+  .spinner { width: 18px; height: 18px; border: 2px solid var(--border); border-top-color: var(--accent); border-radius: 50%; animation: spin 0.8s linear infinite; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  .empty-state { text-align: center; padding: 80px 24px; color: var(--muted); }
+  .empty-icon { font-size: 48px; margin-bottom: 16px; opacity: 0.5; }
+  .empty-title { font-family: 'Syne', sans-serif; font-weight: 700; font-size: 20px; color: var(--text); margin-bottom: 8px; }
+  .empty-sub { font-size: 14px; line-height: 1.6; }
+
+  .keywords-section { margin: 32px 0 48px; border-top: 1px solid var(--border); padding-top: 24px; animation: fadeIn 0.4s 0.2s ease both; }
+  .keywords-title { font-size: 11px; text-transform: uppercase; letter-spacing: 0.12em; color: var(--muted); margin-bottom: 20px; display: flex; align-items: center; gap: 8px; }
+  .keywords-cloud { display: flex; gap: 10px; flex-wrap: wrap; }
+  .keyword-tag { background: var(--surface); border: 1px solid var(--border); padding: 8px 16px; border-radius: 100px; font-size: 13px; color: var(--text); transition: all 0.2s; cursor: pointer; display: flex; align-items: center; }
+  .keyword-tag:hover { border-color: var(--accent); background: var(--accent-dim); transform: translateY(-1.5px); }
+  .kcount { color: var(--accent); font-weight: 700; font-size: 11px; margin-left: 6px; opacity: 0.7; }
+
+  .results-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 24px; flex-wrap: wrap; border-bottom: 1px solid var(--border); padding-bottom: 16px; gap: 16px; }
+  .results-count { font-family: 'Syne', sans-serif; font-weight: 800; font-size: 18px; color: var(--text); }
+  .export-btn, .action-btn-sm { background: var(--surface); border: 1px solid var(--border); color: var(--muted); padding: 8px 16px; border-radius: 8px; font-family: 'DM Mono', monospace; font-size: 11px; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; gap: 6px; }
+  .export-btn:hover, .action-btn-sm:hover { color: var(--text); border-color: var(--border-bright); background: var(--bg); }
+  .ai-reranked-badge { font-size: 10px; color: var(--accent); background: var(--accent-dim); padding: 2px 8px; border-radius: 100px; margin-left: 8px; font-family: 'DM Mono', monospace; }
+
+  .results-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(420px, 1fr)); gap: 1px; background: var(--border); border: 1px solid var(--border); border-radius: 16px; overflow: hidden; }
+  .result-card { background: var(--bg); padding: 32px; transition: background 0.3s; position: relative; display: flex; flex-direction: row; gap: 24px; text-decoration: none; min-height: 200px; }
+  .result-card:hover { background: #0e0e0e; }
+  .result-body { flex: 1; display: flex; flex-direction: column; }
+  
+  .result-source-badge { font-size: 10px; text-transform: uppercase; letter-spacing: 0.12em; padding: 4px 12px; border-radius: 100px; font-weight: 800; display: inline-block; margin-bottom: 16px; width: fit-content; }
+  .badge-reddit { background: rgba(255,69,0,0.12); color: #ff4500; border: 1px solid rgba(255,69,0,0.2); }
+  .badge-hn { background: rgba(255,102,0,0.12); color: #ff6600; border: 1px solid rgba(255,102,0,0.2); }
+  .badge-github { background: rgba(255,255,255,0.06); color: #fff; border: 1px solid rgba(255,255,255,0.1); }
+  .badge-ph { background: rgba(218,85,47,0.12); color: #da552f; border: 1px solid rgba(218,85,47,0.2); }
+  .badge-rss { background: rgba(238,128,47,0.12); color: #ee802f; border: 1px solid rgba(238,128,47,0.2); }
+  
+  .result-title { font-family: 'Syne', sans-serif; font-weight: 700; font-size: 19px; line-height: 1.4; margin-bottom: 16px; color: var(--text); transition: color 0.2s; }
+  .result-card:hover .result-title { color: var(--accent); }
+  
+  .result-meta { display: flex; gap: 16px; font-size: 12px; color: var(--muted); margin-top: auto; padding-top: 20px; border-top: 1px dashed var(--border-bright); flex-wrap: wrap; }
+  .result-meta span { display: flex; align-items: center; gap: 6px; }
+
+  .result-score { display: flex; flex-direction: column; align-items: center; justify-content: center; min-width: 80px; padding-left: 20px; border-left: 1px solid var(--border); }
+  .score-num { font-family: 'Syne', sans-serif; font-weight: 800; font-size: 20px; color: var(--accent); white-space: nowrap; }
+  .score-label { font-size: 9px; text-transform: uppercase; color: var(--muted); letter-spacing: 0.1em; margin-top: 4px; }
+  .best-match-badge { position: absolute; top: 0; left: 0; background: var(--accent); color: #000; font-size: 9px; font-weight: 900; padding: 4px 12px; border-radius: 0 0 12px 0; text-transform: uppercase; letter-spacing: 0.05em; z-index: 5; }
+
+  .why-btn { position: absolute; top: 32px; right: 32px; background: var(--surface); border: 1px solid var(--border); color: var(--muted); padding: 5px 12px; border-radius: 6px; font-size: 10px; font-family: 'DM Mono', monospace; cursor: pointer; transition: all 0.2s; z-index: 10; }
+  .why-btn:hover { border-color: var(--accent); color: var(--accent); background: var(--bg); }
+  
+  .why-tooltip { display: none; margin-top: 16px; padding: 16px; background: rgba(232,255,71,0.05); border: 1px solid rgba(232,255,71,0.1); border-radius: 10px; font-size: 13px; color: var(--accent); line-height: 1.6; animation: fadeIn 0.3s ease both; }
+  .why-tooltip.visible { display: block; }
+
+  /* AI Panel Styles */
+  .ai-panel { background: #111; border: 1px solid var(--accent-dim); border-radius: 16px; padding: 32px; margin-bottom: 40px; border-left: 4px solid var(--accent); animation: slideUp 0.5s ease both; }
+  .ai-panel-header { display: flex; align-items: center; gap: 12px; margin-bottom: 20px; }
+  .ai-label { background: var(--accent); color: #000; padding: 4px 10px; border-radius: 4px; font-weight: 800; font-size: 11px; font-family: 'Syne', sans-serif; }
+  .ai-panel-title { font-family: 'Syne', sans-serif; font-weight: 700; font-size: 18px; color: var(--text); }
+  .ai-summary { font-size: 16px; line-height: 1.7; color: var(--text); margin-bottom: 32px; opacity: 0.9; }
+  .ai-cols { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; border-top: 1px solid var(--border); padding-top: 24px; }
+  .ai-col-title { font-size: 11px; text-transform: uppercase; font-weight: 700; margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
+  .ai-col ul { list-style: none; padding: 0; }
+  .ai-col li { font-size: 13px; color: var(--muted); margin-bottom: 8px; padding-left: 14px; position: relative; }
+  .ai-col li::before { content: '•'; position: absolute; left: 0; color: var(--accent); }
+  .ai-loading { display: flex; align-items: center; gap: 12px; color: var(--muted); font-size: 14px; padding: 20px 0; }
+
+  .saved-row { display: flex; align-items: center; gap: 12px; margin-bottom: 24px; flex-wrap: wrap; animation: fadeIn 0.4s ease both; }
+  .saved-label { font-size: 11px; text-transform: uppercase; letter-spacing: 0.12em; color: var(--muted); }
+  #saved-chips { display: flex; gap: 8px; flex-wrap: wrap; }
+  .saved-chip { background: var(--surface); border: 1px solid var(--border); padding: 6px 14px; border-radius: 100px; font-size: 12px; color: var(--text); display: flex; align-items: center; gap: 8px; transition: all 0.2s; cursor: pointer; }
+  .saved-chip:hover { border-color: var(--border-bright); background: var(--bg); transform: translateY(-1px); }
+  .saved-chip .del { font-size: 14px; color: var(--muted); cursor: pointer; transition: color 0.2s; padding: 0 4px; }
+  .saved-chip .del:hover { color: var(--red); }
+
+  .loading-bar { display: none; align-items: center; gap: 12px; margin: 24px 0; color: var(--muted); font-size: 14px; background: var(--surface); padding: 12px 20px; border-radius: 10px; border: 1px solid var(--border); }
+  
+  /* Local Loading on Buttons */
+  .search-btn, .action-btn-sm { position: relative; overflow: hidden; }
+  .search-btn.loading, .action-btn-sm.loading { color: transparent !important; pointer-events: none; }
+  .search-btn.loading::after, .action-btn-sm.loading::after { content: ''; position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); width: 14px; height: 14px; border: 2px solid rgba(0,0,0,0.1); border-top-color: currentColor; border-radius: 50%; animation: btn-spin 0.6s linear infinite; }
+  .action-btn-sm.loading::after { border-color: rgba(255,255,255,0.1); border-top-color: var(--accent); }
+  @keyframes btn-spin { from { transform: translate(-50%,-50%) rotate(0deg); } to { transform: translate(-50%,-50%) rotate(360deg); } }
+  .spinner { width: 16px; height: 16px; border: 2px solid var(--border); border-top-color: var(--accent); border-radius: 50%; animation: spin 0.8s linear infinite; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  .empty-state { text-align: center; padding: 120px 24px; color: var(--muted); }
+  .empty-icon { font-size: 56px; margin-bottom: 24px; opacity: 0.3; }
+  .empty-title { font-family: 'Syne', sans-serif; font-weight: 700; font-size: 24px; color: var(--text); margin-bottom: 12px; }
+  .empty-sub { font-size: 15px; line-height: 1.7; max-width: 400px; margin: 0 auto; }
+
+  @media(max-width:900px){.results-grid{grid-template-columns:1fr} .ai-cols{grid-template-columns:1fr} nav{padding:16px 20px}.container{padding:40px 16px}}
+</style>
+</style>
 </head>
 <body>
-<div id="cursor-dot"></div>
-<div id="cursor-ring"></div>
 <nav>
   <a href="index.html" class="nav-logo">Just<span>Tools</span></a>
   <a href="index.html" class="nav-back">← All Tools</a>
@@ -189,22 +208,16 @@
     renderSaved();
   }
 
-  function deleteSearch(q) {
-    savedSearches = savedSearches.filter(s => s !== q);
-    localStorage.setItem('jr-saved', JSON.stringify(savedSearches));
-    renderSaved();
-  }
-
   function renderSaved() {
     const row = document.getElementById('saved-row');
     const chips = document.getElementById('saved-chips');
     if (!savedSearches.length) { row.style.display = 'none'; return; }
     row.style.display = 'flex';
     chips.innerHTML = savedSearches.map((q, i) => `
-      <span class="saved-chip">
+      <div class="saved-chip">
         <span onclick="loadSaved(this)" data-q="${esc(q)}">${esc(q)}</span>
-        <span class="del" onclick="deleteSavedIdx(${i})">×</span>
-      </span>`).join('');
+        <span class="del" onclick="event.stopPropagation(); deleteSavedIdx(${i})">×</span>
+      </div>`).join('');
   }
 
   function loadSaved(el) {
@@ -221,29 +234,16 @@
     if (tooltip.classList.contains('visible')) { tooltip.classList.remove('visible'); btn.textContent = '? why'; return; }
     btn.textContent = '...';
     try {
-      const res = await fetch('/api/ai', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ tool: 'relevance', text: t, tone: q })
-      });
-      const data = await res.json();
+      const data = await window.aiFetch({ tool: 'relevance', text: t, tone: q });
       tooltip.textContent = '✦ ' + (data.result || 'Relevant to your search.');
       tooltip.classList.add('visible');
-      btn.textContent = '? why';
-    } catch { btn.textContent = '? why'; }
+    } catch { }
+    btn.textContent = '? why';
   }
-
-  const dot = document.getElementById('cursor-dot');
-  const ring = document.getElementById('cursor-ring');
-  document.addEventListener('mousemove', e => {
-    dot.style.left = e.clientX + 'px'; dot.style.top = e.clientY + 'px';
-    setTimeout(() => { ring.style.left = e.clientX + 'px'; ring.style.top = e.clientY + 'px'; }, 80);
-  });
 
   let allResults = [];
   let activeSources = new Set(['reddit','hn','github','ph']);
-  let customRssFeeds = []; // User can add their own RSS feeds
-  // Proxy chain — tries each one until one works
+  let customRssFeeds = []; 
   async function proxyFetch(url) {
     const proxies = [
       u => `https://corsproxy.io/?${encodeURIComponent(u)}`,
@@ -255,7 +255,6 @@
         const res = await fetch(makeUrl(url), { signal: AbortSignal.timeout(6000) });
         if (!res.ok) continue;
         const text = await res.text();
-        // allorigins wraps in {contents:...}, others return raw
         try {
           const json = JSON.parse(text);
           return json.contents !== undefined ? json.contents : text;
@@ -292,20 +291,17 @@
     const oldPanel = document.getElementById('ai-panel'); if (oldPanel) oldPanel.remove();
     document.getElementById('error-bar').classList.remove('visible');
     document.getElementById('keywords-section').style.display = 'none';
-    document.getElementById('search-btn').disabled = true;
+    const btn = document.getElementById('search-btn');
+    btn.classList.add('loading');
+    btn.disabled = true;
 
     // Step 1: AI rewrites query into smart search terms
     let searchTerms = [query];
     try {
       showLoading('🧠 Rewriting query with AI...');
-      const aiRes = await fetch('/api/ai', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ tool: 'query_rewrite', text: query || ' ', tone: query })
-      });
-      if (aiRes.ok) {
-        const aiData = await aiRes.json();
-        const clean = (aiData.result || '').replace(/```json|```/g,'').trim();
+      const data = await window.aiFetch({ tool: 'query_rewrite', text: query || ' ', tone: query });
+      if (data.result) {
+        const clean = (data.result || '').replace(/```json|```/g,'').trim();
         const parsed = JSON.parse(clean);
         if (Array.isArray(parsed) && parsed.length) {
           searchTerms = parsed.filter(t => typeof t === 'string' && t.trim()).slice(0, 4);
@@ -336,7 +332,8 @@
     });
 
     hideLoading();
-    document.getElementById('search-btn').disabled = false;
+    btn.classList.remove('loading');
+    btn.disabled = false;
 
     if (!allResults.length) {
       document.getElementById('results-area').innerHTML = `<div class="empty-state"><div class="empty-icon">🔍</div><div class="empty-title">Nothing found</div><div class="empty-sub">Try a broader term or enable more sources.</div></div>`;
@@ -350,7 +347,6 @@
 
   function cleanTitle(t) {
     if (!t) return '';
-    // Strip HTML tags, CDATA, extra whitespace, truncate
     return t.replace(/<!\[CDATA\[|\]\]>/g,'').replace(/<[^>]+>/g,'').replace(/\s+/g,' ').trim().slice(0, 120) + (t.length > 120 ? '…' : '');
   }
 
@@ -391,12 +387,10 @@
 
   async function fetchGitHub(q) {
     try {
-      // Restrict search to name+description only — never matches README content
       const safeQ = `${q} in:name,description`;
       const r = await fetch(`https://api.github.com/search/repositories?q=${encodeURIComponent(safeQ)}&sort=stars&order=desc&per_page=10`, { headers: { Accept: 'application/vnd.github+json' } });
       const d = await r.json();
       return (d.items || []).map(repo => {
-        // Hard validate description — must be short, no newlines, no code-like content
         const rawDesc = repo.description || '';
         const isSafe = rawDesc.length > 0 && rawDesc.length <= 100 && !rawDesc.includes('\n') && !rawDesc.includes('{') && !rawDesc.includes('  ');
         const desc = isSafe ? rawDesc : '';
@@ -414,7 +408,6 @@
   }
 
   async function fetchPH(q) {
-    // PH blocks scraping reliably — return a direct search link instead
     return [{
       source: 'ph',
       title: `Search "${q}" on Product Hunt →`,
@@ -432,18 +425,13 @@
         if (!rawXml) continue;
         const xml = new DOMParser().parseFromString(rawXml, 'text/xml');
         xml.querySelectorAll('item, entry').forEach(entry => {
-          // Only use the <title> tag — never dump description into results
           const rawTitle = entry.querySelector('title')?.textContent || '';
           const title = rawTitle.replace(/<!\[CDATA\[|\]\]>/g, '').trim();
           const link = (entry.querySelector('link')?.textContent || entry.querySelector('link')?.getAttribute('href') || '').trim();
           const pub = entry.querySelector('pubDate,published,updated')?.textContent || '';
           const desc = (entry.querySelector('description,summary,content')?.textContent || '').toLowerCase();
-
-          // Skip if title is empty, too long (likely garbage), or already seen
           if (!title || title.length > 200 || seen.has(title)) return;
-          // Match on title OR description but only show the title
           if (!title.toLowerCase().includes(qL) && !desc.includes(qL)) return;
-
           seen.add(title);
           let hostname = '';
           try { hostname = new URL(feedUrl).hostname.replace('www.',''); } catch {}
@@ -483,24 +471,32 @@
       <div class="results-header">
         <div class="results-count">${sorted.length} results ${isAI ? '<span class="ai-reranked-badge">✦ AI Ranked</span>' : ''}</div>
         <div style="display:flex;gap:8px;align-items:center">
-          <button class="export-btn" onclick="renderResults(false)" style="${!isAI ? 'border-color:var(--accent);color:var(--accent)' : ''}">Score</button>
-          <button class="export-btn" onclick="renderResults(true)" style="${isAI ? 'border-color:var(--accent);color:var(--accent)' : ''}${!aiRankedResults ? ';opacity:0.4;pointer-events:none' : ''}">✦ AI</button>
-          ${!aiRankedResults ? `<button class="search-btn" style="padding:6px 14px;font-size:12px" onclick="runAIAnalysis()">✦ Analyze</button>` : ''}
+          <button class="action-btn-sm" onclick="renderResults(false)" style="${!isAI ? 'border-color:var(--accent);color:var(--accent)' : ''}">Score</button>
+          <button class="action-btn-sm ai-btn-main" onclick="aiRankedResults ? renderResults(true) : runAIAnalysis()" style="${isAI ? 'border-color:var(--accent);color:var(--accent)' : ''}">✦ AI</button>
           <button class="export-btn" onclick="exportCSV()">⬇ CSV</button>
         </div>
       </div>
       <div class="results-grid">
-        ${sorted.map(r => `
-          <a href="${r.url}" target="_blank" rel="noopener" class="result-card">
-            <span class="result-source-badge ${sc[r.source]}">${sl[r.source]}</span>
+        ${sorted.map((r, i) => `
+          <div class="result-card">
+            ${isAI && i < 3 ? `<div class="best-match-badge">✦ Best Match</div>` : ''}
             <div class="result-body">
-              <div class="result-title">${esc(r.title)}</div>
-              <div class="result-meta">${r.meta.filter(Boolean).map(m=>`<span>${esc(m)}</span>`).join('')}</div>
-              <button class="why-btn" onclick="event.preventDefault();showWhy(this, this.dataset.title, lastQuery)" data-title="${esc(r.title)}">? why</button>
+              <span class="result-source-badge ${sc[r.source]}">${sl[r.source]}</span>
+              <a href="${r.url}" target="_blank" rel="noopener" class="result-title">${esc(r.title)}</a>
+              <div class="result-meta">
+                ${r.meta.filter(Boolean).map(m=>`<span>${esc(m)}</span>`).join('')}
+                <a href="${r.url}" target="_blank" rel="noopener" class="res-link">Open Source ↗</a>
+              </div>
+              <button class="why-btn" onclick="showWhy(this, this.dataset.title, lastQuery)" data-title="${esc(r.title)}">? why</button>
               <div class="why-tooltip"></div>
             </div>
-            ${r.score>0?`<div class="result-score"><div class="score-num">${fmt(r.score)}</div><div class="score-label">${r.scoreLabel}</div></div>`:''}
-          </a>`).join('')}
+            ${r.score > 0 || isAI ? `
+              <div class="result-score">
+                <div class="score-num">${isAI ? (99 - i) + '%' : fmt(r.score)}</div>
+                <div class="score-label">${isAI ? 'RELEVANCE' : (r.scoreLabel || 'Points')}</div>
+              </div>
+            ` : ''}
+          </div>`).join('')}
       </div>`;
   }
 
@@ -508,43 +504,29 @@
     const query = document.getElementById('search-input').value.trim();
     const filtered = allResults.filter(r => activeSources.has(r.source));
     if (!filtered.length) return;
-
-    // Show AI loading panel
     const existingPanel = document.getElementById('ai-panel');
     if (existingPanel) existingPanel.remove();
-
     const panel = document.createElement('div');
     panel.className = 'ai-panel'; panel.id = 'ai-panel';
-    panel.innerHTML = `<div class="ai-panel-header"><span class="ai-label">✦ AI</span><span class="ai-panel-title">Analyzing results...</span></div><div class="ai-loading"><div class="spinner"></div> Reading ${filtered.length} results across all sources...</div>`;
+    const analyzeBtn = document.querySelector('.analyze-btn-main');
+    const aiBtn = document.querySelector('.ai-btn-main');
+    if (analyzeBtn) analyzeBtn.classList.add('loading');
+    if (aiBtn) aiBtn.classList.add('loading');
+
+    panel.innerHTML = `<div class="ai-panel-header"><span class="ai-label">✦ AI</span><span class="ai-panel-title">Analyzing results...</span></div><div class="ai-loading"><div class="spinner"></div> Reading ${filtered.length} results...</div>`;
     document.getElementById('results-area').before(panel);
-
     try {
-      const titles = filtered.map(r => r.title);
-      const res = await fetch('/api/ai', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ tool: 'trend_analyze', text: JSON.stringify(titles), tone: query })
-      });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error);
-
-      // Parse JSON from AI response
+      const dataItems = filtered.map(r => `[${r.source.toUpperCase()}] ${r.title}`);
+      const data = await window.aiFetch({ tool: 'trend_analyze', text: JSON.stringify(dataItems), tone: query });
       let parsed;
       try {
         const clean = data.result.replace(/```json|```/g, '').trim();
         parsed = JSON.parse(clean);
       } catch { throw new Error('AI returned invalid response'); }
-
-      // Build AI ranked results
       if (parsed.ranked_indices && Array.isArray(parsed.ranked_indices)) {
-        aiRankedResults = parsed.ranked_indices
-          .filter(i => i >= 0 && i < filtered.length)
-          .map(i => filtered[i]);
-        // Add any missing items at the end
+        aiRankedResults = parsed.ranked_indices.filter(i => i >= 0 && i < filtered.length).map(i => filtered[i]);
         filtered.forEach((r, i) => { if (!parsed.ranked_indices.includes(i)) aiRankedResults.push(r); });
       }
-
-      // Render insight panel
       panel.innerHTML = `
         <div class="ai-panel-header"><span class="ai-label">✦ AI</span><span class="ai-panel-title">Trend Analysis — "${esc(query)}"</span></div>
         <div class="ai-summary">${esc(parsed.summary || '')}</div>
@@ -562,11 +544,12 @@
             <ul>${(parsed.opportunities||[]).map(t=>`<li>${esc(t)}</li>`).join('')}</ul>
           </div>
         </div>`;
-
-      // Re-render results with AI ranking toggle
+      if (analyzeBtn) analyzeBtn.classList.remove('loading');
+      if (aiBtn) aiBtn.classList.remove('loading');
       renderResults(true);
-
     } catch (err) {
+      if (analyzeBtn) analyzeBtn.classList.remove('loading');
+      if (aiBtn) aiBtn.classList.remove('loading');
       panel.innerHTML = `<div class="ai-panel-header"><span class="ai-label">✦ AI</span><span class="ai-panel-title">Analysis failed</span></div><div style="font-size:13px;color:var(--red)">${esc(err.message || 'Something went wrong')}</div>`;
     }
   }
@@ -594,7 +577,8 @@
 
   document.getElementById('search-input').addEventListener('keydown', e => { if(e.key==='Enter') runSearch(); });
   renderSaved();
-  renderSaved();
 </script>
+<script>window.isAITool=true;</script>
+<script src="common.js"></script>
 </body>
 </html>

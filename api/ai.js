@@ -56,34 +56,50 @@ ${text}`,
       return new Response(JSON.stringify({ error: 'Invalid tool' }), { status: 400, headers });
     }
 
-    const groqRes = await fetch('https://api.groq.com/openai/v1/chat/completions', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${process.env.GROQ_API_KEY}`,
-      },
-      body: JSON.stringify({
-        model: 'llama-3.3-70b-versatile',
-        messages: [{ role: 'user', content: prompts[tool] }],
-        max_tokens: 1024,
-        temperature: tool === 'paraphrase' ? 0.7 : 0.3,
-      }),
-    });
+    // Try Groq first
+    if (process.env.GROQ_API_KEY) {
+      const groqRes = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${process.env.GROQ_API_KEY}`,
+        },
+        body: JSON.stringify({
+          model: 'llama-3.3-70b-versatile',
+          messages: [{ role: 'user', content: prompts[tool] }],
+          max_tokens: 1024,
+          temperature: tool === 'paraphrase' ? 0.7 : 0.3,
+        }),
+      });
 
-    if (!groqRes.ok) {
-      const err = await groqRes.text();
-      console.error('Groq error:', err);
-      return new Response(JSON.stringify({ error: 'AI service error. Try again.' }), { status: 502, headers });
+      if (groqRes.ok) {
+        const data = await groqRes.json();
+        const result = data.choices?.[0]?.message?.content?.trim();
+        if (result) return new Response(JSON.stringify({ result }), { status: 200, headers });
+      }
     }
 
-    const data = await groqRes.json();
-    const result = data.choices?.[0]?.message?.content?.trim();
+    // Try HuggingFace as fallback
+    if (process.env.HUGGINGFACEHUB_API_TOKEN) {
+      const model = tool === 'trend_analyze' ? 'mistralai/Mistral-7B-Instruct-v0.3' : 'mistralai/Mixtral-8x7B-Instruct-v0.1';
+      const hfRes = await fetch(`https://api-inference.huggingface.co/models/${model}`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${process.env.HUGGINGFACEHUB_API_TOKEN}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ inputs: prompts[tool] }),
+      });
 
-    if (!result) {
-      return new Response(JSON.stringify({ error: 'Empty response from AI' }), { status: 502, headers });
+      if (hfRes.ok) {
+        const data = await hfRes.json();
+        const raw = Array.isArray(data) ? data[0].generated_text : data.generated_text;
+        const result = (raw || '').replace(prompts[tool], '').trim();
+        if (result) return new Response(JSON.stringify({ result }), { status: 200, headers });
+      }
     }
 
-    return new Response(JSON.stringify({ result }), { status: 200, headers });
+    return new Response(JSON.stringify({ error: 'No default AI keys configured on server. Please use the Settings gear.' }), { status: 502, headers });
 
   } catch (err) {
     console.error('Handler error:', err);

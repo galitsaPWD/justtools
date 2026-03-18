@@ -7,8 +7,9 @@
   <link rel="icon" type="image/svg+xml" href="favicon.svg">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;700;800&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="common.css">
   <style>
-    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;cursor:none!important}
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
     :root{--bg:#0a0a0a;--surface:#111;--surface2:#161616;--border:#1e1e1e;--border-bright:#2e2e2e;--text:#f0f0f0;--muted:#666;--accent:#e8ff47;--accent-dim:rgba(232,255,71,0.08);--blue:#79c0ff;--green:#3fb950;--red:#ff7b72}
     body{background:var(--bg);color:var(--text);font-family:'DM Mono',monospace;min-height:100vh}
     #cursor-dot{width:6px;height:6px;background:var(--accent);border-radius:50%;position:fixed;pointer-events:none;z-index:9999;transform:translate(-50%,-50%)}
@@ -47,8 +48,6 @@
   </style>
 </head>
 <body>
-<div id="cursor-dot"></div>
-<div id="cursor-ring"></div>
 <nav>
   <a href="index.html" class="nav-logo">Just<span>Tools</span></a>
   <a href="index.html" class="nav-back">← All Tools</a>
@@ -79,9 +78,6 @@
   </div>
 </div>
 <script>
-  const dot=document.getElementById('cursor-dot'),ring=document.getElementById('cursor-ring');
-  document.addEventListener('mousemove',e=>{dot.style.left=e.clientX+'px';dot.style.top=e.clientY+'px';setTimeout(()=>{ring.style.left=e.clientX+'px';ring.style.top=e.clientY+'px';},80);});
-  
   function pad(n){return String(n).padStart(2,'0');}
   function tick(){
     const now=Date.now();
@@ -95,12 +91,25 @@
   function copyNow(){navigator.clipboard.writeText(String(Math.floor(Date.now()/1000)));const b=event.target;b.textContent='Copied!';setTimeout(()=>b.textContent='Copy Now',1500);}
   function copyNowMs(){navigator.clipboard.writeText(String(Date.now()));const b=event.target;b.textContent='Copied!';setTimeout(()=>b.textContent='Copy ms',1500);}
 
+  function copyResultItem(btn, val){
+    navigator.clipboard.writeText(val);
+    btn.textContent='Copied!';
+    setTimeout(()=>btn.textContent='Copy',1500);
+  }
+
   function tsToDate(){
     let ts=+document.getElementById('ts-input').value;
     if(!ts)return;
     if(ts<1e10)ts*=1000; // convert seconds to ms
     const d=new Date(ts);
     if(isNaN(d))return;
+    
+    // Sync the date-input with this local time if it's not active
+    if(document.activeElement !== document.getElementById('date-input')){
+      const tzOffset = d.getTimezoneOffset() * 60000;
+      document.getElementById('date-input').value = new Date(d - tzOffset).toISOString().slice(0, 16);
+    }
+
     const results=[
       {label:'Local Time',val:d.toLocaleString()},
       {label:'UTC',val:d.toUTCString()},
@@ -113,7 +122,7 @@
       <div class="result-box">
         <div class="result-label">${r.label}</div>
         <div class="result-val">${r.val}</div>
-        <div class="copy-val" onclick="navigator.clipboard.writeText('${r.val.replace(/'/g,'\\'')}');this.textContent='Copied!';setTimeout(()=>this.textContent='Copy',1500)">Copy</div>
+        <div class="copy-val" onclick="copyResultItem(this, this.previousElementSibling.textContent)">Copy</div>
       </div>`).join('');
   }
 
@@ -127,10 +136,9 @@
 
   // Set default
   document.getElementById('ts-input').value=Math.floor(Date.now()/1000);
-  const now=new Date();now.setSeconds(0,0);
-  document.getElementById('date-input').value=now.toISOString().slice(0,16);
   tsToDate();
   
 </script>
+<script src="common.js"></script>
 </body>
 </html>

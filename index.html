@@ -6,8 +6,9 @@
 <title>JustTools — No Signup. No BS.</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet">
-<style>
-  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; cursor: none !important; }
+<link rel="stylesheet" href="common.css">
+  <style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
   :root {
     --bg: #0a0a0a; --surface: #111; --border: #1e1e1e; --border-bright: #2e2e2e;
     --text: #f0f0f0; --muted: #666; --accent: #e8ff47; --accent-dim: rgba(232,255,71,0.12);
@@ -17,8 +18,6 @@
   html { scroll-behavior: smooth; }
   body { background: var(--bg); color: var(--text); font-family: 'DM Mono', monospace; font-size: 15px; line-height: 1.6; overflow-x: hidden; padding-left: var(--sidebar-w); transition: padding-left 0.3s cubic-bezier(0.25, 1, 0.5, 1); }
   body.sb-collapsed { padding-left: 0; }
-  .cursor { width: 10px; height: 10px; background: var(--accent); border-radius: 50%; position: fixed; pointer-events: none; z-index: 9999; transition: transform 0.15s ease; transform: translate(-50%, -50%); }
-  .cursor-ring { width: 36px; height: 36px; border: 1px solid rgba(232,255,71,0.4); border-radius: 50%; position: fixed; pointer-events: none; z-index: 9998; transition: width 0.2s, height 0.2s; transform: translate(-50%, -50%); }
   body::before { content: ''; position: fixed; inset: 0; background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E"); pointer-events: none; z-index: 1000; opacity: 0.4; }
   nav { position: fixed; top: 0; left: var(--sidebar-w); right: 0; display: flex; align-items: center; justify-content: space-between; padding: 20px 48px; border-bottom: 1px solid var(--border); background: rgba(10,10,10,0.85); backdrop-filter: blur(20px); z-index: 100; animation: fadeDown 0.8s ease both; transition: left 0.3s cubic-bezier(0.25, 1, 0.5, 1); }
   body.sb-collapsed nav { left: 0; }
@@ -174,9 +173,6 @@
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 </head>
 <body>
-<div class="cursor" id="cursor"></div>
-<div class="cursor-ring" id="cursorRing"></div>
-
 <!-- Sidebar -->
 <aside class="sidebar" id="sidebar">
   <div class="sb-header">
@@ -212,13 +208,13 @@
   <div class="hero-glow"></div>
   <div class="badge"><div class="badge-dot"></div>No account. No email. No nonsense.</div>
   <h1>Just<span class="accent">Tools.</span><br><span class="strike">Signup</span> Required.</h1>
-  <p class="hero-sub">A curated suite of 38 micro-tools for the things you actually need to do — instantly, privately, and completely free.</p>
+  <p class="hero-sub">A curated suite of 41 micro-tools for the things you actually need to do — instantly, privately, and completely free.</p>
   <div class="hero-actions">
-    <a href="#tools" class="btn-primary">Browse All 38 Tools →</a>
+    <a href="#tools" class="btn-primary">Browse All 41 Tools →</a>
     <a href="#why" class="btn-ghost">Why JustTools?</a>
   </div>
   <div class="hero-stats">
-    <div class="stat"><div class="stat-num">38</div><div class="stat-label">Free Tools</div></div>
+    <div class="stat"><div class="stat-num">41</div><div class="stat-label">Free Tools</div></div>
     <div class="stat"><div class="stat-num">0</div><div class="stat-label">Signups Needed</div></div>
     <div class="stat"><div class="stat-num">100%</div><div class="stat-label">Browser-side</div></div>
   </div>
@@ -268,11 +264,11 @@
   <div class="tools-header">
     <div>
       <p class="section-label">The Toolbox</p>
-      <h2 class="section-title">38 tools.<br>Zero signups.</h2>
+      <h2 class="section-title">41 tools.<br>Zero signups.</h2>
     </div>
   </div>
   <div class="cat-filter" id="cat-filter">
-    <button class="cat-btn active" onclick="filterCat('all',this)">All (38)</button>
+    <button class="cat-btn active" onclick="filterCat('all',this)">All (41)</button>
     <button class="cat-btn" onclick="filterCat('Dev',this)">Dev</button>
     <button class="cat-btn" onclick="filterCat('Writing',this)">Writing</button>
     <button class="cat-btn" onclick="filterCat('Design',this)">Design</button>
@@ -285,6 +281,9 @@
   </div>
   <div class="tools-grid reveal" id="tools-grid">
     <a href="password-generator.html" class="tool-card" data-cat="Security"><span class="tool-icon">🔐</span><div class="tool-name">Password Generator</div><div class="tool-desc">Generate strong, random passwords with strength meter</div><span class="tool-tag">Security</span></a>
+    <a href="hash-generator.html" class="tool-card" data-cat="Security"><span class="tool-icon">#️⃣</span><div class="tool-name">Hash Generator</div><div class="tool-desc">SHA-256, SHA-512 and SHA-1 hashes for text and files</div><span class="tool-tag">Security</span></a>
+    <a href="text-encryptor.html" class="tool-card" data-cat="Security"><span class="tool-icon">🔐</span><div class="tool-name">Text Encryptor</div><div class="tool-desc">Securely encrypt/decrypt text with AES-256-GCM</div><span class="tool-tag">Security</span></a>
+    <a href="token-generator.html" class="tool-card" data-cat="Security"><span class="tool-icon">🎟️</span><div class="tool-name">Token Generator</div><div class="tool-desc">Generate secure UUIDs and custom random tokens</div><span class="tool-tag">Security</span></a>
     <a href="word-counter.html" class="tool-card" data-cat="Writing"><span class="tool-icon">📝</span><div class="tool-name">Word Counter</div><div class="tool-desc">Count words, characters, sentences, reading time</div><span class="tool-tag">Writing</span></a>
     <a href="color-picker.html" class="tool-card" data-cat="Design"><span class="tool-icon">🎨</span><div class="tool-name">Color Picker</div><div class="tool-desc">Pick colors, convert HEX/RGB/HSL, generate palettes</div><span class="tool-tag">Design</span></a>
     <a href="json-formatter.html" class="tool-card" data-cat="Dev"><span class="tool-icon">🔢</span><div class="tool-name">JSON Formatter</div><div class="tool-desc">Prettify, minify, validate JSON with syntax highlighting</div><span class="tool-tag">Dev</span></a>
@@ -336,7 +335,7 @@
 <div class="cta-section">
   <h2 class="reveal">Ready to just<br><span style="color:var(--accent)">use a tool?</span></h2>
   <p class="reveal">No account. No credit card. No setup. Pick a tool above and start right now.</p>
-  <a href="#tools" class="btn-primary reveal">Browse All 38 Tools →</a>
+  <a href="#tools" class="btn-primary reveal">Browse All 41 Tools →</a>
   <p class="cta-note reveal">Everything runs in your browser. Your data stays on your device.</p>
 </div>
 <!-- Suggest FAB -->
@@ -379,16 +378,6 @@
   <p style="color: var(--muted); font-size:12px;">© 2025 JustTools. Free forever.</p>
 </footer>
 <script>
-  const cursor = document.getElementById('cursor');
-  const ring = document.getElementById('cursorRing');
-  let mx = 0, my = 0, rx = 0, ry = 0;
-  document.addEventListener('mousemove', e => { mx = e.clientX; my = e.clientY; cursor.style.left = mx + 'px'; cursor.style.top = my + 'px'; });
-  function animateRing() { rx += (mx - rx) * 0.12; ry += (my - ry) * 0.12; ring.style.left = rx + 'px'; ring.style.top = ry + 'px'; requestAnimationFrame(animateRing); }
-  animateRing();
-  document.querySelectorAll('a, button').forEach(el => {
-    el.addEventListener('mouseenter', () => { cursor.style.transform = 'translate(-50%, -50%) scale(2)'; ring.style.width = '56px'; ring.style.height = '56px'; });
-    el.addEventListener('mouseleave', () => { cursor.style.transform = 'translate(-50%, -50%) scale(1)'; ring.style.width = '36px'; ring.style.height = '36px'; });
-  });
   const reveals = document.querySelectorAll('.reveal');
   const observer = new IntersectionObserver((entries) => { entries.forEach((entry, i) => { if (entry.isIntersecting) { setTimeout(() => entry.target.classList.add('visible'), i * 80); } }); }, { threshold: 0.1 });
   reveals.forEach(el => observer.observe(el));
@@ -548,5 +537,6 @@ function initSidebar() {
 document.addEventListener('DOMContentLoaded', initSidebar);
 
 </script>
+<script src="common.js"></script>
 </body>
 </html>

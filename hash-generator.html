@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Hash Generator — JustTools</title>
+  <link rel="icon" type="image/svg+xml" href="favicon.svg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;700;800&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="common.css">
+  <style>
+    .drop-zone { border: 2px dashed var(--border); border-radius: 12px; padding: 40px; text-align: center; transition: all 0.2s; margin-bottom: 24px; cursor: pointer; background: var(--surface); }
+    .drop-zone:hover, .drop-zone.drag { border-color: var(--accent); background: var(--accent-dim); }
+    .drop-icon { font-size: 32px; margin-bottom: 8px; display: block; }
+    .drop-text { font-size: 13px; color: var(--muted); }
+    .drop-text span { color: var(--accent); text-decoration: underline; }
+    
+    .results-grid { display: grid; grid-template-columns: 1fr; gap: 12px; margin-top: 32px; }
+    .res-card { background: var(--surface2); border: 1px solid var(--border); border-radius: 10px; padding: 16px; position: relative; }
+    .res-label { font-size: 10px; text-transform: uppercase; letter-spacing: 0.1em; color: var(--muted); margin-bottom: 8px; font-weight: 700; }
+    .res-val { font-size: 13px; color: var(--text); word-break: break-all; font-family: 'DM Mono', monospace; line-height: 1.5; padding-right: 60px; }
+    .res-copy { position: absolute; right: 16px; top: 50%; transform: translateY(-50%); font-size: 11px; color: var(--accent); cursor: pointer; border: 1px solid var(--border); padding: 4px 8px; border-radius: 4px; transition: all 0.2s; }
+    .res-copy:hover { border-color: var(--accent); background: var(--accent-dim); }
+    
+    .input-mode { display: flex; gap: 8px; margin-bottom: 16px; }
+    .mode-btn { background: var(--surface); border: 1px solid var(--border); color: var(--muted); padding: 8px 16px; border-radius: 20px; font-size: 12px; cursor: pointer; transition: all 0.2s; }
+    .mode-btn.active { background: var(--accent); color: #000; border-color: var(--accent); font-weight: 700; }
+  </style>
+</head>
+<body>
+<nav>
+  <a href="index.html" class="nav-logo">Just<span>Tools</span></a>
+  <a href="index.html" class="nav-back">← All Tools</a>
+</nav>
+<div class="container">
+  <div class="tool-label">🔐 Security</div>
+  <h1 class="tool-title">Hash<br>Generator</h1>
+  <p class="tool-desc">Generate cryptographic hashes for text or files instantly. Everything stays in your browser — your data is never uploaded.</p>
+  
+  <div class="card">
+    <div class="input-mode">
+      <button class="mode-btn active" onclick="setMode('text', this)">Text Input</button>
+      <button class="mode-btn" onclick="setMode('file', this)">File Input</button>
+    </div>
+
+    <div id="text-input-wrap">
+      <label>Enter Text</label>
+      <textarea id="text-input" placeholder="Type or paste text here..." rows="4" oninput="generateHashes()"></textarea>
+    </div>
+
+    <div id="file-input-wrap" style="display:none">
+      <div class="drop-zone" id="drop-zone" onclick="document.getElementById('file-input').click()">
+        <span class="drop-icon">📄</span>
+        <div class="drop-text" id="drop-status">Drop a file here or <span>browse</span></div>
+        <input type="file" id="file-input" style="display:none" onchange="handleFile(this.files[0])">
+      </div>
+    </div>
+
+    <div class="results-grid" id="results">
+      <!-- Generated hashes will appear here -->
+    </div>
+  </div>
+</div>
+
+<script>
+  let currentMode = 'text';
+  let currentFileData = null;
+
+  function setMode(mode, btn) {
+    currentMode = mode;
+    document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById('text-input-wrap').style.display = mode === 'text' ? 'block' : 'none';
+    document.getElementById('file-input-wrap').style.display = mode === 'file' ? 'block' : 'none';
+    generateHashes();
+  }
+
+  const dz = document.getElementById('drop-zone');
+  dz.ondragover = e => { e.preventDefault(); dz.classList.add('drag'); };
+  dz.ondragleave = () => dz.classList.remove('drag');
+  dz.ondrop = e => {
+    e.preventDefault();
+    dz.classList.remove('drag');
+    handleFile(e.dataTransfer.files[0]);
+  };
+
+  async function handleFile(file) {
+    if (!file) return;
+    document.getElementById('drop-status').innerHTML = `File selected: <strong>${file.name}</strong>`;
+    currentFileData = await file.arrayBuffer();
+    generateHashes();
+  }
+
+  async function hash(algo, data) {
+    const buf = typeof data === 'string' ? new TextEncoder().encode(data) : data;
+    const hashBuf = await crypto.subtle.digest(algo, buf);
+    return Array.from(new Uint8Array(hashBuf)).map(b => b.toString(16).padStart(2, '0')).join('');
+  }
+
+  async function generateHashes() {
+    const input = currentMode === 'text' ? document.getElementById('text-input').value : currentFileData;
+    if (!input || (currentMode === 'file' && !currentFileData)) {
+      document.getElementById('results').innerHTML = '';
+      return;
+    }
+
+    const algos = ['SHA-256', 'SHA-512', 'SHA-1'];
+    const results = await Promise.all(algos.map(async a => ({ name: a, val: await hash(a, input) })));
+
+    document.getElementById('results').innerHTML = results.map(r => `
+      <div class="res-card">
+        <div class="res-label">${r.name}</div>
+        <div class="res-val">${r.val}</div>
+        <div class="res-copy" onclick="copy(this, '${r.val}')">Copy</div>
+      </div>
+    `).join('');
+  }
+
+  function copy(btn, text) {
+    navigator.clipboard.writeText(text);
+    const old = btn.textContent;
+    btn.textContent = 'Copied!';
+    btn.style.borderColor = 'var(--accent)';
+    setTimeout(() => { btn.textContent = old; btn.style.borderColor = ''; }, 1500);
+  }
+
+  // Pre-fill if needed
+  generateHashes();
+</script>
+<script src="common.js"></script>
+</body>
+</html>
