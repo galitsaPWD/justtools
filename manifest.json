@@ -1,0 +1,17 @@
+{
+  "name": "JustTools - Private & Free",
+  "short_name": "JustTools",
+  "description": "A curated suite of 42 micro-tools for the things you actually need to do — instantly, privately, and completely free.",
+  "start_url": "index.html",
+  "display": "standalone",
+  "background_color": "#050505",
+  "theme_color": "#e8ff47",
+  "icons": [
+    {
+      "src": "favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ]
+}

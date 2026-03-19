@@ -27,11 +27,30 @@
     .mode-btn.active { background: var(--accent); color: #000; border-color: var(--accent); font-weight: 700; }
   </style>
 </head>
-<body>
+<body class="sb-collapsed">
 <nav>
-  <a href="index.html" class="nav-logo">Just<span>Tools</span></a>
+  <div class="nav-left">
+    <button class="nav-toggle" onclick="toggleSidebar()" aria-label="Toggle Sidebar">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
+    </button>
+    <a href="index.html" class="nav-logo">Just<span>Tools</span></a>
+  </div>
   <a href="index.html" class="nav-back">← All Tools</a>
 </nav>
+
+<aside class="sidebar" id="sidebar">
+  <div class="sb-header">
+    <div class="sb-logo">Just<span>Tools</span></div>
+    <button class="sb-toggle" onclick="toggleSidebar()">✕</button>
+  </div>
+  <div class="sb-search-wrap">
+    <input type="text" class="sb-search-input" placeholder="Search tools..." oninput="sbSearch(this.value)">
+  </div>
+  <div class="sb-content" id="sb-content">
+    <!-- Tools injected via JS from common.js -->
+  </div>
+</aside>
+
 <div class="container">
   <div class="tool-label">🔐 Security</div>
   <h1 class="tool-title">Hash<br>Generator</h1>
@@ -62,6 +81,16 @@
   </div>
 </div>
 
+  <div class="privacy-badge">
+    <div>
+      <div class="status-dot"></div>
+      <span class="label">Privacy-First</span>
+    </div>
+    <span class="safe-tech">100% Client-Side • No Server Uploads</span>
+  </div>
+</div>
+
+<script src="common.js"></script>
 <script>
   let currentMode = 'text';
   let currentFileData = null;
@@ -127,6 +156,5 @@
   // Pre-fill if needed
   generateHashes();
 </script>
-<script src="common.js"></script>
 </body>
 </html>

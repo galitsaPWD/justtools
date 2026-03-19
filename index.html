@@ -3,206 +3,49 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>JustTools — No Signup. No BS.</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
+  <title>JustTools — No Signup. No BS.</title>
+  <link rel="manifest" href="manifest.json">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="common.css">
   <style>
-  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-  :root {
-    --bg: #0a0a0a; --surface: #111; --border: #1e1e1e; --border-bright: #2e2e2e;
-    --text: #f0f0f0; --muted: #666; --accent: #e8ff47; --accent-dim: rgba(232,255,71,0.12);
-    --accent-glow: rgba(232,255,71,0.25);
-    --sidebar-w: 240px; --sidebar-c: 0px;
-  }
-  html { scroll-behavior: smooth; }
-  body { background: var(--bg); color: var(--text); font-family: 'DM Mono', monospace; font-size: 15px; line-height: 1.6; overflow-x: hidden; padding-left: var(--sidebar-w); transition: padding-left 0.3s cubic-bezier(0.25, 1, 0.5, 1); }
-  body.sb-collapsed { padding-left: 0; }
-  body::before { content: ''; position: fixed; inset: 0; background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E"); pointer-events: none; z-index: 1000; opacity: 0.4; }
-  nav { position: fixed; top: 0; left: var(--sidebar-w); right: 0; display: flex; align-items: center; justify-content: space-between; padding: 20px 48px; border-bottom: 1px solid var(--border); background: rgba(10,10,10,0.85); backdrop-filter: blur(20px); z-index: 100; animation: fadeDown 0.8s ease both; transition: left 0.3s cubic-bezier(0.25, 1, 0.5, 1); }
-  body.sb-collapsed nav { left: 0; }
-  .nav-logo { font-family: 'Syne', sans-serif; font-weight: 800; font-size: 20px; letter-spacing: -0.5px; color: var(--text); }
-  .nav-logo span { color: var(--accent); }
-  .nav-left { display: flex; align-items: center; gap: 16px; flex: 1; }
-  .nav-links { display: flex; gap: 32px; list-style: none; flex: 1; justify-content: center; }
-  .nav-links a { color: var(--muted); text-decoration: none; font-size: 13px; letter-spacing: 0.04em; transition: color 0.2s; }
-  .nav-links a:hover { color: var(--text); }
-  .nav-right { flex: 1; display: flex; justify-content: flex-end; }
-  .nav-cta { background: var(--accent); color: #000; padding: 8px 20px; border-radius: 4px; font-family: 'Syne', sans-serif; font-weight: 700; font-size: 13px; text-decoration: none; transition: opacity 0.2s, transform 0.2s; }
-  .nav-cta:hover { opacity: 0.85; transform: translateY(-1px); }
-  .hero { min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 120px 24px 80px; position: relative; overflow: hidden; }
-  .hero-grid { position: absolute; inset: 0; background-image: linear-gradient(rgba(232,255,71,0.04) 1px, transparent 1px), linear-gradient(90deg, rgba(232,255,71,0.04) 1px, transparent 1px); background-size: 60px 60px; mask-image: radial-gradient(ellipse 80% 60% at 50% 50%, black 40%, transparent 100%); }
-  .hero-glow { position: absolute; width: 600px; height: 600px; background: radial-gradient(circle, rgba(232,255,71,0.08) 0%, transparent 70%); top: 50%; left: 50%; transform: translate(-50%, -60%); pointer-events: none; }
-  .badge { display: inline-flex; align-items: center; gap: 8px; border: 1px solid var(--border-bright); padding: 6px 14px; border-radius: 100px; font-size: 12px; color: var(--muted); margin-bottom: 40px; animation: fadeUp 0.8s 0.2s ease both; }
-  .badge-dot { width: 6px; height: 6px; background: var(--accent); border-radius: 50%; animation: pulse 2s infinite; }
-  @keyframes pulse { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.5; transform: scale(0.8); } }
-  h1 { font-family: 'Syne', sans-serif; font-weight: 800; font-size: clamp(52px, 9vw, 110px); line-height: 0.95; letter-spacing: -3px; margin-bottom: 28px; animation: fadeUp 0.8s 0.35s ease both; }
-  h1 .accent { color: var(--accent); }
-  h1 .strike { position: relative; color: var(--muted); }
-  h1 .strike::after { content: ''; position: absolute; left: 0; right: 0; top: 50%; height: 3px; background: #ff4747; transform: translateY(-50%) rotate(-2deg); }
-  .hero-sub { max-width: 520px; color: var(--muted); font-size: 16px; line-height: 1.7; margin-bottom: 48px; animation: fadeUp 0.8s 0.5s ease both; }
-  .hero-actions { display: flex; gap: 16px; flex-wrap: wrap; justify-content: center; animation: fadeUp 0.8s 0.65s ease both; }
-  .btn-primary { background: var(--accent); color: #000; padding: 14px 32px; border-radius: 6px; font-family: 'Syne', sans-serif; font-weight: 700; font-size: 15px; text-decoration: none; transition: transform 0.2s, box-shadow 0.2s; }
-  .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 32px var(--accent-glow); }
-  .btn-ghost { border: 1px solid var(--border-bright); color: var(--text); padding: 14px 32px; border-radius: 6px; font-family: 'Syne', sans-serif; font-weight: 600; font-size: 15px; text-decoration: none; transition: border-color 0.2s, background 0.2s; }
-  .btn-ghost:hover { border-color: var(--muted); background: var(--surface); }
-  .hero-stats { display: flex; gap: 48px; margin-top: 80px; animation: fadeUp 0.8s 0.8s ease both; }
-  .stat { text-align: center; }
-  .stat-num { font-family: 'Syne', sans-serif; font-weight: 800; font-size: 28px; color: var(--text); }
-  .stat-label { font-size: 12px; color: var(--muted); margin-top: 2px; }
-  .marquee-wrap { border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); padding: 16px 0; overflow: hidden; background: var(--surface); }
-  .marquee { display: flex; gap: 48px; animation: scroll 25s linear infinite; white-space: nowrap; }
-  .marquee-item { display: flex; align-items: center; gap: 12px; font-size: 13px; color: var(--muted); flex-shrink: 0; }
-  .marquee-item span { color: var(--accent); font-size: 16px; }
-  @keyframes scroll { from { transform: translateX(0); } to { transform: translateX(-50%); } }
-  section { padding: 100px 48px; max-width: 1200px; margin: 0 auto; }
-  .section-label { font-size: 11px; letter-spacing: 0.15em; text-transform: uppercase; color: var(--accent); margin-bottom: 16px; }
-  .section-title { font-family: 'Syne', sans-serif; font-weight: 800; font-size: clamp(32px, 4vw, 52px); letter-spacing: -1.5px; line-height: 1.1; margin-bottom: 16px; }
-  .section-sub { color: var(--muted); max-width: 480px; line-height: 1.7; }
-  .features-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1px; background: var(--border); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; margin-top: 64px; }
-  .feature-card { background: var(--bg); padding: 40px 36px; transition: background 0.3s; position: relative; overflow: hidden; }
-  .feature-card::before { content: ''; position: absolute; inset: 0; background: var(--accent-dim); opacity: 0; transition: opacity 0.3s; }
-  .feature-card:hover::before { opacity: 1; }
-  .feature-icon { font-size: 28px; margin-bottom: 20px; display: block; transition: transform 0.3s; }
-  .feature-card:hover .feature-icon { transform: scale(1.1); }
-  .feature-title { font-family: 'Syne', sans-serif; font-weight: 700; font-size: 18px; margin-bottom: 10px; }
-  .feature-desc { color: var(--muted); font-size: 14px; line-height: 1.7; }
-  .tools-section { padding: 100px 48px; max-width: 1200px; margin: 0 auto; }
-  .tools-header { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 32px; flex-wrap: wrap; gap: 16px; }
-  .cat-filter { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 32px; }
-  .cat-btn { padding: 6px 16px; border-radius: 100px; border: 1px solid var(--border); background: none; color: var(--muted); font-family: 'DM Mono', monospace; font-size: 12px; transition: all 0.2s; }
-  .cat-btn.active, .cat-btn:hover { background: var(--accent); color: #000; border-color: var(--accent); font-family: 'Syne', sans-serif; font-weight: 700; }
-  .tools-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 16px; }
-  .tool-card { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 28px 24px; transition: border-color 0.25s, transform 0.25s, background 0.25s; position: relative; overflow: hidden; text-decoration: none; display: block; }
-  .tool-card::after { content: '→'; position: absolute; right: 20px; top: 50%; transform: translateY(-50%) translateX(10px); opacity: 0; color: var(--accent); font-size: 18px; transition: opacity 0.2s, transform 0.2s; }
-  .tool-card:hover { border-color: var(--accent); transform: translateY(-3px); background: #141414; }
-  .tool-card:hover::after { opacity: 1; transform: translateY(-50%) translateX(0); }
-  .tool-card[data-hidden="true"] { display: none; }
-  .tool-icon { font-size: 24px; margin-bottom: 14px; display: block; }
-  .tool-name { font-family: 'Syne', sans-serif; font-weight: 700; font-size: 15px; color: var(--text); margin-bottom: 6px; }
-  .tool-desc { font-size: 12px; color: var(--muted); line-height: 1.5; }
-  .tool-tag { display: inline-block; background: var(--accent-dim); color: var(--accent); font-size: 10px; padding: 2px 8px; border-radius: 100px; margin-top: 12px; letter-spacing: 0.05em; }
-  .manifesto { padding: 100px 48px; border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); background: var(--surface); }
-  .manifesto-inner { max-width: 800px; margin: 0 auto; }
-  .manifesto blockquote { font-family: 'Syne', sans-serif; font-weight: 700; font-size: clamp(24px, 3.5vw, 42px); line-height: 1.25; letter-spacing: -1px; color: var(--text); }
-  .manifesto blockquote em { font-style: normal; color: var(--accent); }
-  .manifesto-caption { margin-top: 32px; color: var(--muted); font-size: 13px; border-left: 2px solid var(--accent); padding-left: 16px; }
-  .cta-section { padding: 120px 48px; text-align: center; max-width: 700px; margin: 0 auto; }
-  .cta-section h2 { font-family: 'Syne', sans-serif; font-weight: 800; font-size: clamp(40px, 6vw, 72px); letter-spacing: -2px; line-height: 1; margin-bottom: 24px; }
-  .cta-section p { color: var(--muted); margin-bottom: 48px; font-size: 16px; }
-  .cta-note { margin-top: 20px; font-size: 12px; color: var(--muted); }
-  footer { border-top: 1px solid var(--border); padding: 40px 48px; display: flex; justify-content: space-between; align-items: center; }
-  .footer-logo { font-family: 'Syne', sans-serif; font-weight: 800; font-size: 16px; }
-  .footer-logo span { color: var(--accent); }
-  footer p { color: var(--muted); font-size: 12px; }
-  /* Sidebar Styles */
-  .sidebar { position: fixed; top: 0; left: 0; bottom: 0; width: var(--sidebar-w); background: rgba(10,10,10,0.95); backdrop-filter: blur(20px); border-right: 1px solid var(--border); z-index: 800; transition: transform 0.3s cubic-bezier(0.25, 1, 0.5, 1); display: flex; flex-direction: column; transform: translateX(0); }
-  .sidebar.collapsed { transform: translateX(-100%); }
-  .nav-left { display: flex; align-items: center; gap: 16px; }
-  .nav-toggle { background: var(--surface); border: 1px solid var(--border); color: var(--text); display: flex; align-items: center; justify-content: center; width: 44px; height: 44px; border-radius: 12px; transition: opacity 0.3s, transform 0.3s, background 0.2s; cursor: pointer; opacity: 1; transform: scale(1); }
-  .nav-toggle:hover { border-color: var(--muted); background: #1a1a1a; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
-  body:not(.sb-collapsed) .nav-toggle { opacity: 0; pointer-events: none; transform: scale(0.8); }
-  .sb-header { height: 74px; display: flex; align-items: center; justify-content: space-between; padding: 0 20px; border-bottom: 1px solid var(--border); overflow: hidden; white-space: nowrap; flex-shrink: 0; }
-  .sb-logo { font-family: 'Syne', sans-serif; font-weight: 800; font-size: 18px; letter-spacing: -0.5px; opacity: 1; transition: opacity 0.2s; }
-  .sb-logo span { color: var(--accent); }
-  .sb-toggle { background: none; border: none; color: var(--text); font-size: 20px; font-family: monospace; display: flex; align-items: center; justify-content: center; width: 32px; height: 32px; transition: color 0.2s, background 0.2s; margin-left: auto; border-radius: 6px; }
-  .sb-toggle:hover { color: var(--accent); background: var(--surface); }
-  .sb-search-wrap { padding: 16px; border-bottom: 1px solid var(--border); transition: opacity 0.2s, padding 0.2s; overflow: hidden; flex-shrink: 0; }
-  .sb-search-input { width: 100%; background: var(--bg); border: 1px solid var(--border); border-radius: 6px; padding: 8px 12px; color: var(--text); font-family: 'DM Mono', monospace; font-size: 12px; outline: none; transition: border-color 0.2s; }
-  .sb-search-input:focus { border-color: var(--accent); }
-  .sb-content { flex: 1; overflow-y: auto; padding: 12px 0; scrollbar-width: none; }
-  .sb-content::-webkit-scrollbar { display: none; }
-  .sb-group { margin-bottom: 6px; transition: height 0.3s ease; overflow: hidden; }
-  .sb-group-title { font-size: 10px; text-transform: uppercase; letter-spacing: 0.15em; color: var(--muted); padding: 8px 20px; position: relative; user-select: none; white-space: nowrap; cursor: pointer !important; }
-  .sb-group-title::after { content: '▾'; position: absolute; right: 20px; font-size: 14px; top: 50%; transform: translateY(-50%); transition: transform 0.2s; }
-  .sb-group.closed .sb-group-title::after { transform: translateY(-50%) rotate(-90deg); }
-  .sb-group.closed .sb-item { display: none; }
-  .sb-item { display: flex; align-items: center; padding: 10px 20px; color: var(--text); text-decoration: none; font-size: 13px; transition: background 0.2s, color 0.2s; white-space: nowrap; overflow: hidden; }
-  .sb-item:hover { background: var(--surface); color: var(--accent); }
-  .sb-icon { font-size: 16px; min-width: 24px; text-align: center; margin-right: 12px; transition: margin 0.3s, font-size 0.3s; }
-  .sb-name { opacity: 1; transition: opacity 0.2s; font-family: 'Syne', sans-serif; font-weight: 600; display: block; overflow: hidden; text-overflow: ellipsis; }
-  .sb-item.hidden { display: none !important; }
-
-  @media (max-width: 768px) {
-    body { padding-left: 0 !important; }
-    nav { left: 0 !important; }
-    .sidebar { transform: translateX(-100%); width: var(--sidebar-w); }
-    .sidebar.mobile-open { transform: translateX(0); }
-  }
-
-  /* Custom scrollbar */
-  ::-webkit-scrollbar { width: 6px; }
-  ::-webkit-scrollbar-track { background: var(--bg); }
-  ::-webkit-scrollbar-thumb { background: var(--border-bright); border-radius: 100px; }
-  ::-webkit-scrollbar-thumb:hover { background: var(--muted); }
-  * { scrollbar-width: thin; scrollbar-color: var(--border-bright) var(--bg); }
-
-  /* Suggest modal */
-  .suggest-fab { position: fixed; bottom: 32px; right: 32px; z-index: 500; background: var(--accent); color: #000; border: none; padding: 14px 22px; border-radius: 100px; font-family: 'Syne', sans-serif; font-weight: 800; font-size: 13px; display: flex; align-items: center; gap: 8px; box-shadow: 0 8px 32px rgba(232,255,71,0.3); transition: transform 0.2s, box-shadow 0.2s; }
-  .suggest-fab:hover { transform: translateY(-3px) scale(1.04); box-shadow: 0 12px 40px rgba(232,255,71,0.45); }
-  .suggest-fab .fab-icon { font-size: 16px; }
-  .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.7); backdrop-filter: blur(8px); z-index: 600; display: flex; align-items: center; justify-content: center; padding: 24px; opacity: 0; pointer-events: none; transition: opacity 0.25s; }
-  .modal-overlay.open { opacity: 1; pointer-events: all; }
-  .modal { background: var(--surface); border: 1px solid var(--border-bright); border-radius: 16px; padding: 40px; max-width: 500px; width: 100%; transform: translateY(20px) scale(0.97); transition: transform 0.25s; position: relative; }
-  .modal-overlay.open .modal { transform: translateY(0) scale(1); }
-  .modal-close { position: absolute; top: 16px; right: 16px; background: none; border: 1px solid var(--border); color: var(--muted); width: 32px; height: 32px; border-radius: 6px; font-size: 16px; display: flex; align-items: center; justify-content: center; transition: all 0.2s; }
-  .modal-close:hover { border-color: var(--border-bright); color: var(--text); }
-  .modal-label { font-size: 11px; letter-spacing: 0.15em; text-transform: uppercase; color: var(--accent); margin-bottom: 10px; }
-  .modal-title { font-family: 'Syne', sans-serif; font-weight: 800; font-size: 28px; letter-spacing: -1px; margin-bottom: 8px; }
-  .modal-desc { font-size: 13px; color: var(--muted); margin-bottom: 28px; line-height: 1.6; }
-  .modal-input { width: 100%; background: var(--bg); border: 1px solid var(--border); border-radius: 10px; padding: 14px 18px; color: var(--text); font-family: 'DM Mono', monospace; font-size: 14px; outline: none; transition: border-color 0.2s; margin-bottom: 12px; }
-  .modal-input:focus { border-color: var(--accent); }
-  .modal-textarea { resize: vertical; min-height: 100px; line-height: 1.6; }
-  .modal-row { display: flex; gap: 10px; }
-  .modal-submit { flex: 1; background: var(--accent); color: #000; border: none; padding: 13px; border-radius: 10px; font-family: 'Syne', sans-serif; font-weight: 800; font-size: 14px; transition: opacity 0.2s, transform 0.2s; }
-  .modal-submit:hover { opacity: 0.85; transform: translateY(-1px); }
-  .modal-cancel { background: none; border: 1px solid var(--border); color: var(--muted); padding: 13px 20px; border-radius: 10px; font-family: 'DM Mono', monospace; font-size: 13px; transition: all 0.2s; }
-  .modal-cancel:hover { color: var(--text); border-color: var(--border-bright); }
-  .modal-success { text-align: center; padding: 16px 0; display: none; }
-  .modal-success .success-icon { font-size: 48px; margin-bottom: 16px; }
-  .modal-success h3 { font-family: 'Syne', sans-serif; font-weight: 800; font-size: 22px; margin-bottom: 8px; }
-  .modal-success p { color: var(--muted); font-size: 13px; }
-  @keyframes fadeUp { from { opacity: 0; transform: translateY(24px); } to { opacity: 1; transform: translateY(0); } }
-  @keyframes fadeDown { from { opacity: 0; transform: translateY(-16px); } to { opacity: 1; transform: translateY(0); } }
-  .reveal { opacity: 0; transform: translateY(30px); transition: opacity 0.7s ease, transform 0.7s ease; }
-  .reveal.visible { opacity: 1; transform: translateY(0); }
-  @media (max-width: 768px) { nav { padding: 16px 20px; } .nav-links { display: none; } section, .tools-section { padding: 60px 20px; } .features-grid { grid-template-columns: 1fr; } .hero-stats { gap: 24px; } footer { flex-direction: column; gap: 12px; text-align: center; } .tools-header { flex-direction: column; align-items: flex-start; } .manifesto { padding: 60px 20px; } .cta-section { padding: 80px 20px; } }
-</style>
+    /* Final local overrides for index-specific layout */
+    .hero { min-height: 100vh; position: relative; }
+    .marquee-wrap { border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); padding: 16px 0; overflow: hidden; background: var(--surface); }
+    .marquee { display: flex; gap: 48px; animation: scroll 25s linear infinite; white-space: nowrap; }
+    @keyframes scroll { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+    .manifesto { padding: 100px 48px; border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); background: var(--surface); }
+  </style>
 <link rel="icon" type="image/x-icon" href="favicon.ico">
 <link rel="icon" type="image/svg+xml" href="favicon.svg">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 </head>
-<body>
-<!-- Sidebar -->
-<aside class="sidebar" id="sidebar">
-  <div class="sb-header">
-    <div class="sb-logo">Just<span>Tools</span></div>
-    <button class="sb-toggle" id="sb-toggle" onclick="toggleSidebar()">✕</button>
-  </div>
-  <div class="sb-search-wrap">
-    <input type="text" class="sb-search-input" placeholder="Search tools..." oninput="sbSearch(this.value)">
-  </div>
-  <div class="sb-content" id="sb-content">
-    <!-- Tools injected via JS -->
-  </div>
-</aside>
+<body class="sb-collapsed">
+<div id="cursor-dot"></div>
+<div id="cursor-ring"></div>
 
 <nav>
   <div class="nav-left">
     <button class="nav-toggle" onclick="toggleSidebar()" aria-label="Toggle Sidebar">
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
     </button>
-    <div class="nav-logo">Just<span>Tools</span></div>
+    <a href="index.html" class="nav-logo">Just<span>Tools</span></a>
   </div>
-  <ul class="nav-links">
-    <li><a href="#tools">Tools</a></li>
-    <li><a href="#why">Why</a></li>
-    <li><a href="#about">About</a></li>
-  </ul>
-  <div class="nav-right">
-    <a href="#tools" class="nav-cta">Open a Tool</a>
-  </div>
+  <a href="#tools" class="nav-cta">Open a Tool</a>
 </nav>
+
+<aside class="sidebar" id="sidebar">
+  <div class="sb-header">
+    <div class="sb-logo">Just<span>Tools</span></div>
+    <button class="sb-toggle" onclick="toggleSidebar()">✕</button>
+  </div>
+  <div class="sb-search-wrap">
+    <input type="text" class="sb-search-input" placeholder="Search 42 tools..." oninput="sbSearch(this.value)">
+  </div>
+  <div class="sb-content" id="sb-content">
+    <!-- Tools dynamically injected here -->
+  </div>
+</aside>
 <section class="hero">
   <div class="hero-grid"></div>
   <div class="hero-glow"></div>
@@ -314,22 +157,25 @@
     <a href="qr-generator.html" class="tool-card" data-cat="Utilities"><span class="tool-icon">⬛</span><div class="tool-name">QR Generator</div><div class="tool-desc">Generate QR codes for any URL, text or contact info</div><span class="tool-tag">Data</span></a>
     <a href="gradient-generator.html" class="tool-card" data-cat="Design"><span class="tool-icon">🌈</span><div class="tool-name">Gradient Generator</div><div class="tool-desc">Build CSS gradients visually — linear, radial or conic</div><span class="tool-tag">Design</span></a>
     <a href="box-shadow-generator.html" class="tool-card" data-cat="Design"><span class="tool-icon">🪞</span><div class="tool-name">Box Shadow</div><div class="tool-desc">Design multi-layer CSS box shadows with live preview</div><span class="tool-tag">Design</span></a>
-    <a href="border-radius-generator.html" class="tool-card" data-cat="Design"><span class="tool-icon">⬛</span><div class="tool-name">Border Radius</div><div class="tool-desc">Create custom rounded corners and organic blob shapes</div><span class="tool-tag">Design</span></a>
+    <a href="border-radius-generator.html" class="tool-card" data-cat="Design"><span class="tool-icon">⬛</span><div class="tool-name">Border Radius</div><div class="tool-desc">Create custom rounded corners and organic prototype shapes</div><span class="tool-tag">Design</span></a>
     <a href="typography-tester.html" class="tool-card" data-cat="Design"><span class="tool-icon">🔤</span><div class="tool-name">Typography Tester</div><div class="tool-desc">Preview any Google Font with live size, weight and spacing</div><span class="tool-tag">Design</span></a>
     <a href="chart-builder.html" class="tool-card" data-cat="Data"><span class="tool-icon">📈</span><div class="tool-name">Chart Builder</div><div class="tool-desc">Turn numbers into bar, line, pie and donut charts instantly</div><span class="tool-tag">Data</span></a>
     <a href="number-stats.html" class="tool-card" data-cat="Data"><span class="tool-icon">🔢</span><div class="tool-name">Number Stats</div><div class="tool-desc">Mean, median, mode, std dev and distribution from any list</div><span class="tool-tag">Data</span></a>
     <a href="regex-tester.html" class="tool-card" data-cat="Data"><span class="tool-icon">🔍</span><div class="tool-name">Regex Tester</div><div class="tool-desc">Test regular expressions with live match highlighting</div><span class="tool-tag">Data</span></a>
     <a href="data-converter.html" class="tool-card" data-cat="Data"><span class="tool-icon">🔄</span><div class="tool-name">Data Converter</div><div class="tool-desc">Convert between JSON, CSV, YAML and XML instantly</div><span class="tool-tag">Data</span></a>
-    <a href="timestamp-converter.html" class="tool-card" data-cat="Data"><span class="tool-icon">🕐</span><div class="tool-name">Timestamp Converter</div><div class="tool-desc">Convert Unix timestamps to readable dates and back</div><span class="tool-tag">Data</span></div></a>
+    <a href="timestamp-converter.html" class="tool-card" data-cat="Data"><span class="tool-icon">🕐</span><div class="tool-name">Timestamp Converter</div><div class="tool-desc">Convert Unix timestamps to readable dates and back</div><span class="tool-tag">Data</span></a>
   </div>
 </div>
-</div>
-</div>
+
 <div class="manifesto" id="about">
   <div class="manifesto-inner">
-    <p class="section-label reveal">Our Take</p>
-    <blockquote class="reveal">"The web got complicated. Simple tools started asking for your email, your phone number, your <em>soul</em>. We built JustTools because sometimes you just need to merge two PDFs and get on with your life."</blockquote>
-    <p class="manifesto-caption reveal">No VC funding. No growth hacking. No "engagement metrics."<br>Just useful tools, built by people who got tired of the alternative.</p>
+    <p class="section-label reveal">Meet the Creator</p>
+    <blockquote class="reveal">"I got tired of online tools tracking my data, demanding my email, and putting basic features behind paywalls. I built JustTools because sometimes you just need to merge two PDFs and get on with your life."</blockquote>
+    <p class="manifesto-caption reveal">
+      No VC funding. No growth hacking. No "engagement metrics."<br>
+      Just useful, private tools. Built entirely in your browser.<br><br>
+      <span style="color:var(--text); font-family:'Syne', sans-serif; font-weight:700; font-size:18px;">— Wana</span>
+    </p>
   </div>
 </div>
 <div class="cta-section">
@@ -346,7 +192,7 @@
 <!-- Suggest Modal -->
 <div class="modal-overlay" id="modal-overlay" onclick="handleOverlayClick(event)">
   <div class="modal">
-    <button class="modal-close" onclick="closeModal()">×</button>
+    <button class="modal-close" onclick="closeModal()">✕</button>
 
     <div id="modal-form">
       <div class="modal-label">Community</div>
@@ -378,9 +224,6 @@
   <p style="color: var(--muted); font-size:12px;">© 2025 JustTools. Free forever.</p>
 </footer>
 <script>
-  const reveals = document.querySelectorAll('.reveal');
-  const observer = new IntersectionObserver((entries) => { entries.forEach((entry, i) => { if (entry.isIntersecting) { setTimeout(() => entry.target.classList.add('visible'), i * 80); } }); }, { threshold: 0.1 });
-  reveals.forEach(el => observer.observe(el));
   document.querySelectorAll('a[href^="#"]').forEach(a => { a.addEventListener('click', e => { e.preventDefault(); const target = document.querySelector(a.getAttribute('href')); if (target) target.scrollIntoView({ behavior: 'smooth' }); }); });
   function filterCat(cat, btn) {
     document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active'));
@@ -445,28 +288,6 @@
   // Close on Escape key
   document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
 
-function toggleSidebar() {
-  const sb = document.getElementById('sidebar');
-  sb.classList.toggle('collapsed');
-  document.body.classList.toggle('sb-collapsed');
-  localStorage.setItem('jt-sidebar', sb.classList.contains('collapsed') ? '0' : '1');
-}
-function toggleGroup(btn) {
-  btn.closest('.sb-group').classList.toggle('closed');
-}
-function sbSearch(q) {
-  const lq = q.toLowerCase();
-  document.querySelectorAll('.sb-item').forEach(el => {
-    const match = el.dataset.name.toLowerCase().includes(lq);
-    el.classList.toggle('hidden', !match);
-  });
-  // Show/hide groups based on visible items
-  document.querySelectorAll('.sb-group').forEach(g => {
-    const visible = [...g.querySelectorAll('.sb-item')].some(i => !i.classList.contains('hidden'));
-    g.style.display = visible ? '' : 'none';
-    if (q && visible) g.classList.remove('closed');
-  });
-}
 
 // Init Sidebar Content dynamically
 function initSidebar() {
@@ -534,7 +355,25 @@ function initSidebar() {
   }
 })();
 
-document.addEventListener('DOMContentLoaded', initSidebar);
+document.addEventListener('DOMContentLoaded', () => {
+  initSidebar();
+  
+  // Suggest FAB fade on footer
+  const footerEl = document.querySelector('footer');
+  const fabEl = document.querySelector('.suggest-fab');
+  if (footerEl && fabEl) {
+    const fabObserver = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          fabEl.classList.add('hidden');
+        } else {
+          fabEl.classList.remove('hidden');
+        }
+      });
+    }, { threshold: 0 });
+    fabObserver.observe(footerEl);
+  }
+});
 
 </script>
 <script src="common.js"></script>
